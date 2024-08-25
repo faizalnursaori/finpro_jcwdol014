@@ -10,16 +10,17 @@
     "test": "npx cypress verify & cypress run --component"
   },
   "dependencies": {
+    "cross-env": "^7.0.3",
     "next": "14.0.4",
     "react": "^18",
-    "react-dom": "^18",
-    "cross-env": "^7.0.3"
+    "react-dom": "^18"
   },
   "devDependencies": {
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "cypress": "^13.6.2",
+    "daisyui": "^4.12.10",
     "eslint": "^8",
     "eslint-config-next": "14.0.4",
     "typescript": "^5"
