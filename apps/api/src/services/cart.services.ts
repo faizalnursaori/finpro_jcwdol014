@@ -1,18 +1,12 @@
-import prisma from '@/prisma';
+import { CartModel } from '../models/cart.model';
 import { calculateCartTotal, validateCartItem } from '@/utils/cart.utils';
 
 export const createNewCart = async (userId: number) => {
-  return prisma.cart.create({
-    data: { userId },
-    include: { items: true },
-  });
+  return CartModel.create(userId);
 };
 
 export const fetchCart = async (cartId: number) => {
-  return prisma.cart.findUnique({
-    where: { id: cartId },
-    include: { items: { include: { product: true } } },
-  });
+  return CartModel.findById(cartId);
 };
 
 export const addItem = async (
@@ -25,38 +19,21 @@ export const addItem = async (
     throw new Error('Invalid product or insufficient stock');
   }
 
-  const newCartItem = await prisma.cartItem.create({
-    data: {
-      quantity,
-      productId,
-      cartId,
-    },
-    include: { product: true },
-  });
-
+  const newCartItem = await CartModel.addItem(cartId, productId, quantity);
   const updatedCartTotal = await calculateCartTotal(cartId);
 
   return { cartItem: newCartItem, cartTotal: updatedCartTotal };
 };
 
 export const updateItem = async (itemId: number, newQuantity: number) => {
-  const updatedCartItem = await prisma.cartItem.update({
-    where: { id: itemId },
-    data: { quantity: newQuantity },
-    include: { product: true, cart: true },
-  });
-
+  const updatedCartItem = await CartModel.updateItem(itemId, newQuantity);
   const updatedCartTotal = await calculateCartTotal(updatedCartItem.cartId);
 
   return { updatedItem: updatedCartItem, cartTotal: updatedCartTotal };
 };
 
 export const removeItem = async (itemId: number) => {
-  const removedCartItem = await prisma.cartItem.delete({
-    where: { id: itemId },
-    include: { cart: true },
-  });
-
+  const removedCartItem = await CartModel.removeItem(itemId);
   const updatedCartTotal = await calculateCartTotal(removedCartItem.cartId);
 
   return { cartTotal: updatedCartTotal };
