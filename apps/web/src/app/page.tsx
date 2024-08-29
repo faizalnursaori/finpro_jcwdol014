@@ -1,95 +1,54 @@
-import Image from 'next/image'
-import styles from './page.module.css'
-
+"use client";
+import ListCategories from "@/components/ListCategories";
+import LandingProducts from "@/components/LandingProducts";
+import { useState, useEffect } from "react";
 export default function Home() {
+  //getting lan and long, still need the method to get the closest store
+  const [lan, setLan] = useState("");
+  const [lon, setLon] = useState("");
+
+  const success = (res: any) => {
+    console.log(res);
+
+    setLan(res.coords.latitude);
+    setLon(res.coords.longitude);
+  };
+
+  const fail = (res: any) => {
+    console.log(res);
+  };
+
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(success, fail);
+  }, []);
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+    <main>
+      <div className="hero max-w-[80%] bg-pinky m-auto p-5 rounded-lg">
+        <div className="hero-content flex-col lg:flex-row-reverse">
+          <div className="">
+            <p className="text-xs font-bold">Welcome to Hemart</p>
+            <h1 className="text-3xl font-bold">
+              Your One-Stop Shop for Fresh & Affordable Groceries
+            </h1>
+            <p className="py-6">
+              At Hemart, we believe that everyone deserves access to fresh,
+              high-quality groceries at prices that wont break the bank. Explore
+              our wide selection of fresh produce, pantry staples, and household
+              essentials. Shop smart, live healthy—only at Hemart.
+            </p>
+            <button className="btn btn-primary">Start Shopping!</button>
+          </div>
         </div>
       </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
+      <section>
+        <ListCategories/>
+      </section>
+      <section>
+        <LandingProducts/>
+        <LandingProducts/>
+        <LandingProducts/>
+      </section>
     </main>
-  )
+  );
 }
