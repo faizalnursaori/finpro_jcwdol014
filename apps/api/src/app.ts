@@ -10,6 +10,7 @@ import express, {
 import cors from 'cors';
 import { PORT } from './config';
 import { SampleRouter } from './routers/sample.router';
+import { adminRouter } from './routers/admin.router';
 
 export default class App {
   private app: Express;
@@ -58,6 +59,7 @@ export default class App {
     });
 
     this.app.use('/api/samples', sampleRouter.getRouter());
+    this.app.use('/api/admin/user', adminRouter);
   }
 
   public start(): void {
