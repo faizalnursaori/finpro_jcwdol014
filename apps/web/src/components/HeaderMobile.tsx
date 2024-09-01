@@ -1,9 +1,7 @@
 'use client'
-import Link from "next/navigation";
-import { ShoppingCart, Search, Key, Menu } from "lucide-react";
 import Image from "next/image";
+import { ShoppingCart, Search } from "lucide-react";
 import { useState } from "react";
-import HamburgerMenu from "./Sidebar";
 import Sidebar from "./Sidebar";
 
 export default function HeaderMobile(){
@@ -20,7 +18,7 @@ export default function HeaderMobile(){
                 <Sidebar/>
             </div>
             <div className="navbar-center">
-                <img className="w-20" src="/logo-revisi.png" alt="Hemart" />
+                <Image className="w-20" src="/logo-revisi.png" alt="Hemart" width={150} height={150} />
             </div>
             <div className="navbar-end gap-3">
             <Search/>

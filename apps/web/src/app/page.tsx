@@ -1,26 +1,45 @@
-"use client";
-import ListCategories from "@/components/ListCategories";
-import LandingProducts from "@/components/LandingProducts";
-import { useState, useEffect } from "react";
+'use client';
+import axios from 'axios';
+import { getUserCurrentLocation } from '@/utils/getUserCurrentLocation';
+import { getClosestWarehouse } from '@/api/warehouse';
+import ListCategories from '@/components/ListCategories';
+import LandingProducts from '@/components/LandingProducts';
+import { useState, useEffect } from 'react';
+
 export default function Home() {
-  //getting lan and long, still need the method to get the closest store
-  const [lan, setLan] = useState("");
-  const [lon, setLon] = useState("");
+  const [userLoc, setUserLoc] = useState<{ lon: number; lat: number }>();
+  const [closestWarehouseId, setClosestWarehouseId] = useState<number>();
+  const [products, setProducts] = useState();
+  const base_api = 'http://localhost:8000/api'
 
-  const success = (res: any) => {
-    console.log(res);
-
-    setLan(res.coords.latitude);
-    setLon(res.coords.longitude);
+  const getWarehouseId = async () => {
+    const data = await getClosestWarehouse();
+    setClosestWarehouseId(data);
+    
   };
 
-  const fail = (res: any) => {
-    console.log(res);
-  };
+  const getProducts  = async (id: number | undefined) =>{
+    const productData: any = []
+    const res = await axios.get(`${base_api}/products`)
+    const filteredProducts = res.data.data.filter((product: {warehouseId : number}) => {
+      return product.warehouseId == id
+    })
+
+    filteredProducts.forEach((data:{product:any}) => {
+      productData.push(data.product)
+    })
+
+    setProducts(productData);
+    
+    
+  } 
 
   useEffect(() => {
-    navigator.geolocation.getCurrentPosition(success, fail);
-  }, []);
+    //getting user's lat and long
+    setUserLoc(getUserCurrentLocation());
+    getWarehouseId();
+    getProducts(closestWarehouseId)
+  }, [closestWarehouseId]);
 
   return (
     <main>
@@ -42,12 +61,12 @@ export default function Home() {
         </div>
       </div>
       <section>
-        <ListCategories/>
+        <ListCategories />
       </section>
       <section>
-        <LandingProducts/>
-        <LandingProducts/>
-        <LandingProducts/>
+        <LandingProducts catHeader = {'New products'} products={products}/>
+        <LandingProducts  catHeader={'Category names here'} products={products}/>
+        <LandingProducts catHeader={'Category names here'} products={products}/>
       </section>
     </main>
   );

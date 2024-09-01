@@ -1,4 +1,4 @@
-import Link from "next/navigation";
+import Link from "next/link";
 import { ShoppingCart, Search, Key } from "lucide-react";
 import Image from "next/image";
 
@@ -35,25 +35,25 @@ export default function Header() {
           </button>
         </div>
         <div className="navbar-end gap-2">
-          <a className="btn btn-ghost" href="/login">
+          <Link className="btn btn-ghost" href="/login">
             Log in
-          </a>
-          <a className="btn btn-outline btn-success" href="/register">
+          </Link>
+          <Link className="btn btn-outline btn-success" href="/register">
             Sign in
-          </a>
+          </Link>
         </div>
       </nav>
       <div>
         <div className="flex justify-between items-center gap-5 pt-2">
           {categories.map((category, index) => {
             return (
-              <a
+              <Link
                 className="btn btn-ghost hover:btn-link"
                 href={`/category/${category}`}
                 key={index}
               >
                 {category}
-              </a>
+              </Link>
             );
           })}
         </div>

@@ -1,4 +1,5 @@
 import { Facebook, Instagram, Twitter } from 'lucide-react';
+import Link from 'next/link';
 
 export default function Footer() {
   const categories = [
@@ -8,7 +9,6 @@ export default function Footer() {
     'Beverages',
     'Snacks & Biscuits',
     'Frozen',
-    'Dairy',
   ];
 
   return (
@@ -19,22 +19,22 @@ export default function Footer() {
           <div className="flex flex-col gap-6">
             <p className="font-bold text-xs">ABOUT US, HELP & FAQ</p>
             <div className="flex flex-col gap-2 text-sm">
-              <a className="hover:underline" href="/about">
+              <Link className="hover:underline" href="/about">
                 About Us
-              </a>
-              <a className="hover:underline" href="/faq">
+              </Link>
+              <Link className="hover:underline" href="/faq">
                 Frequently Asked Question
-              </a>
-              <a className="hover:underline" href="/profile">
+              </Link>
+              <Link className="hover:underline" href="/profile">
                 My Profile
-              </a>
-              <a className="hover:underline" href="/policie/privacy">
+              </Link>
+              <Link className="hover:underline" href="/policie/privacy">
                 Privacy Policy
-              </a>
-              <a className="hover:underline" href="/policie/term">
+              </Link>
+              <Link className="hover:underline" href="/policie/term">
                 Term & Conditions
-              </a>
-              <a className="hover:underline" href=""></a>
+              </Link>
+              <Link className="hover:underline" href=""></Link>
             </div>
           </div>
           <div className="flex flex-col gap-4">
@@ -43,13 +43,13 @@ export default function Footer() {
               <p></p>
               {categories.map((category, index) => {
                 return (
-                  <a
+                  <Link
                     className="hover:underline"
                     href={`/category/${category}`}
                     key={index}
                   >
                     {category}
-                  </a>
+                  </Link>
                 );
               })}
             </div>
@@ -75,15 +75,15 @@ export default function Footer() {
             <div>
               <p className="font-bold text-xs">FOLLOW US ON SOCIAL MEDIA</p>
               <div className="flex gap-2 py-2">
-                <a className="btn btn-ghost" href="/">
+                <Link className="btn btn-ghost" href="/">
                   <Facebook />
-                </a>
-                <a className="btn btn-ghost" href="/">
+                </Link>
+                <Link className="btn btn-ghost" href="/">
                   <Instagram />
-                </a>
-                <a className="btn btn-ghost" href="/">
+                </Link>
+                <Link className="btn btn-ghost" href="/">
                   <Twitter />
-                </a>
+                </Link>
               </div>
             </div>
           </div>
