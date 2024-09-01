@@ -9,6 +9,8 @@ import express, {
 import cors from 'cors';
 import { PORT } from './config';
 import cartRouter from './routers/cart.router';
+import productRouter from './routers/product.routers';
+import authRouter from './routers/auth.router';
 
 export default class App {
   private app: Express;
@@ -55,6 +57,8 @@ export default class App {
     });
 
     this.app.use('/api/carts', cartRouter);
+    this.app.use('/api/products', productRouter);
+    this.app.use('/api/auth', authRouter);
   }
 
   public start(): void {

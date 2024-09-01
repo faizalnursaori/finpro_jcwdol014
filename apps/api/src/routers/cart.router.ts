@@ -5,15 +5,22 @@ import {
   addItemToCart,
   removeCartItem,
   updateCartItem,
+  handleInvalidCart,
 } from '@/controllers/cart.controller';
+import { authenticateToken } from '@/middleware/auth.middleware';
 
 const router = express.Router();
 
-// Create a new cart
-router.post('/', createCart);
+// Apply verifyToken middleware to all routes
+// router.use(verifyToken);
 
-// Get a cart by ID
-router.get('/:id', getCart);
+router.use(authenticateToken);
+
+// Get or create a cart for the user
+router.get('/', getCart);
+
+// Handle invalid cart
+router.post('/invalidate', handleInvalidCart);
 
 // Add an item to a cart
 router.post('/:id/items', addItemToCart);
