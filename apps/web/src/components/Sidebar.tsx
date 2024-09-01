@@ -1,5 +1,5 @@
 import { Menu, X } from "lucide-react";
-import Link from "next/navigation";
+import Link from "next/link";
 
 export default function Sidebar() {
   const categories = [
@@ -42,14 +42,14 @@ export default function Sidebar() {
           {categories.map((category, index) => {
             return (
               <li key={index}>
-                <a href="/">{category}</a>
+                <Link href={`/categories/${category}`}>{category}</Link>
               </li>
             );
           })}
           <div className="divider"></div>
-          <li><a href="/">About us</a></li>
-          <li><a href="/">Frequenly Asked Question</a></li>
-          <li><a href="/">Shipping Information</a></li>
+          <li><Link href="/about">About us</Link></li>
+          <li><Link href="/faq">Frequenly Asked Question</Link></li>
+          <li><Link href="/shiiping">Shipping Information</Link></li>
           <div className="divider"></div>
           <button className="btn mb-2 btn-ghost">Log In</button>
           <button className="btn btn-outline btn-success">Sign In</button>

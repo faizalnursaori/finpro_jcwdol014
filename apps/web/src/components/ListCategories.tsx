@@ -1,3 +1,6 @@
+import Link from "next/link";
+import Image from "next/image";
+
 const categoriesData = [
     {
       category: "Rice & Flour",
@@ -5,7 +8,7 @@ const categoriesData = [
     },
     {
       category: "Fruit & Vegetables",
-      path: "/fruitsandvegetavles.jpg",
+      path: "/fruitsandvegetables.jpg",
     },
     {
       category: "Instan Foods",
@@ -35,18 +38,20 @@ const categoriesData = [
           return (
             <div
               key={index}
-              className="card card-compact bg-pinky shadow-xl "
+              className="card card-compact bg-pinky shadow-xl justify-center"
             >
-              <a className="card-body" href="/">
+              <Link className="card-body" href={`/categories/${item.category}`}>
                 <h2 className="card-title">{item.category}</h2>
                 <figure>
-                  <img
-                    className="w-[110px]"
+                  <Image
+                    className="max-w-[90px]"
                     src={`${item.path}`}
                     alt={item.category}
+                    width={150}
+                    height={150}
                   />
                 </figure>
-              </a>
+              </Link>
             </div>
           );
         })}

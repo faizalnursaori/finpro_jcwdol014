@@ -1,10 +1,12 @@
-import App from './app';
+import app from './app';
+import dotenv from 'dotenv';
+import { PORT } from './config';
 
-const main = () => {
-  // init db here
+dotenv.config();
 
-  const app = new App();
-  app.start();
-};
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
 
-main();
+
+

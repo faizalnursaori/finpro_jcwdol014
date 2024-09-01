@@ -1,4 +1,5 @@
 import { Facebook, Instagram, Twitter } from "lucide-react";
+import Link from "next/link";
 
 export default function FooterMobile() {
   const categories = [
@@ -17,22 +18,22 @@ export default function FooterMobile() {
         <input type="checkbox" name="my-accordion-2" />
         <div className="collapse-title font-medium">ABOUT US, HELP & FAQ</div>
         <div className="collapse-content flex flex-col ml-2">
-          <a className="hover:underline" href="/about">
+          <Link className="hover:underline" href="/about">
             About Us
-          </a>
+          </Link>
           <a className="hover:underline" href="/faq">
             Frequently Asked Question
           </a>
-          <a className="hover:underline" href="/profile">
+          <Link className="hover:underline" href="/profile">
             My Profile
-          </a>
-          <a className="hover:underline" href="/policie/privacy">
+          </Link>
+          <Link className="hover:underline" href="/policie/privacy">
             Privacy Policy
-          </a>
-          <a className="hover:underline" href="/policie/term">
+          </Link>
+          <Link className="hover:underline" href="/policie/term">
             Term & Conditions
-          </a>
-          <a className="hover:underline" href=""></a>
+          </Link>
+          <Link className="hover:underline" href=""></Link>
         </div>
       </div>
       <div className="collapse collapse-arrow ">
@@ -41,13 +42,13 @@ export default function FooterMobile() {
         <div className="collapse-content flex flex-col ml-2">
           {categories.map((category, index) => {
             return (
-              <a
+              <Link
                 className="hover:underline"
                 href={`/category/${category}`}
                 key={index}
               >
                 {category}
-              </a>
+              </Link>
             );
           })}
         </div>
@@ -75,15 +76,15 @@ export default function FooterMobile() {
       <div>
         <p className="font-medium ml-4 mt-4">FOLLOW US ON SOCIAL MEDIA</p>
         <div className="flex gap-2 py-2 ml-4">
-          <a className="btn btn-ghost" href="/">
+          <Link className="btn btn-ghost" href="/">
             <Facebook />
-          </a>
-          <a className="btn btn-ghost" href="/">
+          </Link>
+          <Link className="btn btn-ghost" href="/">
             <Instagram />
-          </a>
-          <a className="btn btn-ghost" href="/">
+          </Link>
+          <Link className="btn btn-ghost" href="/">
             <Twitter />
-          </a>
+          </Link>
         </div>
       </div>
     </div>
