@@ -1,125 +1,80 @@
 'use client';
-
+import axios from 'axios';
+import { getUserCurrentLocation } from '@/utils/getUserCurrentLocation';
+import { getClosestWarehouse } from '@/api/warehouse';
+import ListCategories from '@/components/ListCategories';
+import LandingProducts from '@/components/LandingProducts';
 import { useState, useEffect } from 'react';
-// import { useCart } from '@/lib/CartContext';
 import { useCart } from '../context/CartContext';
 import { useRouter } from 'next/navigation';
+import { Product } from '@/types/product';
 
-interface Warehouse {
-  id: number;
-  name: string;
-}
-
-interface ProductStock {
-  id: number;
-  stock: number;
-  warehouse: Warehouse;
-}
-
-interface Product {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  productStocks: ProductStock[];
-}
-
-export default function ProductsPage() {
+export default function Home() {
+  const [userLoc, setUserLoc] = useState<{ lon: number; lat: number }>();
+  const [closestWarehouseId, setClosestWarehouseId] = useState<number>();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const { addToCart, fetchCart, cart } = useCart();
 
-  const router = useRouter();
+  const base_api = 'http://localhost:8000/api';
+
+  const getWarehouseId = async () => {
+    const data = await getClosestWarehouse();
+    setClosestWarehouseId(data);
+  };
+
+  const getProducts = async (id: number | undefined) => {
+    if (!id) return;
+    const res = await axios.get(`${base_api}/products`);
+
+    console.log(res.data);
+
+    const filteredProducts = res.data.filter((item: Product) =>
+      item.productStocks.some((stock) => stock.warehouse.id === id),
+    );
+
+    setProducts(filteredProducts);
+  };
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await fetch('http://localhost:8000/api/products');
-        if (!response.ok) {
-          throw new Error('Failed to fetch products');
-        }
-        const data = await response.json();
-        setProducts(data);
-      } catch (err) {
-        setError('Error fetching products');
-      } finally {
-        setLoading(false);
-      }
-    };
+    setUserLoc(getUserCurrentLocation());
+    getWarehouseId();
+    fetchCart();
+  }, [closestWarehouseId]);
 
-    fetchProducts();
-    fetchCart(); // Fetch the current cart
-  }, []);
-
-  const getTotalStock = (product: Product) => {
-    return product.productStocks.reduce(
-      (total, stock) => total + stock.stock,
-      0,
-    );
-  };
-
-  const getAvailableStock = (product: Product) => {
-    const totalStock = getTotalStock(product);
-    const cartItem = cart?.items.find((item) => item.product.id === product.id);
-    return totalStock - (cartItem?.quantity || 0);
-  };
-
-  const handleAddToCart = async (product: Product) => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      // Jika tidak ada token, arahkan ke halaman login
-      router.push('/login');
-      return;
+  useEffect(() => {
+    if (closestWarehouseId) {
+      getProducts(closestWarehouseId);
     }
-
-    const availableStock = getAvailableStock(product);
-    if (availableStock <= 0) {
-      setError('This product is out of stock');
-      return;
-    }
-
-    try {
-      await addToCart(product.id, 1, availableStock);
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError('Failed to add product to cart');
-      }
-    }
-  };
-
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
+  }, [closestWarehouseId]);
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Products</h1>
-      <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {products.map((product) => {
-          const availableStock = getAvailableStock(product);
-          return (
-            <li key={product.id} className="border p-4 rounded shadow">
-              <h2 className="text-xl font-semibold">{product.name}</h2>
-              <p className="text-gray-600">{product.description}</p>
-              <p className="mt-2">Price: ${product.price.toFixed(2)}</p>
-              <p className="mt-1">Available Stock: {availableStock}</p>
-              <button
-                onClick={() => handleAddToCart(product)}
-                disabled={availableStock <= 0}
-                className={`mt-2 px-4 py-2 rounded ${
-                  availableStock > 0
-                    ? 'bg-blue-500 text-white hover:bg-blue-600'
-                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                }`}
-              >
-                {availableStock > 0 ? 'Add to Cart' : 'Out of Stock'}
-              </button>
-            </li>
-          );
-        })}
-      </ul>
-    </div>
+    <main>
+      <div className="hero max-w-[80%] bg-pinky m-auto p-5 rounded-lg">
+        <div className="hero-content flex-col lg:flex-row-reverse">
+          <div className="">
+            <p className="text-xs font-bold">Welcome to Hemart</p>
+            <h1 className="text-3xl font-bold">
+              Your One-Stop Shop for Fresh & Affordable Groceries
+            </h1>
+            <p className="py-6">
+              At Hemart, we believe that everyone deserves access to fresh,
+              high-quality groceries at prices that wont break the bank. Explore
+              our wide selection of fresh produce, pantry staples, and household
+              essentials. Shop smart, live healthy—only at Hemart.
+            </p>
+            <button className="btn btn-primary">Start Shopping!</button>
+          </div>
+        </div>
+      </div>
+      <section>
+        <ListCategories />
+      </section>
+      <section>
+        <LandingProducts catHeader={'New Products'} products={products} />
+        <LandingProducts catHeader={'Instant Food'} products={products} />
+        <LandingProducts catHeader={'Beverages'} products={products} />
+      </section>
+    </main>
   );
 }

@@ -12,6 +12,7 @@ import cartRouter from './routers/cart.router';
 import productRouter from './routers/product.routers';
 import authRouter from './routers/auth.router';
 import orderRouter from './routers/order.router';
+import warehouseRouter from './routers/warehouse.router';
 
 export default class App {
   private app: Express;
@@ -61,6 +62,8 @@ export default class App {
     this.app.use('/api/products', productRouter);
     this.app.use('/api/auth', authRouter);
     this.app.use('/api/orders', orderRouter);
+
+    this.app.use('/api/warehouses', warehouseRouter);
   }
 
   public start(): void {

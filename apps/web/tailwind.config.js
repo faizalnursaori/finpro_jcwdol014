@@ -9,8 +9,13 @@ module.exports = {
     './src/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        pinky: '#F7F2E6',
+      },
+    },
   },
+
   plugins: [require('daisyui')],
   daisyui: {
     themes: ['emerald'],
