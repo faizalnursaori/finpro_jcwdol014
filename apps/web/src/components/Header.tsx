@@ -1,8 +1,13 @@
+'use client'
 import Link from 'next/link';
-import { ShoppingCart, Search, Key } from 'lucide-react';
+import { ShoppingCart } from 'lucide-react';
 import Image from 'next/image';
+import { useCart } from '@/context/CartContext';
 
 export default function Header() {
+
+  const { cartItemCount } = useCart();
+
   const categories = [
     'Rice & Flour',
     'Fruits & Vegetables',
@@ -30,9 +35,14 @@ export default function Header() {
               placeholder="Find a product..."
             />
           </label>
-          <button className="btn btn-ghost">
+          <Link href='/cart' className="btn btn-ghost">
             <ShoppingCart />
-          </button>
+            {cartItemCount > 0 && (
+              <span className="absolute -top-1 left-7 bg-red-500 text-white rounded-full px-2 py-1 text-xs">
+                {cartItemCount}
+              </span>
+            )}
+          </Link>
         </div>
         <div className="navbar-end gap-2">
           <Link className="btn btn-ghost" href="/login">

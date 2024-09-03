@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Plus } from 'lucide-react';
 import { useEffect } from 'react';
 
+
 type Props = {
   catHeader: string;
   products: [] ;
