@@ -5,7 +5,6 @@ import { getClosestWarehouse } from '@/api/warehouse';
 import ListCategories from '@/components/ListCategories';
 import LandingProducts from '@/components/LandingProducts';
 import { useState, useEffect } from 'react';
-// import { useCart } from '@/lib/CartContext';
 import { useCart } from '../context/CartContext';
 import { useRouter } from 'next/navigation';
 
@@ -33,10 +32,10 @@ export default function Home() {
   const [closestWarehouseId, setClosestWarehouseId] = useState<number>();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const { addToCart, fetchCart, cart } = useCart();
+  
   const base_api = 'http://localhost:8000/api'
-  const router = useRouter();
+  
 
   const getWarehouseId = async () => {
     const data = await getClosestWarehouse();
@@ -72,43 +71,7 @@ export default function Home() {
     fetchCart();
   }, [closestWarehouseId]);
 
-  const getTotalStock = (product: Product) => {
-    return product.productStocks.reduce(
-      (total, stock) => total + stock.stock,
-      0,
-    );
-  };
-
-  const getAvailableStock = (product: Product) => {
-    const totalStock = getTotalStock(product);
-    const cartItem = cart?.items.find((item) => item.product.id === product.id);
-    return totalStock - (cartItem?.quantity || 0);
-  };
-
-  const handleAddToCart = async (product: Product) => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      // Jika tidak ada token, arahkan ke halaman login
-      router.push('/login');
-      return;
-    }
-
-    const availableStock = getAvailableStock(product);
-    if (availableStock <= 0) {
-      setError('This product is out of stock');
-      return;
-    }
-
-    try {
-      await addToCart(product.id, 1, availableStock);
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError('Failed to add product to cart');
-      }
-    }
-  };
+  
   
   return (
     <main>

@@ -2,8 +2,28 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Plus } from 'lucide-react';
-import { useEffect } from 'react';
+import { useEffect,useState } from 'react';
+import { useCart } from '../context/CartContext';
+import { useRouter } from 'next/navigation';
 
+interface Warehouse {
+  id: number;
+  name: string;
+}
+
+interface ProductStock {
+  id: number;
+  stock: number;
+  warehouse: Warehouse;
+}
+
+interface Product {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  productStocks: ProductStock[];
+}
 
 type Props = {
   catHeader: string;
@@ -11,14 +31,54 @@ type Props = {
 };
 
 export default function LandingProducts({ catHeader, products }: Props) {
+  const [error, setError] = useState<string | null>(null);
+  const { addToCart, fetchCart, cart } = useCart();
+  const router = useRouter();
+
+  const getTotalStock = (product: Product) => {
+    return product.productStocks.reduce(
+      (total, stock) => total + stock.stock,
+      0,
+    );
+  };
+
+  const getAvailableStock = (product: Product) => {
+    const totalStock = getTotalStock(product);
+    const cartItem = cart?.items.find((item) => item.product.id === product.id);
+    return totalStock - (cartItem?.quantity || 0);
+  };
+
+  const handleAddToCart = async (product: Product) => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      // Jika tidak ada token, arahkan ke halaman login
+      router.push('/login');
+      return;
+    }
+
+    const availableStock = getAvailableStock(product);
+    if (availableStock <= 0) {
+      setError('This product is out of stock');
+      return;
+    }
+
+    try {
+      await addToCart(product.id, 1, availableStock);
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Failed to add product to cart');
+      }
+    }
+  };
+
+
   useEffect(() => {}, [products]);
 
   const filteredProducts = catHeader === 'New Products' ? products : products?.filter((product:{category:{name:string}}) => {
     return product.category.name == catHeader
   })
-  
-  
-  
 
   return (
     <>
@@ -60,7 +120,7 @@ export default function LandingProducts({ catHeader, products }: Props) {
                     <p className="hover:underline">{product.description}</p>
                     <div className="flex justify-between items-center">
                       <p className="font-bold text-success">{`Rp ${product.price.toLocaleString('id-ID')}`}</p>
-                      <button className="btn btn-ghost">
+                      <button className="btn btn-ghost" onClick={() => handleAddToCart(product)}>
                         <Plus />
                       </button>
                     </div>
