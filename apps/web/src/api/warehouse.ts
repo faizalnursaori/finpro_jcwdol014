@@ -4,7 +4,7 @@ import { haversineDistance } from "@/utils/getClosestStore";
 import { getUserCurrentLocation } from "@/utils/getUserCurrentLocation";
 
 export const getClosestWarehouse = async () =>{
-    const res = await axios.get(`${base_api}/warehouse`)
+    const res = await axios.get(`${base_api}/warehouses/`)
     const data = res.data.warehouses
 
     const userLoc = getUserCurrentLocation()
