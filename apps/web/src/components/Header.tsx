@@ -1,9 +1,7 @@
 'use client';
-
 import Link from 'next/link';
-import { ShoppingCart, Search, Key } from 'lucide-react';
+import { ShoppingCart } from 'lucide-react';
 import Image from 'next/image';
-// import { useCart } from '@/lib/CartContext';
 import { useCart } from '@/context/CartContext';
 
 export default function Header() {
@@ -17,19 +15,18 @@ export default function Header() {
     'Snacks & Biscuits',
     'Frozen',
   ];
-
   return (
     <header className="items-center justify-center hidden lg:flex p-4 flex-col">
       <nav className="navbar max-w-[85%]">
         <div className="navbar-start gap-3">
-          <Link href="/" className="btn btn-ghost text-xl">
+          <a href="/" className="btn btn-ghost text-xl">
             <Image
               alt="hemart"
               src="/logo-revisi.png"
               width={100}
               height={50}
             />
-          </Link>
+          </a>
           <label className="input input-bordered flex items-center gap-2">
             <input
               type="text"
@@ -47,25 +44,25 @@ export default function Header() {
           </Link>
         </div>
         <div className="navbar-end gap-2">
-          <a className="btn btn-ghost" href="/login">
+          <Link className="btn btn-ghost" href="/login">
             Log in
-          </a>
-          <a className="btn btn-outline btn-success" href="/register">
+          </Link>
+          <Link className="btn btn-outline btn-success" href="/register">
             Sign in
-          </a>
+          </Link>
         </div>
       </nav>
       <div>
         <div className="flex justify-between items-center gap-5 pt-2">
           {categories.map((category, index) => {
             return (
-              <a
+              <Link
                 className="btn btn-ghost hover:btn-link"
                 href={`/category/${category}`}
                 key={index}
               >
                 {category}
-              </a>
+              </Link>
             );
           })}
         </div>

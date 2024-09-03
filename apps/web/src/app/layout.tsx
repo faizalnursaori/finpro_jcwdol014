@@ -1,14 +1,15 @@
 import type { Metadata } from 'next';
 import Navbar from '@/components/Navbar';
 import { CartProvider } from '../context/CartContext';
-import { Inter } from 'next/font/google';
 import './globals.css';
-
-const inter = Inter({ subsets: ['latin'] });
+import Header from '@/components/Header';
+import HeaderMobile from '@/components/HeaderMobile';
+import Footer from '@/components/Footer';
+import FooterMobile from '@/components/FooterMobile';
 
 export const metadata: Metadata = {
-  title: 'E-commerce Store',
-  description: 'E-commerce store built with Next.js',
+  title: 'Hemart',
+  description: 'Grocery store built with NextJS',
 };
 
 export default function RootLayout({
@@ -18,18 +19,16 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body>
         <CartProvider>
-          <Navbar />
           <div className="flex flex-col min-h-screen">
+            <Header />
+            <HeaderMobile />
             <main className="flex-grow container mx-auto px-4 py-8">
               {children}
             </main>
-            <footer className="bg-neutral text-neutral-content py-4">
-              <div className="container mx-auto px-4 text-center">
-                &copy; 2024 E-commerce Store
-              </div>
-            </footer>
+            <FooterMobile />
+            <Footer />
           </div>
         </CartProvider>
       </body>
