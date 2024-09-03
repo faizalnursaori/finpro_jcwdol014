@@ -1,10 +1,10 @@
 import App from './app';
+import dotenv from 'dotenv';
+import { PORT } from './config';
 
-const main = () => {
-  // init db here
+dotenv.config();
+const app = new App
+app.start()
 
-  const app = new App();
-  app.start();
-};
 
-main();
+
