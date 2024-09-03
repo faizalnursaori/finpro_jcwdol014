@@ -6,11 +6,18 @@ import { useEffect } from 'react';
 
 type Props = {
   catHeader: string;
-  products: [] | undefined;
+  products: [] ;
 };
 
 export default function LandingProducts({ catHeader, products }: Props) {
   useEffect(() => {}, [products]);
+
+  const filteredProducts = catHeader === 'New Products' ? products : products?.filter((product:{category:{name:string}}) => {
+    return product.category.name == catHeader
+  })
+  
+  
+  
 
   return (
     <>
@@ -20,7 +27,7 @@ export default function LandingProducts({ catHeader, products }: Props) {
           <button className="btn btn-ghost hover:btn-link">View All</button>
         </div>
         <div className="flex gap-3 overflow-x-auto">
-          {products?.map(
+          {filteredProducts?.map(
             (
               product: {
                 slug: string;
@@ -32,9 +39,9 @@ export default function LandingProducts({ catHeader, products }: Props) {
               index: number,
             ) => {
               return (
-                <div key={index} className="card card-compact ">
+                <div key={index} className="card card-compact max-w-[200px]">
                   <div className="card-body">
-                    <figure className="bg-base-200 rounded-md">
+                    <figure className="bg-base-200 rounded-md max-w-[150px] max-h-[150px]">
                       <Image
                         src={`/${product.productImages[0].url}.jpeg`}
                         alt="Mie"

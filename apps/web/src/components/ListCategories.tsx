@@ -33,7 +33,7 @@ const categoriesData = [
       <>
       <div className="max-w-[80%] m-auto">
       <h2 className="text-xl font-bold my-5">Discover our categories!</h2>
-      <div className="grid lg:grid-cols-6 grid-cols-3 gap-5  md:w-full">
+      <div className="grid lg:grid-cols-6 md:grid-cols-3 grid-cols-2 gap-5 md:w-full overflow-x-auto">
         {categoriesData.map((item, index) => {
           return (
             <div
