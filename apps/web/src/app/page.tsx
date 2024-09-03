@@ -7,25 +7,7 @@ import LandingProducts from '@/components/LandingProducts';
 import { useState, useEffect } from 'react';
 import { useCart } from '../context/CartContext';
 import { useRouter } from 'next/navigation';
-
-interface Warehouse {
-  id: number;
-  name: string;
-}
-
-interface ProductStock {
-  id: number;
-  stock: number;
-  warehouse: Warehouse;
-}
-
-interface Product {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  productStocks: ProductStock[];
-}
+import { Product } from '@/types/product';
 
 export default function Home() {
   const [userLoc, setUserLoc] = useState<{ lon: number; lat: number }>();
@@ -33,46 +15,39 @@ export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const { addToCart, fetchCart, cart } = useCart();
-  
-  const base_api = 'http://localhost:8000/api'
-  
+
+  const base_api = 'http://localhost:8000/api';
 
   const getWarehouseId = async () => {
     const data = await getClosestWarehouse();
     setClosestWarehouseId(data);
   };
 
-  const getProducts  = async (id: number | undefined) =>{
-    const productData: any = []
-    const res = await axios.get(`${base_api}/products`)
+  const getProducts = async (id: number | undefined) => {
+    if (!id) return;
+    const res = await axios.get(`${base_api}/products`);
 
     console.log(res.data);
-    
-    const filteredProducts = res.data.filter((item:{productStocks:[{warehouseId: number}]}) => {
-      let result = false
-      item.productStocks.forEach((stock:{warehouseId: number}) => {
-        if(stock.warehouseId == id){
-          result = true
-        }
-      })
-      return result
-    })
+
+    const filteredProducts = res.data.filter((item: Product) =>
+      item.productStocks.some((stock) => stock.warehouse.id === id),
+    );
 
     setProducts(filteredProducts);
-    
-    
-  } 
+  };
 
   useEffect(() => {
-    //getting user's lat and long
     setUserLoc(getUserCurrentLocation());
     getWarehouseId();
-    getProducts(closestWarehouseId)
     fetchCart();
   }, [closestWarehouseId]);
 
-  
-  
+  useEffect(() => {
+    if (closestWarehouseId) {
+      getProducts(closestWarehouseId);
+    }
+  }, [closestWarehouseId]);
+
   return (
     <main>
       <div className="hero max-w-[80%] bg-pinky m-auto p-5 rounded-lg">
@@ -96,9 +71,9 @@ export default function Home() {
         <ListCategories />
       </section>
       <section>
-        <LandingProducts catHeader = {'New Products'} products={products}/>
-        <LandingProducts  catHeader={'Instant Food'} products={products}/>
-        <LandingProducts catHeader={'Beverages'} products={products}/>
+        <LandingProducts catHeader={'New Products'} products={products} />
+        <LandingProducts catHeader={'Instant Food'} products={products} />
+        <LandingProducts catHeader={'Beverages'} products={products} />
       </section>
     </main>
   );

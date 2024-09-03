@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-// import { loginUser } from '@/lib/ApiClient';
+import { loginUser } from '@/lib/ApiClient';
 
 export default function Login() {
   const [email, setEmail] = useState('');
