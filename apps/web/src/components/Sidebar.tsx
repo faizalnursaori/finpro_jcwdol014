@@ -1,21 +1,44 @@
-import { Menu, X } from "lucide-react";
-import Link from "next/link";
+import { Menu, X } from 'lucide-react';
+import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useCart } from '@/context/CartContext';
 
 export default function Sidebar() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
+  const { cartItemCount } = useCart();
+  const router = useRouter();
+  const token = localStorage.getItem('token');
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('userInfo');
+    setIsLoggedIn(false);
+    router.push('/login');
+  };
+
+  useEffect(() => {
+    if (token) {
+      setIsLoggedIn(true);
+    }
+  }, [token]);
   const categories = [
-    "Rice & Flour",
-    "Fruits & Vegetables",
-    "Instan Food",
-    "Beverages",
-    "Snacks & Biscuits",
-    "Frozen",
+    'Rice & Flour',
+    'Fruits & Vegetables',
+    'Instan Food',
+    'Beverages',
+    'Snacks & Biscuits',
+    'Frozen',
   ];
   return (
     <div className="drawer z-30 ">
       <input id="my-drawer" type="checkbox" className="drawer-toggle" />
       <div className="drawer-content">
-        {/* Page content here */}
-        <label htmlFor="my-drawer" className="btn ml-1 btn-ghost btn-circle drawer-button">
+        <label
+          htmlFor="my-drawer"
+          className="btn ml-1 btn-ghost btn-circle drawer-button"
+        >
           <Menu />
         </label>
       </div>
@@ -37,7 +60,12 @@ export default function Sidebar() {
             </label>
           </div>
           <div className="divider"></div>
-          {/* Sidebar content here */}
+          {isLoggedIn ? <div>
+            <h2 className='text-xl font-medium mb-2'>Profile</h2>
+          <li><Link href='/profile'>My Profile</Link></li>
+          <li><Link href='/cart'>My Cart</Link></li>
+          <div className='divider'></div>
+          </div>: <div></div>}
           <h2 className="text-xl font-medium mb-2">Categories</h2>
           {categories.map((category, index) => {
             return (
@@ -47,12 +75,26 @@ export default function Sidebar() {
             );
           })}
           <div className="divider"></div>
-          <li><Link href="/about">About us</Link></li>
-          <li><Link href="/faq">Frequenly Asked Question</Link></li>
-          <li><Link href="/shiiping">Shipping Information</Link></li>
+          <li>
+            <Link href="/about">About us</Link>
+          </li>
+          <li>
+            <Link href="/faq">Frequenly Asked Question</Link>
+          </li>
+          <li>
+            <Link href="/shiiping">Shipping Information</Link>
+          </li>
           <div className="divider"></div>
-          <button className="btn mb-2 btn-ghost">Log In</button>
-          <button className="btn btn-outline btn-success">Sign In</button>
+          {isLoggedIn ? (
+            <div className='w-full'>
+              <button className='btn w-full btn-ghost ' onClick={() => handleLogout()}>Log Out</button>
+            </div>
+          ) : (
+            <div>
+              <button className="btn mb-2 btn-ghost"><Link href='/login'>Log In</Link></button>
+              <button className="btn btn-outline btn-success"><Link href='/register'>Sign In</Link></button>
+            </div>
+          )}
         </ul>
       </div>
     </div>

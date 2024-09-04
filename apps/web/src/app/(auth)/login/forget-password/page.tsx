@@ -1,44 +1,40 @@
-'use client';
-
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { registerUser } from '@/lib/ApiClient';
-import Link from 'next/link';
-import { FaGoogle, FaFacebook, FaTwitter, FaCheckCircle } from "react-icons/fa";
-
+"use client";
+import Link from "next/link";
+import { useState } from "react";
+import axios from "axios";
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 export default function Register() {
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const base_api = "http://localhost:3000";
   const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError('');
-
+    setIsLoading(true);
     try {
-      await registerUser(username, email, password);
-      router.push('/register/confirm-info');
-    } catch (err) {
-      setError('Registration failed. Please try again.');
+      const res = await axios.post(`${base_api}/register`, {
+        email,
+      });
+
+      toast.success("Register success!");
+      router.push("/");
+    } catch (error) {
+      console.error(error);
+      toast.error("Register failed.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="bg-base-100 flex flex-col justify-center items-center gap-6">
-      <h2 className="font-bold text-2xl">CREATE ACCOUNT</h2>
+      <h2 className="font-bold text-2xl">RESET YOUR PASSWORD</h2>
       <p className="font-medium text-center">
-        Create your free Hemart account today— it only takes less than a minute!
+        We will send you an email to reset your password
       </p>
-      <ul className="flex flex-col gap-2">
-        <li className="flex gap-2 items-center"><FaCheckCircle/>Faster ordering for your repeat purchases</li>
-        <li className="flex gap-2 items-center"><FaCheckCircle/>Access to exclusive offers</li>
-        <li className="flex gap-2 items-center"><FaCheckCircle/>Create convenient shopping list</li>
-        <li className="flex gap-2 items-center"><FaCheckCircle/>Effortless order & address management</li>
-      </ul>
 
       <div>
         <form className="form-control gap-4" onSubmit={handleSubmit}>
@@ -60,27 +56,13 @@ export default function Register() {
           </div>
           <div className="form-control mt-4">
             <button className="btn btn-success mb-4 text-base-100" disabled={isLoading}>
-              {isLoading ? "Logging in..." : "Register"}
+              {isLoading ? "Submiting" : "Submit"}
             </button>
-            <p className="text-center">
-              Already have an account?{" "}
-              <Link
-                href={"/login"}
-                className="font-semibold text-indigo-500 hover:underline"
-              >
-                Log In
-              </Link>
-            </p>
-            <div className="divider">Login with Socials</div>
-            <div className='flex gap-5 items-center justify-center my-2'>
-              <Link href='/'><FaGoogle size={25}/></Link>
-              <Link href='/'><FaFacebook size={25}/></Link>
-              <Link href='/'><FaTwitter size={25}/></Link>
-            </div>
+          
             <div className="mt-4 flex w-80 flex-col items-center justify-center gap-8">
               <Link
                 className="relative inline-flex items-center justify-center text-sm no-underline outline-none transition-opacity hover:opacity-80 active:opacity-60"
-                href="/"
+                href="/login"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -97,7 +79,7 @@ export default function Register() {
                   <path d="m12 19-7-7 7-7"></path>
                   <path d="M19 12H5"></path>
                 </svg>
-                <span className="flex items-center">Back to Home page</span>
+                <span className="flex items-center">Back to Login page</span>
               </Link>
             </div>
           </div>
