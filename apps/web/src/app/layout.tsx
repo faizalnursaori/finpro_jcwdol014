@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import Navbar from '@/components/Navbar';
 import { CartProvider } from '../context/CartContext';
 import './globals.css';
 import Header from '@/components/Header';
