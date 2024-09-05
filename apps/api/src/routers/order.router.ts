@@ -5,10 +5,13 @@ import {
   cancel,
   uploadProof,
   checkStock,
+  getOrderList
 } from '../controllers/order.controller';
 import { authenticateToken } from '@/middleware/auth.middleware';
 
 const router = express.Router();
+
+router.get('/', authenticateToken, getOrderList)
 
 // Route for checkout
 router.post('/checkout', authenticateToken, checkout);

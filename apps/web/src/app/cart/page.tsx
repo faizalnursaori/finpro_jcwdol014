@@ -5,11 +5,10 @@ import { useCart } from '../../context/CartContext';
 import Link from 'next/link';
 import EmptyCart from '@/components/EmptyCart';
 import { ArrowLeft, Trash2 } from 'lucide-react';
-import CheckoutSummary from '@/components/CheckOutSummary';
 import WithAuth from '@/components/WithAuth';
-import { formatRupiah } from '@/utils/currencyUtils';
 import { ConfirmationDeleteCart } from '@/components/ConfirmationDeleteCart';
 import CartTable from '@/components/CartTable';
+import CheckoutSummary from '@/components/CheckOutSummary';
 
 const CartPage = () => {
   const { cart, fetchCart, updateItemQuantity, removeItem } = useCart();
@@ -53,11 +52,6 @@ const CartPage = () => {
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
   if (!cart || cart.items.length === 0) return <EmptyCart />;
-
-  const totalPrice = cart.items.reduce(
-    (total, item) => total + item.product.price * item.quantity,
-    0,
-  );
 
   return (
     <div className="container mx-6 p-4">

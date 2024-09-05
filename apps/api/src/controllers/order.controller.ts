@@ -9,8 +9,61 @@ import {
 import multer from 'multer';
 import { CancellationSource } from '@prisma/client';
 import { AuthenticatedRequest } from '@/middleware/auth.middleware';
+import prisma from '@/prisma';
 
 const upload = multer({ dest: 'uploads/' });
+
+export const getOrderList = async (
+  req: AuthenticatedRequest,
+  res: Response,
+) => {
+  try {
+    const userId = req.user?.userId;
+    if (!userId || typeof userId !== 'number') {
+      return res.status(400).json({ error: 'Valid userId is required' });
+    }
+    const { startDate, endDate, orderNumber } = req.query;
+
+    const filters: any = {
+      // Remove userId from here
+    };
+
+    if (startDate && endDate) {
+      filters.createdAt = {
+        gte: new Date(startDate as string),
+        lte: new Date(endDate as string),
+      };
+    }
+
+    if (orderNumber) {
+      filters.id = parseInt(orderNumber as string);
+    }
+
+    const orders = await prisma.order.findMany({
+      where: {
+        ...filters,
+        cart: {
+          userId: userId, // Add this line to filter by userId through the cart relation
+        },
+      },
+      include: {
+        items: true,
+        warehouse: true,
+        cart: true,
+        address: true,
+        voucher: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    res.status(200).json({ success: true, orders });
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+    res.status(500).json({ success: false, message: 'Error fetching orders' });
+  }
+};
 
 export const checkout = async (req: AuthenticatedRequest, res: Response) => {
   try {
@@ -59,16 +112,22 @@ export const uploadProof = async (req: AuthenticatedRequest, res: Response) => {
       if (!userId || typeof userId !== 'number') {
         return res.status(400).json({ error: 'Valid userId is required' });
       }
+
       const { orderId } = req.body;
+      if (!orderId) {
+        return res.status(400).json({ error: 'Order ID is required' });
+      }
 
       if (!req.file) {
-        return res.status(400).json({ error: 'No file uploaded' });
+        return res
+          .status(400)
+          .json({ error: 'Payment proof file is required' });
       }
 
       const updatedOrder = await uploadPaymentProof(userId, orderId, req.file);
       res.status(200).json(updatedOrder);
     } catch (error) {
-      res.status(500).json({ message: 'Internal server error' });
+      res.status(500).json({ message: 'Failed to upload payment proof' });
     }
   });
 };

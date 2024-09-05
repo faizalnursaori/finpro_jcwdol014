@@ -1,18 +1,31 @@
 import React from 'react';
-// import { useCart } from '@/lib/CartContext';
 import { useCart } from '@/context/CartContext';
+import { useOrder } from '@/context/OrderContext';
 import { formatRupiah } from '@/utils/currencyUtils';
+import { useRouter } from 'next/navigation';
 
 const CheckoutSummary = () => {
   const { cart } = useCart();
+  const { checkout } = useOrder();
+  const router = useRouter();
 
   const subtotal =
     cart?.items.reduce(
       (total, item) => total + item.product.price * item.quantity,
       0,
     ) || 0;
-  const shippingCosts = 3.99;
+  const shippingCosts = 15000; // You might want to calculate this dynamically
   const total = subtotal + shippingCosts;
+
+  const handleCheckout = async () => {
+    try {
+      // Instead of performing the checkout here, we'll navigate to the order processing page
+      router.push('/order/checkout');
+    } catch (error) {
+      console.error('Navigation to checkout failed', error);
+      alert('Failed to proceed to checkout, please try again.');
+    }
+  };
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
@@ -31,8 +44,11 @@ const CheckoutSummary = () => {
           <span>{formatRupiah(total)}</span>
         </div>
       </div>
-      <button className="w-full bg-teal-700 text-white py-3 rounded-lg mt-6 font-semibold hover:bg-teal-800 transition-colors">
-        SECURE CHECKOUT
+      <button
+        onClick={handleCheckout}
+        className="w-full bg-teal-700 text-white py-3 rounded-lg mt-6 font-semibold hover:bg-teal-800 transition-colors"
+      >
+        PROCEED TO CHECKOUT
       </button>
     </div>
   );
