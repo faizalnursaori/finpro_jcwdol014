@@ -62,7 +62,6 @@ export default class App {
     this.app.use('/api/products', productRouter);
     this.app.use('/api/auth', authRouter);
     this.app.use('/api/orders', orderRouter);
-
     this.app.use('/api/warehouses', warehouseRouter);
   }
 

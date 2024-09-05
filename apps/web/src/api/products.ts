@@ -1,13 +1,13 @@
-import axios from "axios";
+import axios from 'axios';
+import { Product } from '../types/product';
 
-const base_api = 'http://localhost:8000/api'
+const baseUrl = 'http://localhost:8000/api/products';
 
-export const getProducts = async (id: number | undefined) =>{
-    const res = await axios.get(`${base_api}/products`)
-    // const data = res.data.data.filter((product: {warehouseId: number}) => {
-    //     return product.warehouseId == id
-    // })
-  console.log(id);
-  
- return res.data.data
-}
+export const getProducts = async (warehouseId?: number) => {
+  const response = await axios.get<Product[]>(baseUrl, {
+    params: {
+      warehouseId,
+    },
+  });
+  return response.data;
+};

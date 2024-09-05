@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
-import Navbar from '@/components/Navbar';
 import { CartProvider } from '../context/CartContext';
+import { OrderProvider } from '@/context/OrderContext';
 import './globals.css';
 import Header from '@/components/Header';
 import HeaderMobile from '@/components/HeaderMobile';
@@ -20,17 +20,19 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <CartProvider>
-          <div className="flex flex-col min-h-screen">
-            <Header />
-            <HeaderMobile />
-            <main className="flex-grow container mx-auto px-4 py-8">
-              {children}
-            </main>
-            <FooterMobile />
-            <Footer />
-          </div>
-        </CartProvider>
+        <OrderProvider>
+          <CartProvider>
+            <div className="flex flex-col min-h-screen">
+              <Header />
+              <HeaderMobile />
+              <main className="flex-grow container mx-auto px-4 py-8">
+                {children}
+              </main>
+              <FooterMobile />
+              <Footer />
+            </div>
+          </CartProvider>
+        </OrderProvider>
       </body>
     </html>
   );

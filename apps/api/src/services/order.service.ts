@@ -142,7 +142,7 @@ export const cancelExpiredOrders = async () => {
         await tx.order.update({
           where: { id: order.id },
           data: {
-            paymentStatus: PaymentStatus.FAILED,
+            paymentStatus: PaymentStatus.CANCELED,
             cancellationSource: CancellationSource.SYSTEM,
           },
         });
@@ -219,7 +219,7 @@ export const cancelOrder = async (
         },
       },
       data: {
-        paymentStatus: PaymentStatus.FAILED,
+        paymentStatus: PaymentStatus.CANCELED,
         cancellationSource: source,
       },
       include: {
