@@ -75,7 +75,7 @@ export default function LandingProducts({ catHeader, products }: Props) {
               <div className="card-body">
                 <figure className="bg-base-200 rounded-md max-w-[150px] max-h-[150px]">
                   <Image
-                    src={`/${product.productImages[0].url}.jpeg`}
+                    src={`/${product.productImages[0]}.jpeg`}
                     alt={product.name}
                     width={150}
                     height={150}
