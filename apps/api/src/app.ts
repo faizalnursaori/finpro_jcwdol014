@@ -9,7 +9,7 @@ import express, {
 import cors from 'cors';
 import { PORT } from './config';
 import { adminRouter } from './routers/admin.router';
-// import cartRouter from './routers/cart.router';
+import cartRouter from './routers/cart.router';
 import productRouter from './routers/product.routers';
 import authRouter from './routers/auth.router';
 import warehouseRouter from './routers/warehouse.router';
@@ -58,7 +58,7 @@ export default class App {
       res.send(`Hello, Purwadhika Student API!`);
     });
 
-    // this.app.use('/api/carts', cartRouter);
+    this.app.use('/api/carts', cartRouter);
     this.app.use('/api/products', productRouter);
     this.app.use('/api/auth', authRouter);
     this.app.use('/api/warehouses', warehouseRouter);
