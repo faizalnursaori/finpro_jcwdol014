@@ -12,11 +12,12 @@
   "dependencies": {
     "axios": "^1.7.7",
     "cross-env": "^7.0.3",
-    "lucide-react": "^0.436.0",
+    "jose": "^5.8.0",
     "lucide": "^0.433.0",
-    "next": "14.0.4",
-    "react": "^18",
-    "react-dom": "^18"
+    "lucide-react": "^0.438.0",
+    "next": "^14.2.8",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
     "@types/node": "^20",
@@ -26,8 +27,8 @@
     "cypress": "^13.6.2",
     "daisyui": "^4.12.10",
     "eslint": "^8",
-    "eslint-config-next": "14.0.4",
-    "postcss": "^8.4.41",
+    "eslint-config-next": "^14.2.8",
+    "postcss": "^8.4.45",
     "tailwindcss": "^3.4.10",
     "typescript": "^5"
   }

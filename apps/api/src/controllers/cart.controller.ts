@@ -63,12 +63,10 @@ export const handleInvalidCart = async (
     await deactivateCart(cartId);
     const newCart = await getOrCreateCart(userId);
 
-    res
-      .status(200)
-      .json({
-        message: 'Cart deactivated and new cart created',
-        cart: newCart,
-      });
+    res.status(200).json({
+      message: 'Cart deactivated and new cart created',
+      cart: newCart,
+    });
   } catch (error) {
     console.error('Error in handleInvalidCart controller:', error);
     res.status(500).json({ error: 'Failed to handle invalid cart' });

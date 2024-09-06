@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { loginUser } from '@/lib/ApiClient';
+import { setCookies } from '@/actions/cookies';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -19,6 +20,7 @@ export default function Login() {
       console.log('Login successful:', data); // Log successful login
       localStorage.setItem('token', data.token);
       // localStorage.setItem('userId', data.user.id.toString());
+      setCookies('token', data.token);
       router.push('/'); // Redirect to dashboard or home page
     } catch (err) {
       console.error('Login error:', err); // Log the full error

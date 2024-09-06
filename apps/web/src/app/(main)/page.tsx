@@ -5,7 +5,7 @@ import { getClosestWarehouse } from '@/api/warehouse';
 import ListCategories from '@/components/ListCategories';
 import LandingProducts from '@/components/LandingProducts';
 import { useState, useEffect } from 'react';
-import { useCart } from '../context/CartContext';
+import { useCart } from '../../context/CartContext';
 import { useRouter } from 'next/navigation';
 import { Product } from '@/types/product';
 
