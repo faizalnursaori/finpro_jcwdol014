@@ -7,15 +7,18 @@ import {
   searchUsers,
   updateUser,
 } from '@/controllers/admin.controller';
+import { SuperAdminGuard } from '@/middleware/superAdminGuard';
+import { verifyToken } from '@/middleware/verifyToken';
+import { AdminGuard } from '@/middleware/adminGuard';
 
 const router = express.Router();
 
-router.get('/getUsers', getUserByPage);
-router.get('/getAdmins', getAdminByPage);
-router.get('/search/end-user', searchUsers);
-router.get('/search/admin', searchUsers);
-router.post('/create', createAdmin);
-router.patch('/update/:id', updateUser);
-router.delete('/delete/:id', deleteAdmin);
+router.get('/users', verifyToken, SuperAdminGuard, getUserByPage);
+router.get('/admins', verifyToken, SuperAdminGuard, getAdminByPage);
+router.get('/search/users', verifyToken, AdminGuard, searchUsers);
+router.get('/search/admins', verifyToken, SuperAdminGuard, searchUsers);
+router.post('/', verifyToken, SuperAdminGuard, createAdmin);
+router.patch('/:id', verifyToken, SuperAdminGuard, updateUser);
+router.delete('/:id', verifyToken, SuperAdminGuard, deleteAdmin);
 
 export const adminRouter = router;

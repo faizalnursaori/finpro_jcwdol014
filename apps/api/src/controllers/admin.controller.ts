@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
+import { sign } from 'jsonwebtoken';
+import bcrypt, { genSalt, hash } from 'bcrypt';
 
 const prisma = new PrismaClient();
 
@@ -218,6 +220,9 @@ export const createAdmin = async (req: Request, res: Response) => {
     password,
   } = req.body;
 
+  const salt = await genSalt(10);
+  const hashedPassword = await hash(password, salt);
+
   try {
     const user = await prisma.user.create({
       data: {
@@ -228,7 +233,7 @@ export const createAdmin = async (req: Request, res: Response) => {
         role,
         isVerified,
         image,
-        password,
+        password: hashedPassword,
       },
     });
 

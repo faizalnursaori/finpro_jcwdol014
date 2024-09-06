@@ -34,7 +34,7 @@ export const Search: React.FC<SearchProps> = ({ onSearch, onClear }) => {
           onChange={handleInputChange}
           onKeyDown={handleSearch}
         />
-        <button onClick={handleClear} className="btn btn-sm btn-secondary">
+        <button onClick={handleClear} className="btn btn-sm btn-primary">
           Clear
         </button>
         <svg

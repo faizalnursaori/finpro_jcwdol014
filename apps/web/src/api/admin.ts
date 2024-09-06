@@ -1,27 +1,34 @@
 'use server';
 
 import axios from 'axios';
+import { cookies } from 'next/headers';
 
 const API_URL = process.env.BASE_API_URL;
 
 interface User {
-  id: number;
   name: string;
-  username: string;
   email: string;
+  mobileNumber: string;
+  username: string;
+  password: string;
+  confirmPassword: string;
   role: string;
-  avatarUrl: string;
-  location: string;
   isVerified: boolean;
-  gender: string;
-  mobile: number;
 }
 
 export const getAllAdmin = async (page: number, limit: number) => {
+  const token = cookies().get('token')?.value;
+  if (!token) {
+    return { ok: false, message: 'Unauthenticated' };
+  }
   try {
     const res = await axios.get(
-      `${API_URL}admin/user/getAdmins?page=${page}&limit=${limit}`,
-      {},
+      `${API_URL}admins/admins?page=${page}&limit=${limit}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
     );
     return {
       ok: true,
@@ -37,11 +44,15 @@ export const getAllAdmin = async (page: number, limit: number) => {
 };
 
 export const updateUser = async (id: number, user: Partial<User>) => {
+  const token = cookies().get('token')?.value;
+  if (!token) {
+    return { ok: false, message: 'Unauthenticated' };
+  }
   try {
-    const res = await axios.patch(`${API_URL}admin/user/update/${id}`, user, {
-      // headers: {
-      //   Authorization: `Bearer ${token}`,
-      // },
+    const res = await axios.patch(`${API_URL}admins/${id}`, user, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     });
     return { ok: true, data: res.data };
   } catch (error: any) {
@@ -60,8 +71,16 @@ export const updateUser = async (id: number, user: Partial<User>) => {
 };
 
 export const deleteAdmin = async (id: number) => {
+  const token = cookies().get('token')?.value;
+  if (!token) {
+    return { ok: false, message: 'Unauthenticated' };
+  }
   try {
-    const res = await axios.delete(`${API_URL}admin/user/delete/${id}`);
+    const res = await axios.delete(`${API_URL}admins/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return { ok: true, data: res.data };
   } catch (error) {
     return { ok: false, message: 'Failed to delete user' };
@@ -69,12 +88,36 @@ export const deleteAdmin = async (id: number) => {
 };
 
 export const searchUser = async (query: string) => {
+  const token = cookies().get('token')?.value;
+  if (!token) {
+    return { ok: false, message: 'Unauthenticated' };
+  }
   try {
-    const res = await axios.get(`${API_URL}admin/user/search/admin`, {
+    const res = await axios.get(`${API_URL}admins/search/admins`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       params: { query },
     });
     return { ok: true, data: res.data };
   } catch (error) {
     return { ok: false, message: 'Failed to search user' };
+  }
+};
+
+export const createAdmin = async (adminData: User) => {
+  const token = cookies().get('token')?.value;
+  if (!token) {
+    return { ok: false, message: 'Unauthenticated' };
+  }
+  try {
+    const response = await axios.post(`${API_URL}admins`, adminData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    throw new Error(error.response?.data?.message || 'Failed to create user');
   }
 };
