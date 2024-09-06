@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,81 +7,71 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Category {
-  id        Int      @id @default(autoincrement())
-  slug      String   @unique
-  name      String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  products Product[]
-
-  @@map("categories")
-}
-
-model Product {
-  id          Int      @id @default(autoincrement())
-  slug        String   @unique
-  name        String   @unique
-  description String?  @db.Text
-  price       Float
-  categoryId  Int
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  category          Category           @relation(fields: [categoryId], references: [id])
-  pictures          ProductPicture[]
-  productCarts      ProductCart[]
-  orderProducts     OrderProduct[]
-  productWarehouses ProductWarehouse[]
-  mutations         Mutation[]
-  wishlists         Wishlist[]
-
-  @@map("products")
-}
-
-model ProductPicture {
-  id        Int      @id @default(autoincrement())
-  name      String
-  url       String
-  productId Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-
-  @@map("product_pictures")
-}
-
 model User {
-  id         Int      @id @default(autoincrement())
-  username   String?  @unique
-  email      String   @unique
-  password   String?
-  name       String?
-  gender     String?
-  dob        DateTime?
-  mobileNumber String?
-  isVerified Boolean  @default(false)
-  role       Role     @default(USER)
-  jwtToken   String?
-  image      String?  @default("/profile.jpg")
-  provider   String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  warehouse Warehouse?
-  addresses Address[]
-  carts     Cart[]
-  wishlists Wishlist[]
-
-  @@map("users")
+  id                 Int                  @id @default(autoincrement())
+  username           String               @unique
+  email              String               @unique
+  password           String
+  isVerified         Boolean              @default(false)
+  role               Role                 @default(USER)
+  image              String               @default("/profile.jpg")
+  provider           String?
+  name               String?
+  gender             String?
+  dob                DateTime?
+  mobileNumber       String?
+  referralCode       String?              @unique
+  referredBy         String?
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  addresses          Address[]
+  carts              Cart[]
+  warehouse          Warehouse?
+  userVouchers       UserVoucher[]
+  transactionHistory TransactionHistory[]
 }
 
 enum Role {
   SUPER_ADMIN
   ADMIN
   USER
+}
+
+model Category {
+  id        Int       @id @default(autoincrement())
+  slug      String    @unique
+  name      String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  products  Product[]
+}
+
+model Product {
+  id             Int             @id @default(autoincrement())
+  slug           String          @unique
+  name           String          @unique
+  description    String          @db.Text
+  price          Float
+  categoryId     Int
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  category       Category        @relation(fields: [categoryId], references: [id])
+  productImages  ProductImage[]
+  cartItems      CartItem[]
+  orderItems     OrderItem[]
+  productStocks  ProductStock[]
+  stockTransfers StockTransfer[]
+  vouchers       Voucher[]
+}
+
+model ProductImage {
+  id        Int      @id @default(autoincrement())
+  name      String
+  url       String
+  productId Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  product   Product  @relation(fields: [productId], references: [id])
 }
 
 model Address {
@@ -96,49 +83,57 @@ model Address {
   postalCode String
   isPrimary  Boolean  @default(false)
   userId     Int
-  latitude   Float
-  longitude  Float
-  isDeleted  Boolean  @default(false)
+  latitude   Float?
+  longitude  Float?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id])
+  province   Province @relation(fields: [provinceId], references: [id])
+  city       City     @relation(fields: [cityId], references: [id])
+  orders     Order[]
+}
 
-  user     User     @relation(fields: [userId], references: [id])
-  orders   Order[]
-  province Province @relation(fields: [provinceId], references: [id])
-  city     City     @relation(fields: [cityId], references: [id])
+model Province {
+  id         Int         @id
+  name       String
+  cities     City[]
+  addresses  Address[]
+  warehouses Warehouse[]
+}
 
-  @@map("addresses")
+model City {
+  id         Int         @id @default(autoincrement())
+  name       String
+  provinceId Int
+  province   Province    @relation(fields: [provinceId], references: [id])
+  addresses  Address[]
+  warehouses Warehouse[]
 }
 
 model Cart {
-  id        Int      @id @default(autoincrement())
-  isActive  Boolean  @default(true)
+  id        Int        @id @default(autoincrement())
+  isActive  Boolean    @default(true)
   userId    Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user         User          @relation(fields: [userId], references: [id])
-  productCarts ProductCart[]
-  order        Order?
-
-  @@map("carts")
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  user      User       @relation(fields: [userId], references: [id])
+  items     CartItem[]
+  order     Order?
 }
 
-model ProductCart {
+model CartItem {
   id        Int      @id @default(autoincrement())
   quantity  Int
   productId Int
   cartId    Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  cart      Cart     @relation(fields: [cartId], references: [id])
   product   Product  @relation(fields: [productId], references: [id])
-
-  @@map("product_carts")
+  cart      Cart     @relation(fields: [cartId], references: [id])
 }
 
 model Order {
-  id                 Int                 @id @default(autoincrement())
+  id                 Int                  @id @default(autoincrement())
   name               String
   paymentStatus      PaymentStatus
   shippingCost       Float
@@ -147,28 +142,69 @@ model Order {
   paymentProof       String?
   expirePayment      DateTime
   warehouseId        Int
-  cartId             Int                 @unique
+  cartId             Int                  @unique
   addressId          Int
+  voucherId          Int?
   shippedAt          DateTime?
   cancellationSource CancellationSource?
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  warehouse          Warehouse            @relation(fields: [warehouseId], references: [id])
+  cart               Cart                 @relation(fields: [cartId], references: [id])
+  address            Address              @relation(fields: [addressId], references: [id])
+  voucher            Voucher?             @relation(fields: [voucherId], references: [id])
+  items              OrderItem[]
+  transactionHistory TransactionHistory[]
+}
 
-  address       Address        @relation(fields: [addressId], references: [id])
-  warehouse     Warehouse      @relation(fields: [warehouseId], references: [id])
-  cart          Cart           @relation(fields: [cartId], references: [id])
-  orderProducts OrderProduct[]
+model Voucher {
+  id                Int           @id @default(autoincrement())
+  code              String        @unique
+  discountType      DiscountType
+  discountValue     Float
+  minPurchase       Float?
+  maxDiscount       Float?
+  productId         Int?
+  isShippingVoucher Boolean       @default(false)
+  expiryDate        DateTime
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  product           Product?      @relation(fields: [productId], references: [id])
+  userVouchers      UserVoucher[]
+  orders            Order[]
+}
 
-  @@map("orders")
+enum DiscountType {
+  PERCENTAGE
+  FIXED
+}
+
+model UserVoucher {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  voucherId Int
+  isUsed    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+  voucher   Voucher  @relation(fields: [voucherId], references: [id])
+}
+
+model TransactionHistory {
+  id        Int             @id @default(autoincrement())
+  userId    Int
+  orderId   Int
+  amount    Float
+  type      TransactionType
+  createdAt DateTime        @default(now())
+  user      User            @relation(fields: [userId], references: [id])
+  order     Order           @relation(fields: [orderId], references: [id])
 }
 
 enum PaymentStatus {
-  UNPAID
+  PENDING
   PAID
-  PROCESSING
-  SHIPPED
-  DELIVERED
-  CANCELED
+  FAILED
 }
 
 enum CancellationSource {
@@ -176,7 +212,7 @@ enum CancellationSource {
   SYSTEM
 }
 
-model OrderProduct {
+model OrderItem {
   id        Int      @id @default(autoincrement())
   quantity  Int
   price     Float
@@ -185,139 +221,81 @@ model OrderProduct {
   productId Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  product Product @relation(fields: [productId], references: [id])
-  order   Order   @relation(fields: [orderId], references: [id])
-
-  @@map("order_products")
+  order     Order    @relation(fields: [orderId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
 }
 
 model Warehouse {
-  id         Int      @id @default(autoincrement())
-  name       String
-  address    String   @db.Text
-  provinceId Int
-  cityId     Int
-  postalCode String
-  latitude   Float
-  longitude  Float
-  userId     Int?     @unique
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  user                User?              @relation(fields: [userId], references: [id])
-  orders              Order[]
-  productWarehouses   ProductWarehouse[]
-  sourceMutations     Mutation[]         @relation("SourceWarehouse")
-  destinationutations Mutation[]         @relation("DestinationWarehouse")
-  province            Province           @relation(fields: [provinceId], references: [id])
-  city                City               @relation(fields: [cityId], references: [id])
-  jurnalMutations     JournalMutation[]
-
-  @@map("warehouses")
+  id                Int                @id @default(autoincrement())
+  name              String
+  address           String             @db.Text
+  provinceId        Int
+  cityId            Int
+  postalCode        String
+  latitude          Float?
+  longitude         Float?
+  storeRadius       Float
+  userId            Int                @unique
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  user              User               @relation(fields: [userId], references: [id])
+  province          Province           @relation(fields: [provinceId], references: [id])
+  city              City               @relation(fields: [cityId], references: [id])
+  productStocks     ProductStock[]
+  orders            Order[]
+  stockTransferLogs StockTransferLog[]
 }
 
-model ProductWarehouse {
-  id          Int      @id @default(autoincrement())
-  stock       Int
-  productId   Int
-  warehouseId Int
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  deleted     Boolean  @default(false)
-
-  warehouse        Warehouse         @relation(fields: [warehouseId], references: [id])
-  product          Product           @relation(fields: [productId], references: [id])
-  journalMutations JournalMutation[]
+model ProductStock {
+  id           Int                @id @default(autoincrement())
+  stock        Int
+  productId    Int
+  warehouseId  Int
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  deleted      Boolean            @default(false)
+  product      Product            @relation(fields: [productId], references: [id])
+  warehouse    Warehouse          @relation(fields: [warehouseId], references: [id])
+  transferLogs StockTransferLog[]
 
   @@unique([productId, warehouseId])
-  @@map("product_warehouses")
 }
 
-model Mutation {
-  id                     Int            @id @default(autoincrement())
-  stockRequest           Int
-  stockProcess           Int?
-  note                   String?        @db.Text
-  sourceWarehouseId      Int
-  destinationWarehouseId Int
-  productId              Int
-  status                 MutationStatus
-  createdAt              DateTime       @default(now())
-  updatedAt              DateTime       @updatedAt
-
-  sourceWarehouse      Warehouse         @relation("SourceWarehouse", fields: [sourceWarehouseId], references: [id])
-  destinationWarehouse Warehouse         @relation("DestinationWarehouse", fields: [destinationWarehouseId], references: [id])
-  journalMutation      JournalMutation[]
-  product              Product           @relation(fields: [productId], references: [id])
-
-  @@map("mutations")
+model StockTransfer {
+  id           Int            @id @default(autoincrement())
+  stockRequest Int
+  stockProcess Int
+  note         String         @db.Text
+  productId    Int
+  status       TransferStatus
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  product      Product        @relation(fields: [productId], references: [id])
 }
 
-model JournalMutation {
-  id                 Int             @id @default(autoincrement())
-  quantity           Int
-  transactionType    TransactionType
-  description        String          @db.Text
-  productWarehouseId Int
-  warehouseId        Int?
-  refMutationId      Int?
-  createdAt          DateTime        @default(now())
-  updatedAt          DateTime        @updatedAt
+enum TransferStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  CANCELLED
+}
 
-  productWarehouse ProductWarehouse @relation(fields: [productWarehouseId], references: [id])
-  warehouse        Warehouse?       @relation(fields: [warehouseId], references: [id])
-  refMutation      Mutation?        @relation(fields: [refMutationId], references: [id])
-
-  @@map("journal_mutations")
+model StockTransferLog {
+  id              Int             @id @default(autoincrement())
+  quantity        Int
+  transactionType TransactionType
+  description     String          @db.Text
+  productStockId  Int
+  warehouseId     Int
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  productStock    ProductStock    @relation(fields: [productStockId], references: [id])
+  warehouse       Warehouse       @relation(fields: [warehouseId], references: [id])
 }
 
 enum TransactionType {
   IN
   OUT
-}
-
-enum MutationStatus {
-  PENDING
-  CANCELED
-  APPROVED
-  REJECTED
-}
-
-model Province {
-  id   Int    @id
-  name String
-
-  cities     City[]
-  warehouses Warehouse[]
-  addresses  Address[]
-
-  @@map("provinces")
-}
-
-model City {
-  id         Int    @id
-  name       String
-  provinceId Int
-
-  warehouses Warehouse[]
-  province   Province    @relation(fields: [provinceId], references: [id])
-  addresses  Address[]
-
-  @@map("cities")
-}
-
-//baru
-model Wishlist {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  productId Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user    User    @relation(fields: [userId], references: [id])
-  product Product @relation(fields: [productId], references: [id])
-
-  @@unique([userId, productId])
-  @@map("wishlists")
+  PURCHASE
+  REFUND
 }

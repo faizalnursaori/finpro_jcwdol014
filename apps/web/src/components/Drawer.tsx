@@ -7,22 +7,29 @@ interface DrawerProps {
 
 export const Drawer: React.FC<DrawerProps> = ({ children }) => {
   const menuItems = [
-    { label: 'Dashboard', href: '/' },
+    { label: 'Home', href: '/' },
     {
       label: 'User Management',
       submenu: [
         {
           label: 'Admin',
-          href: '/dashboard/admin/admin-management',
+          href: '/admin-management',
         },
         {
           label: 'End-User',
-          href: '/dashboard/admin/enduser-management',
+          href: '/enduser-management',
         },
       ],
     },
-    { label: 'Product Management', href: '/dashboard/product' },
-    { label: 'Warehouse', href: '/dashboard/warehouse' },
+    {
+      label: 'Category Management',
+      href: '/cat-management',
+    },
+    {
+      label: 'Product Management',
+      href: '/products-management',
+    },
+    { label: 'Warehouse', href: '/warehouse' },
   ];
 
   return (
@@ -51,13 +58,13 @@ export const Drawer: React.FC<DrawerProps> = ({ children }) => {
       <div className="drawer-side min-h-full">
         <label htmlFor="my-drawer-2" className="drawer-overlay"></label>
         <ul className="menu bg-white text-base-content min-h-full w-64 p-4">
-          <h2 className="font-bold mb-4">Admin Center</h2>
+          <h2 className="font-bold mb-2">Admin Center</h2>
           {menuItems.map((item, index) => (
             <li key={index}>
               {item.submenu ? (
                 <div className="collapse collapse-arrow">
                   <input type="checkbox" />
-                  <div className="collapse-title font-medium">{item.label}</div>
+                  <div className="collapse-title font-normal">{item.label}</div>
                   <div className="collapse-content">
                     <ul className="ml-4">
                       {item.submenu.map((subItem, subIndex) => (
