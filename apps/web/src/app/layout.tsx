@@ -1,37 +1,21 @@
 import type { Metadata } from 'next';
-import Navbar from '@/components/Navbar';
-import { CartProvider } from '../context/CartContext';
 import './globals.css';
-import Header from '@/components/Header';
-import HeaderMobile from '@/components/HeaderMobile';
-import Footer from '@/components/Footer';
-import FooterMobile from '@/components/FooterMobile';
+import { ReactNode } from 'react';
 
 export const metadata: Metadata = {
   title: 'Hemart',
   description: 'Grocery store built with NextJS',
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+type LayoutProps = {
+  children: ReactNode;
+  dashboard: ReactNode;
+};
+
+export default function RootLayout({ children, dashboard }: LayoutProps) {
   return (
     <html lang="en">
-      <body>
-        <CartProvider>
-          <div className="flex flex-col min-h-screen">
-            <Header />
-            <HeaderMobile />
-            <main className="flex-grow container mx-auto px-4 py-8">
-              {children}
-            </main>
-            <FooterMobile />
-            <Footer />
-          </div>
-        </CartProvider>
-      </body>
+      <body>{dashboard || children}</body>
     </html>
   );
 }

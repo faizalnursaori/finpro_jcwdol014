@@ -8,6 +8,7 @@ import express, {
 } from 'express';
 import cors from 'cors';
 import { PORT } from './config';
+import { adminRouter } from './routers/admin.router';
 import cartRouter from './routers/cart.router';
 import productRouter from './routers/product.routers';
 import authRouter from './routers/auth.router';
@@ -61,6 +62,7 @@ export default class App {
     this.app.use('/api/products', productRouter);
     this.app.use('/api/auth', authRouter);
     this.app.use('/api/warehouses', warehouseRouter);
+    this.app.use('/api/admins', adminRouter);
   }
 
   public start(): void {
