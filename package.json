@@ -19,7 +19,7 @@
     "prettier": "^3.1.0",
     "tsc-alias": "^1.8.10",
     "tsconfig": "*",
-    "turbo": "^2.1.1"
+    "turbo": "latest"
   },
   "name": "finpro-nextjs-express-prisma",
   "packageManager": "npm@8.15.0",
