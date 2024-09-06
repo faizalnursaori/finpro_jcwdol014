@@ -16,6 +16,10 @@ model User {
   role               Role                 @default(USER)
   image              String               @default("/profile.jpg")
   provider           String?
+  name               String?
+  gender             String?
+  dob                DateTime?
+  mobileNumber       String?
   referralCode       String?              @unique
   referredBy         String?
   createdAt          DateTime             @default(now())
@@ -28,8 +32,9 @@ model User {
 }
 
 enum Role {
-  USER
+  SUPER_ADMIN
   ADMIN
+  USER
 }
 
 model Category {
