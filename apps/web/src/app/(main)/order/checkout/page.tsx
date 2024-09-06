@@ -81,7 +81,7 @@ const OrderProcessingPage = () => {
         paymentMethod,
         warehouseId: closestWarehouseId,
         cartId: cart.id,
-        addressId: 6,
+        addressId: 1,
         orderItems: cart.items.map((item) => ({
           productId: item.product.id,
           quantity: item.quantity,
