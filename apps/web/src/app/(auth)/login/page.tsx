@@ -22,6 +22,7 @@ export default function Login() {
       const data = await loginUser(email, password);
       console.log('Login successful:', data); // Log successful login
       localStorage.setItem('token', data.token);
+      localStorage.setItem('userInfo', JSON.stringify(data.data));
       router.back(); // Redirect to the previous page
     } catch (err) {
       console.error('Login error:', err); // Log the full error
@@ -87,7 +88,7 @@ export default function Login() {
                 href={"/register"}
                 className="font-semibold text-indigo-500 hover:underline"
               >
-                Sign In
+                Sign Up
               </Link>
             </p>
             <div className="divider">Login with Socials</div>

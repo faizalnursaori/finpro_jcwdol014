@@ -92,7 +92,7 @@ export default function Sidebar() {
           ) : (
             <div>
               <button className="btn mb-2 btn-ghost"><Link href='/login'>Log In</Link></button>
-              <button className="btn btn-outline btn-success"><Link href='/register'>Sign In</Link></button>
+              <button className="btn btn-outline btn-success"><Link href='/register'>Sign Up</Link></button>
             </div>
           )}
         </ul>

@@ -7,15 +7,12 @@ export const getClosestWarehouse = async () =>{
     const res = await axios.get(`${base_api}/warehouses/`)
     const data = res.data.warehouses
 
-    const userLoc = getUserCurrentLocation()
+    const userLoc =  getUserCurrentLocation()
     let distance = 0
     let wareId = 1 //default store
     data?.forEach((warehouse:any) => {
       const result = haversineDistance([userLoc.lon, userLoc.lat], [warehouse.longitude, warehouse.latitude])
-      if(distance === 0){
-        distance = result
-        wareId = warehouse.id
-      }else if(distance > result){
+       if(distance < result){
         distance = result
         wareId = warehouse.id
       }

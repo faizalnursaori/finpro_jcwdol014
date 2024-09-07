@@ -1,47 +1,36 @@
 'use client'
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
-import { editUserPassword } from "@/api/user";
-import { useRouter } from "next/navigation";
+import { resetUserPassword } from "@/api/user";
+import { useRouter, useParams } from "next/navigation";
 
 
 export default function ChangePasswordCard() {
     const [password, setPassword] = useState('')
     const [confirmPassword, setConfirmPassword] = useState('')
     const [isLoading, setIsLoading] = useState(false)
-    const [data, setData] = useState({})
-    const [user, setUser] = useState({})
     const router = useRouter()
-
-    useEffect(() => {
-      const userData = localStorage.getItem("userInfo");
-      const token = localStorage.getItem("token");
-      if(!token) router.push('/login')
-      if (userData) {
-        setUser(JSON.parse(userData));
-      }
-    }, []);
-
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      setData({ ...data, [e.target.name]: e.target.value });
-      setPassword(e.target.value)
-    };
-
+    const params = useParams()
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) =>{
       e.preventDefault()
+      setIsLoading(true)
       
       if(password !== confirmPassword) {
         toast.error('Password unmatched!')
+        setIsLoading(false)
         return
       }
 
-      setData({...user, ...data})
-
-      await editUserPassword(user.id, data)
-      toast.success('Password changed')
-      router.push('/profile')
+      try {
+        await resetUserPassword(params.token, {password})
+        toast.success('Password changed')
+        setIsLoading(false)
+        router.push('/login')
+      } catch (error) {
+        console.log(error);
+        
+      }
 
       
     }
@@ -54,7 +43,7 @@ export default function ChangePasswordCard() {
         <form className="form-control gap-4" onSubmit={handleSubmit}>
           <div className="form-control relative focus-within:border-white">
             <input
-              onChange={handleChange}
+              onChange={(e) => {setPassword(e.target.value)}}
               type="password"
               name="password"
               id="password"

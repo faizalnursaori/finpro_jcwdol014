@@ -1,7 +1,8 @@
 'use client';
 import ProfileCard from '@/components/ProfileCard';
+import WithAuth from '@/components/WithAuth';
 
-export default function Profile() {
+ function Profile() {
 
   return (
     <div className="flex justify-center gap-6">
@@ -9,3 +10,5 @@ export default function Profile() {
     </div>
   );
 }
+
+export default WithAuth(Profile)
