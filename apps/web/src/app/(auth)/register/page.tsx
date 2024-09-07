@@ -8,9 +8,7 @@ import { FaGoogle, FaFacebook, FaTwitter, FaCheckCircle } from "react-icons/fa";
 
 
 export default function Register() {
-  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -18,9 +16,8 @@ export default function Register() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-
     try {
-      await registerUser(username, email, password);
+      await registerUser(email);
       router.push('/register/confirm-info');
     } catch (err) {
       setError('Registration failed. Please try again.');

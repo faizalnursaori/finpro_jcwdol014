@@ -24,6 +24,8 @@ export default function Header() {
   useEffect(() => {
     if (token) {
       setIsLoggedIn(true);
+    } else{
+      setIsLoggedIn(false)
     }
   }, [token]);
 
@@ -83,10 +85,10 @@ export default function Header() {
           ) : (
             <div className='flex gap-2'>
               <Link className="btn btn-ghost" href="/login">
-                Log in
+                Log In
               </Link>
               <Link className="btn btn-outline btn-success" href="/register">
-                Sign in
+                Sign Up
               </Link>
             </div>
           )}

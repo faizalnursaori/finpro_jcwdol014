@@ -29,7 +29,7 @@ interface Product {
 
 export default function Home() {
   const [userLoc, setUserLoc] = useState<{ lon: number; lat: number }>();
-  const [closestWarehouseId, setClosestWarehouseId] = useState<number>();
+  const [closestWarehouseId, setClosestWarehouseId] = useState<number>(1);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const { addToCart, fetchCart, cart } = useCart();
@@ -45,8 +45,6 @@ export default function Home() {
   const getProducts  = async (id: number | undefined) =>{
     const productData: any = []
     const res = await axios.get(`${base_api}/products`)
-
-    console.log(res.data);
     
     const filteredProducts = res.data.filter((item:{productStocks:[{warehouseId: number}]}) => {
       let result = false

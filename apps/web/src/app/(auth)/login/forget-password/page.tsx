@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 
 export default function Register() {
-  const base_api = "http://localhost:3000";
+  const base_api = "http://localhost:8000";
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -15,15 +15,15 @@ export default function Register() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const res = await axios.post(`${base_api}/register`, {
+      const res = await axios.post(`${base_api}/api/auth/user/reset-password`, {
         email,
       });
 
-      toast.success("Register success!");
-      router.push("/");
+      toast.success("Email sent!");
+      router.push("/login/confirm-info");
     } catch (error) {
       console.error(error);
-      toast.error("Register failed.");
+      toast.error("Request failed.");
     } finally {
       setIsLoading(false);
     }
@@ -33,7 +33,7 @@ export default function Register() {
     <div className="bg-base-100 flex flex-col justify-center items-center gap-6">
       <h2 className="font-bold text-2xl">RESET YOUR PASSWORD</h2>
       <p className="font-medium text-center">
-        We will send you an email to reset your password
+        Forget your password? We will help you reset your password by sending a confirmation email.
       </p>
 
       <div>
