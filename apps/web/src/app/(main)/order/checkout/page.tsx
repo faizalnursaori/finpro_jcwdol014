@@ -6,6 +6,7 @@ import { useOrder } from '@/context/OrderContext';
 import { getClosestWarehouse } from '@/api/warehouse';
 import { useRouter } from 'next/navigation';
 import OrderDetails from '@/components/OrderDetail';
+import WithAuth from '@/components/WithAuth';
 
 const OrderProcessingPage = () => {
   const { cart } = useCart();
@@ -69,9 +70,9 @@ const OrderProcessingPage = () => {
           0,
         ) + shippingCost;
 
-      // Set expiration for payment
+      // Set expiration for payment to 1 hour from now
       const expirePayment = new Date();
-      expirePayment.setHours(expirePayment.getHours() + 24); // Expires in 24 hours
+      expirePayment.setHours(expirePayment.getHours() + 1);
 
       const orderData = {
         name: `Order-${Date.now()}`, // Generate a unique name for the order
@@ -81,13 +82,14 @@ const OrderProcessingPage = () => {
         paymentMethod,
         warehouseId: closestWarehouseId,
         cartId: cart.id,
-        addressId: 1,
+        addressId: 1, // You might want to make this dynamic based on user's selected address
         orderItems: cart.items.map((item) => ({
           productId: item.product.id,
           quantity: item.quantity,
           price: item.product.price,
           total: item.product.price * item.quantity,
         })),
+        expirePayment: expirePayment.toISOString(),
       };
 
       console.log('Checkout data:', orderData);
@@ -98,12 +100,14 @@ const OrderProcessingPage = () => {
 
       if (paymentMethod === 'PAYMENT_GATEWAY') {
         router.push(`/payment-gateway/${response.orderId}`);
+      } else if (paymentMethod === 'BANK_TRANSFER') {
+        router.push(`/order/${response.orderId}`);
       } else {
         // Redirect to home page after successful checkout
         router.push('/');
       }
     } catch (error) {
-      console.error('Checkout failed');
+      console.error('Checkout failed', error);
       alert('Failed to process your order. Please try again.');
     }
   };
@@ -135,4 +139,4 @@ const OrderProcessingPage = () => {
   );
 };
 
-export default OrderProcessingPage;
+export default WithAuth(OrderProcessingPage);

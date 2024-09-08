@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useOrder } from '@/context/OrderContext';
 import { Order, PaymentStatus } from '@/types/order';
+import WithAuth from '@/components/WithAuth';
 
 const OrderListPage = () => {
   const { cancelOrder } = useOrder();
@@ -132,4 +133,4 @@ const OrderListPage = () => {
   );
 };
 
-export default OrderListPage;
+export default WithAuth(OrderListPage);
