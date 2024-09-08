@@ -12,6 +12,7 @@ export type CheckoutBody = {
   orderItems: OrderItemsBody[];
   latitude: number;
   longitude: number;
+  userId: number;
 };
 
 export type OrderItemsBody = {

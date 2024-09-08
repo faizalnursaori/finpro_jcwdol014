@@ -1,6 +1,7 @@
 import prisma from '@/prisma';
 import { CheckoutBody } from '@/types/order.type';
 import { findNearestWarehouse } from './warehouse.service';
+import { createNewCart } from './cart.services';
 import {
   PaymentStatus,
   CancellationSource,
@@ -8,6 +9,28 @@ import {
   TransferStatus,
 } from '@prisma/client';
 import { calculateDistance } from '@/utils/distance.utils';
+
+export const getOrderDetailById = async (userId: number, orderId: number) => {
+  return await prisma.order.findFirst({
+    where: {
+      id: orderId,
+      cart: {
+        userId: userId,
+      },
+    },
+    include: {
+      items: {
+        include: {
+          product: true,
+        },
+      },
+      warehouse: true,
+      cart: true,
+      address: true,
+      voucher: true,
+    },
+  });
+};
 
 export const handleCheckout = async (id: number, body: CheckoutBody) => {
   const {
@@ -22,6 +45,7 @@ export const handleCheckout = async (id: number, body: CheckoutBody) => {
     orderItems,
     latitude,
     longitude,
+    userId,
   } = body;
 
   const expirePayment = new Date(Date.now() + 2 * 60 * 1000); // in 2 minutes
@@ -32,6 +56,15 @@ export const handleCheckout = async (id: number, body: CheckoutBody) => {
   }
 
   return prisma.$transaction(async (tx) => {
+    // Check if the cart is already associated with an order
+    const existingOrder = await tx.order.findUnique({
+      where: { cartId },
+    });
+
+    if (existingOrder) {
+      throw new Error('This cart is already associated with an order');
+    }
+
     const order = await tx.order.create({
       data: {
         name,
@@ -46,8 +79,13 @@ export const handleCheckout = async (id: number, body: CheckoutBody) => {
       },
     });
 
+    await tx.cart.update({
+      where: { id: cartId },
+      data: { isActive: false },
+    });
+
     await tx.orderItem.createMany({
-      data: orderItems.map((item: any) => ({
+      data: orderItems.map((item) => ({
         quantity: item.quantity,
         price: item.price,
         total: item.total,
@@ -88,18 +126,13 @@ export const handleCheckout = async (id: number, body: CheckoutBody) => {
           data: {
             quantity: item.quantity,
             transactionType: 'OUT',
-            description: `Stock OUT ${productInfo?.name} from ${warehouse?.name} for ORDER, qty: ${item.quantity}`,
+            description: `Stock OUT ${productInfo?.name} from warehouse for ORDER, qty: ${item.quantity}`,
             productStockId: productStock.id,
             warehouseId,
           },
         });
       }
     }
-
-    await tx.cart.update({
-      where: { id: cartId },
-      data: { isActive: false },
-    });
 
     await tx.transactionHistory.create({
       data: {
@@ -175,7 +208,7 @@ export const cancelExpiredOrders = async () => {
           await tx.stockTransferLog.create({
             data: {
               quantity: item.quantity,
-              transactionType: 'IN',
+              transactionType: TransactionType.IN,
               description: `Stock IN ${productInfo?.name} to ${order.warehouseId} warehouse for CANCELED ORDER, qty: ${item.quantity}`,
               productStockId: productStock.id,
               warehouseId: order.warehouseId,
@@ -192,6 +225,9 @@ export const cancelExpiredOrders = async () => {
             type: TransactionType.REFUND,
           },
         });
+
+        // Create a new cart for the user
+        await createNewCart(order.cart.user.id);
 
         canceledCount++;
       } catch (error) {
@@ -274,6 +310,9 @@ export const cancelOrder = async (
         type: TransactionType.REFUND,
       },
     });
+
+    // Create a new cart for the user
+    await createNewCart(userId);
 
     return updatedOrder;
   });
@@ -438,4 +477,44 @@ export const checkAndMutateStock = async (
       }
     }
   });
+};
+
+export const autoReceiveOrders = async () => {
+  const now = new Date();
+
+  try {
+    return await prisma.$transaction(async (tx) => {
+      const ordersToAutoReceive = await tx.order.findMany({
+        where: {
+          paymentStatus: 'SHIPPED',
+          shippedAt: {
+            lt: now,
+          },
+        },
+      });
+
+      let autoReceivedCount = 0;
+
+      for (const order of ordersToAutoReceive) {
+        try {
+          await tx.order.update({
+            where: {
+              id: order.id,
+            },
+            data: {
+              paymentStatus: 'DELIVERED',
+            },
+          });
+          autoReceivedCount++;
+        } catch (error) {
+          console.error(`Failed to auto-receive order ${order.id}:`, error);
+        }
+      }
+
+      return autoReceivedCount;
+    });
+  } catch (error) {
+    console.error('Transaction failed:', error);
+    throw error;
+  }
 };
