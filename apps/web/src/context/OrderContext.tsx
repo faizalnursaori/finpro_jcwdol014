@@ -60,7 +60,7 @@ export const OrderProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       const response = await axios.post(
-        `${baseApi}/orders/upload-proof`,
+        `${baseApi}/orders/payment-proof`,
         formData,
         {
           headers: {

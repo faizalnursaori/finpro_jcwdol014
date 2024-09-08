@@ -34,7 +34,7 @@ export const uploadPaymentProof = async (
   formData.append('orderId', orderId.toString());
 
   const response = await axios.post(
-    `${API_URL}/orders/upload-proof`,
+    `${API_URL}/orders/payment-proof`,
     formData,
     {
       headers: {
