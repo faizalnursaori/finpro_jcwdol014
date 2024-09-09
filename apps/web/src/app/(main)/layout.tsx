@@ -19,8 +19,8 @@ export default function MainLayout({
 }) {
   return (
     <>
-      <OrderProvider>
-        <CartProvider>
+      <CartProvider>
+        <OrderProvider>
           <div className="flex flex-col min-h-screen">
             <Header />
             <HeaderMobile />
@@ -30,8 +30,8 @@ export default function MainLayout({
             <FooterMobile />
             <Footer />
           </div>
-        </CartProvider>
-      </OrderProvider>
+        </OrderProvider>
+      </CartProvider>
     </>
   );
 }
