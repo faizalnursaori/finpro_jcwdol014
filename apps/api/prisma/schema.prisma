@@ -116,6 +116,7 @@ model Cart {
   userId    Int
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
+  deletedAt DateTime?
   user      User       @relation(fields: [userId], references: [id])
   items     CartItem[]
   order     Order?

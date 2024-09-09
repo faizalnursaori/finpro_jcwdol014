@@ -1,33 +1,57 @@
 'use client';
 
-import { createContext, useContext, useState, ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+} from 'react';
 import axios from 'axios';
+import { useCart } from './CartContext';
 
-interface CheckoutResponse {
-  orderId: number;
-  // Add other fields as needed from your API response
+interface Order {
+  id: number;
+  // Add other order properties here
 }
 
 interface OrderContextType {
+  currentOrder: Order | null;
+  setCurrentOrder: (order: Order | null) => void;
   checkout: (data: any) => Promise<{ orderId: number }>;
   cancelOrder: (orderId: number, source: string) => Promise<void>;
   uploadProof: (orderId: number, file: File) => Promise<void>;
   checkStock: (data: any) => Promise<void>;
+  fetchOrder: (orderId: number) => Promise<void>;
 }
 
 const OrderContext = createContext<OrderContextType | undefined>(undefined);
 
-export const OrderProvider = ({ children }: { children: ReactNode }) => {
-  const baseApi = 'http://localhost:8000/api';
+export const OrderProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
+  const [currentOrder, setCurrentOrder] = useState<Order | null>(null);
+  const baseApi =
+    process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+  const { setCart } = useCart();
+
+  // useEffect(() => {}, []);
+
+  const getHeaders = () => ({
+    Authorization: `Bearer ${localStorage.getItem('token')}`,
+  });
 
   const checkout = async (data: any) => {
     try {
       const response = await axios.post(`${baseApi}/orders/checkout`, data, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
+        headers: getHeaders(),
       });
       console.log('Checkout successful', response.data);
+      setCurrentOrder(response.data);
+
+      // Reset the cart after successful checkout
+      setCart(null);
+
       return { orderId: response.data.id };
     } catch (error) {
       console.error('Checkout failed', error);
@@ -40,13 +64,10 @@ export const OrderProvider = ({ children }: { children: ReactNode }) => {
       const response = await axios.post(
         `${baseApi}/orders/cancel`,
         { orderId, source },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        },
+        { headers: getHeaders() },
       );
       console.log('Order canceled', response.data);
+      setCurrentOrder(null);
     } catch (error) {
       console.error('Order cancellation failed', error);
       throw error;
@@ -64,12 +85,13 @@ export const OrderProvider = ({ children }: { children: ReactNode }) => {
         formData,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            ...getHeaders(),
             'Content-Type': 'multipart/form-data',
           },
         },
       );
       console.log('Proof uploaded', response.data);
+      await fetchOrder(orderId);
     } catch (error) {
       console.error('Proof upload failed', error);
       throw error;
@@ -80,15 +102,36 @@ export const OrderProvider = ({ children }: { children: ReactNode }) => {
     try {
       const response = await axios.post(`${baseApi}/orders/check-stock`, data);
       console.log('Stock checked', response.data);
+      return response.data;
     } catch (error) {
       console.error('Stock check failed', error);
       throw error;
     }
   };
 
+  const fetchOrder = async (orderId: number) => {
+    try {
+      const response = await axios.get(`${baseApi}/orders/${orderId}`, {
+        headers: getHeaders(),
+      });
+      setCurrentOrder(response.data);
+    } catch (error) {
+      console.error('Failed to fetch order', error);
+      throw error;
+    }
+  };
+
   return (
     <OrderContext.Provider
-      value={{ checkout, cancelOrder, uploadProof, checkStock }}
+      value={{
+        currentOrder,
+        setCurrentOrder,
+        checkout,
+        cancelOrder,
+        uploadProof,
+        checkStock,
+        fetchOrder,
+      }}
     >
       {children}
     </OrderContext.Provider>

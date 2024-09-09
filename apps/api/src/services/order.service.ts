@@ -56,13 +56,12 @@ export const handleCheckout = async (id: number, body: CheckoutBody) => {
   }
 
   return prisma.$transaction(async (tx) => {
-    // Check if the cart is already associated with an order
-    const existingOrder = await tx.order.findUnique({
-      where: { cartId },
+    const cart = await tx.cart.findUnique({
+      where: { id: cartId },
     });
 
-    if (existingOrder) {
-      throw new Error('This cart is already associated with an order');
+    if (!cart || !cart.isActive) {
+      throw new Error('Invalid or inactive cart');
     }
 
     const order = await tx.order.create({
@@ -74,14 +73,23 @@ export const handleCheckout = async (id: number, body: CheckoutBody) => {
         paymentMethod,
         expirePayment,
         warehouseId,
-        cartId,
         addressId,
+        cartId, // Include cartId here
+        items: {
+          create: orderItems.map((item) => ({
+            quantity: item.quantity,
+            price: item.price,
+            total: item.total,
+            productId: item.productId,
+          })),
+        },
       },
     });
 
+    // Soft delete the old cart
     await tx.cart.update({
       where: { id: cartId },
-      data: { isActive: false },
+      data: { isActive: false, deletedAt: new Date() },
     });
 
     await tx.orderItem.createMany({
@@ -250,9 +258,6 @@ export const cancelOrder = async (
         id: orderId,
         paymentStatus: PaymentStatus.PENDING,
         paymentProof: null,
-        cart: {
-          userId: userId,
-        },
       },
       data: {
         paymentStatus: PaymentStatus.CANCELED,
@@ -267,11 +272,7 @@ export const cancelOrder = async (
       throw new Error('Order not found OR cannot be cancelled');
     }
 
-    // Reactivate the cart
-    await tx.cart.update({
-      where: { id: updatedOrder.cartId },
-      data: { isActive: true },
-    });
+    await createNewCart(userId);
 
     for (const item of updatedOrder.items) {
       const productStock = await tx.productStock.update({
@@ -311,8 +312,8 @@ export const cancelOrder = async (
       },
     });
 
-    // Create a new cart for the user
-    await createNewCart(userId);
+    // // Create a new cart for the user
+    // await createNewCart(userId);
 
     return updatedOrder;
   });
