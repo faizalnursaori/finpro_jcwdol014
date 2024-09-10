@@ -1,6 +1,5 @@
 'use client';
 import ProfileCard from '@/components/ProfileCard';
-import WithAuth from '@/components/WithAuth';
 
  function Profile() {
 
@@ -11,4 +10,4 @@ import WithAuth from '@/components/WithAuth';
   );
 }
 
-export default WithAuth(Profile)
+export default Profile

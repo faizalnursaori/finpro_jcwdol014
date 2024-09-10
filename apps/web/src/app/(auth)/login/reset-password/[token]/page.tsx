@@ -38,7 +38,8 @@ export default function ChangePasswordCard() {
   return (
     <>
     <Toaster/>
-    <div className="card card-compact bg-base-100 shadow-xl h-fit w-[40vw] p-5">
+    <div className="bg-base-100 flex flex-col justify-center items-center gap-6">
+      <h2 className="font-bold text-2xl">Please enter your new password</h2>
       <div>
         <form className="form-control gap-4" onSubmit={handleSubmit}>
           <div className="form-control relative focus-within:border-white">

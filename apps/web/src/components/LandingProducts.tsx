@@ -5,6 +5,8 @@ import { Plus } from 'lucide-react';
 import { useEffect,useState } from 'react';
 import { useCart } from '../context/CartContext';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+import toast, {Toaster} from 'react-hot-toast';
 
 interface Warehouse {
   id: number;
@@ -34,6 +36,7 @@ export default function LandingProducts({ catHeader, products }: Props) {
   const [error, setError] = useState<string | null>(null);
   const { addToCart, fetchCart, cart } = useCart();
   const router = useRouter();
+  const {data} = useSession()
 
   const getTotalStock = (product: Product) => {
     return product.productStocks.reduce(
@@ -49,10 +52,8 @@ export default function LandingProducts({ catHeader, products }: Props) {
   };
 
   const handleAddToCart = async (product: Product) => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      // Jika tidak ada token, arahkan ke halaman login
-      router.push('/login');
+    if (!data?.user) {
+      toast.error('Login Required')
       return;
     }
 
@@ -82,6 +83,7 @@ export default function LandingProducts({ catHeader, products }: Props) {
 
   return (
     <>
+      <Toaster/>
       <div className="max-w-[80%] m-auto">
         <div className="flex justify-between mt-5 items-center">
           <h2 className="text-xl font-bold ">{catHeader}</h2>
@@ -120,7 +122,7 @@ export default function LandingProducts({ catHeader, products }: Props) {
                     <p className="hover:underline">{product.description}</p>
                     <div className="flex justify-between items-center">
                       <p className="font-bold text-success">{`Rp ${product.price.toLocaleString('id-ID')}`}</p>
-                      <button className="btn btn-ghost" onClick={() => handleAddToCart(product)}>
+                      <button className='btn btn-ghost' onClick={() => handleAddToCart(product)}>
                         <Plus />
                       </button>
                     </div>

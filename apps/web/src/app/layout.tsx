@@ -1,3 +1,4 @@
+'use client'
 import type { Metadata } from 'next';
 import { CartProvider } from '../context/CartContext';
 import './globals.css';
@@ -5,11 +6,9 @@ import Header from '@/components/Header';
 import HeaderMobile from '@/components/HeaderMobile';
 import Footer from '@/components/Footer';
 import FooterMobile from '@/components/FooterMobile';
+import {SessionProvider} from 'next-auth/react'
 
-export const metadata: Metadata = {
-  title: 'Hemart',
-  description: 'Grocery store built with NextJS',
-};
+
 
 export default function RootLayout({
   children,
@@ -19,6 +18,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        <SessionProvider>
         <CartProvider>
           <div className="flex flex-col min-h-screen">
             <Header />
@@ -30,6 +30,7 @@ export default function RootLayout({
             <Footer />
           </div>
         </CartProvider>
+        </SessionProvider>
       </body>
     </html>
   );

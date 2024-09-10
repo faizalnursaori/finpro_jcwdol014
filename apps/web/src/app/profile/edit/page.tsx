@@ -1,27 +1,27 @@
 'use client';
-import { SquarePen, BadgeCheck } from 'lucide-react';
-import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import { editUser } from '@/api/user';
+import { useSession } from 'next-auth/react';
+import { User } from 'lucide-react';
 
 export default function Edit() {
-  const [user, setUser] = useState({});
-  const [data, setData] = useState({});
+  const {data, update} = useSession()
+  const [Userdata, setData] = useState<{username: string, email: any, image: any}>({username: data?.user?.username , email: data?.user?.email, image: data?.user?.image});
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setData({ ...data, [e.target.name]: e.target.value });
+    setData({ ...Userdata, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      await editUser(user.id, data);
-      const updatedData = {...user, ...data}
-      localStorage.setItem('userInfo', JSON.stringify(updatedData))
+      await editUser(data?.user?.id, Userdata);
+      update({username: Userdata.username, email: Userdata.email, image: Userdata.image})
       toast.success('Profile Updated!');
       router.push('/profile');
     } catch (error) {
@@ -29,12 +29,6 @@ export default function Edit() {
     }
   };
 
-  useEffect(() => {
-    const userData = localStorage.getItem('userInfo');
-    if (userData) {
-      setUser(JSON.parse(userData));
-    }
-  }, []);
 
   return (
     <>
@@ -48,6 +42,7 @@ export default function Edit() {
               </span>
               <input
                 onChange={handleChange}
+                max={1}
                 type="file"
                 name="image"
                 id="image"

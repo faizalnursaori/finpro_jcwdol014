@@ -14,7 +14,7 @@ export const register = async (req: Request, res: Response) => {
     }
 
     const existingVerifiedUser = await prisma.user.findUnique({
-      where: { email, isVerified: true },
+      where: { email },
     });
 
     if (existingVerifiedUser) {
@@ -74,7 +74,6 @@ export const register = async (req: Request, res: Response) => {
 };
 
 export const login = async (req: Request, res: Response) => {
-  const JWT_SECRET = process.env.JWT_SECRET;
   try {
     const { email, password } = req.body;
 
@@ -130,9 +129,15 @@ export const resetPassword = async (req: Request, res: Response) =>  {
       where: {email}
     })
 
+    if(user?.provider === 'google' || user?.provider === 'github') {
+      return res.status(404).json({message: 'Login with provider cannot reset password.'})
+    }
+
     const idToken = jwt.sign({id: user?.id}, process.env.JWT_SECRET!, {expiresIn: '1h'})
 
     const url = `http://localhost:3000/login/reset-password/${idToken}`
+
+
 
   try {
     await transporter.sendMail({
@@ -145,7 +150,7 @@ export const resetPassword = async (req: Request, res: Response) =>  {
       html: `Please click this link to reset your password: <a href="${url}">${url}<a/>`,
     });
   } catch (error) {
-    res.status(500).json({message: "Email not sent!"})
+    return res.status(500).json({message: "Email not sent!"})
     
   }
 

@@ -3,31 +3,17 @@ import Link from 'next/link';
 import { ShoppingCart } from 'lucide-react';
 import Image from 'next/image';
 import { useCart } from '@/context/CartContext';
-import { useRouter } from 'next/navigation';
 import { useState,useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import { signOut } from 'next-auth/react';
 
 
 export default function Header() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const token = localStorage.getItem('token');
   const { cartItemCount } = useCart();
-  const router = useRouter()
-
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("userInfo");
-    setIsLoggedIn(false)
-    router.push("/login");
-  };
-
-  useEffect(() => {
-    if (token) {
-      setIsLoggedIn(true);
-    } else{
-      setIsLoggedIn(false)
-    }
-  }, [token]);
+  const {data} = useSession()
+  console.log(data);
+  
+  
 
   const categories = [
     'Rice & Flour',
@@ -59,7 +45,7 @@ export default function Header() {
           </label>
           <Link
             href="/cart"
-            className={token ? 'btn btn-ghost' : 'btn btn-disabled'}
+            className={data?.user ? 'btn btn-ghost' : 'btn btn-disabled'}
           >
             <ShoppingCart />
             {cartItemCount > 0 && (
@@ -70,15 +56,15 @@ export default function Header() {
           </Link>
         </div>
         <div className="navbar-end gap-2">
-          {isLoggedIn ? (
+          {data?.user ? (
             <details className="dropdown">
-              <summary className="btn btn-ghost hover:btn-link">Hello, user</summary>
+              <summary className="btn btn-ghost hover:btn-link">Hello, {data?.user?.name ? data.user.name : data.user.username}</summary>
               <ul className="menu dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
                 <li>
                   <Link href='/profile'>Profile</Link>
                 </li>
                 <li>
-                  <button onClick={() => handleLogout()}>Log Out</button>
+                  <button onClick={() => signOut()}>Log Out</button>
                 </li>
               </ul>
             </details>

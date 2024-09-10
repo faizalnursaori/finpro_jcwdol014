@@ -1,29 +1,23 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import axios from "axios";
-import { FaGoogle, FaFacebook, FaTwitter } from "react-icons/fa";
-import { loginUser } from '@/lib/ApiClient';
+import { FaGoogle, FaGithub } from "react-icons/fa";
+import { signIn } from 'next-auth/react';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
     try {
-      const data = await loginUser(email, password);
-      console.log('Login successful:', data); // Log successful login
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('userInfo', JSON.stringify(data.data));
-      router.back(); // Redirect to the previous page
+      const data = await signIn('credentials', {redirect: true, email, password})
+      
     } catch (err) {
       console.error('Login error:', err); // Log the full error
       setError(
@@ -93,9 +87,9 @@ export default function Login() {
             </p>
             <div className="divider">Login with Socials</div>
             <div className='flex gap-5 items-center justify-center my-2'>
-              <Link href='/'><FaGoogle size={25}/></Link>
-              <Link href='/'><FaFacebook size={25}/></Link>
-              <Link href='/'><FaTwitter size={25}/></Link>
+              <button type='button' onClick={() => signIn("google")}><FaGoogle size={25}/></button>
+              <button type='button' onClick={() => signIn("github")}><FaGithub size={25}/></button>
+              
             </div>
             <div className="mt-4 flex w-80 flex-col items-center justify-center gap-8">
               <Link

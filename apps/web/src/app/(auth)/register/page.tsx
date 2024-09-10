@@ -3,8 +3,9 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { registerUser } from '@/lib/ApiClient';
+import { signIn } from 'next-auth/react';
 import Link from 'next/link';
-import { FaGoogle, FaFacebook, FaTwitter, FaCheckCircle } from "react-icons/fa";
+import { FaGoogle, FaGithub, FaCheckCircle } from "react-icons/fa";
 
 
 export default function Register() {
@@ -70,9 +71,8 @@ export default function Register() {
             </p>
             <div className="divider">Login with Socials</div>
             <div className='flex gap-5 items-center justify-center my-2'>
-              <Link href='/'><FaGoogle size={25}/></Link>
-              <Link href='/'><FaFacebook size={25}/></Link>
-              <Link href='/'><FaTwitter size={25}/></Link>
+              <button onClick={() => signIn('google')}><FaGoogle size={25}/></button>
+              <button onClick={() => signIn('google')}><FaGithub size={25}/></button>
             </div>
             <div className="mt-4 flex w-80 flex-col items-center justify-center gap-8">
               <Link
