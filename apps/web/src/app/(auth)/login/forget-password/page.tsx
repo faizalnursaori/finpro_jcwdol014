@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import axios from "axios";
-import toast from "react-hot-toast";
+import toast, {Toaster} from "react-hot-toast";
 import { useRouter } from "next/navigation";
 
 export default function Register() {
@@ -18,8 +18,8 @@ export default function Register() {
       const res = await axios.post(`${base_api}/api/auth/user/reset-password`, {
         email,
       });
-
-      toast.success("Email sent!");
+      
+      toast.success(res.data.message);
       router.push("/login/confirm-info");
     } catch (error) {
       console.error(error);
@@ -30,6 +30,8 @@ export default function Register() {
   };
 
   return (
+    <>
+    <Toaster/>
     <div className="bg-base-100 flex flex-col justify-center items-center gap-6">
       <h2 className="font-bold text-2xl">RESET YOUR PASSWORD</h2>
       <p className="font-medium text-center">
@@ -86,5 +88,6 @@ export default function Register() {
         </form>
       </div>
     </div>
+    </>
   );
 }

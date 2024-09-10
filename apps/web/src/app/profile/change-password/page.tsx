@@ -3,28 +3,19 @@ import { useState, useEffect } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { editUserPassword } from "@/api/user";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 
 export default function ChangePasswordCard() {
     const [password, setPassword] = useState('')
     const [confirmPassword, setConfirmPassword] = useState('')
     const [isLoading, setIsLoading] = useState(false)
-    const [data, setData] = useState({})
-    const [user, setUser] = useState({})
+    const [newData, setNewData] = useState({})
     const router = useRouter()
-
-    useEffect(() => {
-      const userData = localStorage.getItem("userInfo");
-      const token = localStorage.getItem("token");
-      if(!token) router.push('/login')
-      if (userData) {
-        setUser(JSON.parse(userData));
-      }
-    }, []);
-
+    const {data} = useSession()
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      setData({ ...data, [e.target.name]: e.target.value });
+      setNewData({ ...newData, [e.target.name]: e.target.value });
       setPassword(e.target.value)
     };
 
@@ -37,9 +28,7 @@ export default function ChangePasswordCard() {
         return
       }
 
-      setData({...user, ...data})
-
-      await editUserPassword(user.id, data)
+      await editUserPassword(data?.user?.id, newData)
       toast.success('Password changed')
       router.push('/profile')
 

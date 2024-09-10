@@ -1,28 +1,14 @@
 import { Menu, X } from 'lucide-react';
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { useCart } from '@/context/CartContext';
+import { useSession, signOut } from 'next-auth/react';
+
 
 export default function Sidebar() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const { cartItemCount } = useCart();
-  const router = useRouter();
-  const token = localStorage.getItem('token');
+  const {data} = useSession()
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('userInfo');
-    setIsLoggedIn(false);
-    router.push('/login');
-  };
-
-  useEffect(() => {
-    if (token) {
-      setIsLoggedIn(true);
-    }
-  }, [token]);
   const categories = [
     'Rice & Flour',
     'Fruits & Vegetables',
@@ -60,7 +46,7 @@ export default function Sidebar() {
             </label>
           </div>
           <div className="divider"></div>
-          {isLoggedIn ? <div>
+          {data?.user ? <div>
             <h2 className='text-xl font-medium mb-2'>Profile</h2>
           <li><Link href='/profile'>My Profile</Link></li>
           <li><Link href='/cart'>My Cart</Link></li>
@@ -85,9 +71,9 @@ export default function Sidebar() {
             <Link href="/shiiping">Shipping Information</Link>
           </li>
           <div className="divider"></div>
-          {isLoggedIn ? (
+          {data?.user ? (
             <div className='w-full'>
-              <button className='btn w-full btn-ghost ' onClick={() => handleLogout()}>Log Out</button>
+              <button className='btn w-full btn-ghost ' onClick={() => signOut()}>Log Out</button>
             </div>
           ) : (
             <div>

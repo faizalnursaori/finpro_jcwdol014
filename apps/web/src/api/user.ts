@@ -15,8 +15,6 @@ export const editUserByToken = async (idToken: any, data: {}) => {
   console.log(res);
 };
 
-
-
 export const editUserPassword = async (id: string, data: {}) => {
   const token = localStorage.getItem('token');
   const res = await axios.put(`${base_api}/password/${id}`, data, {
@@ -28,10 +26,12 @@ export const resetUserPassword = async (id: any, data: {}) => {
   const res = await axios.put(`${base_api}/reset-password/${id}`, data);
 };
 
-export const getUser = async(id:string) => {
-  const token = localStorage.getItem('token')
-  const res = await axios.get(`${base_api}/${id}`, {
-    headers: {Authorization: `Bearer ${token}`}
-  })
+export const getUserByEmail = async(email:string) => {
+  const res = await axios.get(`${base_api}/${email}`)
+  return res.data
+}
+
+export const createUser = async (data: any) => {
+  const res = await axios.post(`${base_api}/`, data)
   return res.data
 }

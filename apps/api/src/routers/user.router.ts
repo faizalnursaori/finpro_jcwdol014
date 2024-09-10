@@ -1,12 +1,13 @@
 import express from 'express';
-import { updateUser, getUser, updateUserPassword, updateUserByToken, resetUserPassword } from '@/controllers/user.controller';
+import { updateUser, getUserByEmail, updateUserPassword, updateUserByToken, resetUserPassword, createUser } from '@/controllers/user.controller';
 
 const router = express.Router();
 
+router.post('/', createUser)
 router.put('/:id', updateUser)
 router.put('/password/:id', updateUserPassword)
 router.put('/register/:token', updateUserByToken)
 router.put('/reset-password/:token', resetUserPassword)
-router.get('/:id', getUser)
+router.get('/:email', getUserByEmail)
 
 export default router;

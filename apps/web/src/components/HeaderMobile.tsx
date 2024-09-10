@@ -1,24 +1,15 @@
 'use client';
 import Image from 'next/image';
 import { ShoppingCart, Search } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Sidebar from './Sidebar';
 import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
-import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 
 export default function HeaderMobile() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const { cartItemCount } = useCart();
-  const router = useRouter();
-  const token = localStorage.getItem('token');
-  
-
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
-
+  const {data} = useSession()
   
   return (
     <header className="flex lg:hidden items-center justify-between">
@@ -39,7 +30,7 @@ export default function HeaderMobile() {
           <Search />
           <Link
             href="/cart"
-            className={token ? 'btn btn-ghost' : 'btn btn-disabled'}
+            className={data?.user ? 'btn btn-ghost' : 'btn btn-disabled'}
           >
             <ShoppingCart />
             {cartItemCount > 0 && (
