@@ -1,8 +1,8 @@
 import React from 'react';
 import { useCart } from '@/context/CartContext';
 import { useOrder } from '@/context/OrderContext';
-import { formatRupiah } from '@/utils/currencyUtils';
 import { useRouter } from 'next/navigation';
+import { formatRupiah } from '@/utils/currencyUtils';
 
 const CheckoutSummary = () => {
   const { cart } = useCart();

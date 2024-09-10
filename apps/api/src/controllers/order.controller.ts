@@ -132,34 +132,28 @@ export const cancel = async (req: AuthenticatedRequest, res: Response) => {
 };
 
 export const uploadProof = async (req: AuthenticatedRequest, res: Response) => {
-  upload.single('file')(req, res, async (err) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
+  try {
+    const userId = req.user?.userId;
+    if (!userId || typeof userId !== 'number') {
+      return res.status(400).json({ error: 'Valid userId is required' });
     }
 
-    try {
-      const userId = req.user?.userId;
-      if (!userId || typeof userId !== 'number') {
-        return res.status(400).json({ error: 'Valid userId is required' });
-      }
-
-      const { orderId } = req.body;
-      if (!orderId) {
-        return res.status(400).json({ error: 'Order ID is required' });
-      }
-
-      if (!req.file) {
-        return res
-          .status(400)
-          .json({ error: 'Payment proof file is required' });
-      }
-
-      const updatedOrder = await uploadPaymentProof(userId, orderId, req.file);
-      res.status(200).json(updatedOrder);
-    } catch (error) {
-      res.status(500).json({ message: 'Failed to upload payment proof' });
+    const { orderId } = req.body;
+    if (!orderId) {
+      return res.status(400).json({ error: 'Order ID is required' });
     }
-  });
+
+    if (!req.file) {
+      return res.status(400).json({ error: 'Payment proof file is required' });
+    }
+
+    // File is already uploaded by the middleware, so we proceed with logic
+    const updatedOrder = await uploadPaymentProof(userId, orderId, req.file);
+    res.status(200).json(updatedOrder);
+  } catch (error) {
+    console.error('Error uploading payment proof:', error);
+    res.status(500).json({ message: 'Failed to upload payment proof' });
+  }
 };
 
 export const checkStock = async (req: Request, res: Response) => {

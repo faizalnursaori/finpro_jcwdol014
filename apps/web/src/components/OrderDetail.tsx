@@ -1,7 +1,6 @@
 import React from 'react';
 import { Cart } from '@/types/cart';
 import { formatRupiah } from '@/utils/currencyUtils';
-
 interface OrderDetailsProps {
   cart: Cart;
 }

@@ -321,13 +321,13 @@ export const cancelOrder = async (
 
 export const uploadPaymentProof = async (
   userId: number,
-  orderId: number,
+  orderId: string, // Ubah tipe data menjadi string
   file: Express.Multer.File,
 ) => {
   const shippedAtLimit = new Date(Date.now() + 2 * 60 * 1000); // in 2 minutes
   const order = await prisma.order.findFirst({
     where: {
-      id: orderId,
+      id: parseInt(orderId, 10), // Konversi string ke integer
       cart: {
         userId: userId,
       },
@@ -340,7 +340,7 @@ export const uploadPaymentProof = async (
 
   return await prisma.order.update({
     where: {
-      id: orderId,
+      id: parseInt(orderId, 10), // Konversi string ke integer
     },
     data: {
       paymentProof: `/assets/payment/${file.filename}`,

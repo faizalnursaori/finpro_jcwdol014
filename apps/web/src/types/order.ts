@@ -1,7 +1,13 @@
 import { CancellationSource } from '@prisma/client';
 
 // Define PaymentStatus as a string union type instead of using the Prisma enum
-export type PaymentStatus = 'PENDING' | 'PAID' | 'CANCELLED' | 'EXPIRED';
+export type PaymentStatus =
+  | 'PENDING'
+  | 'PAID'
+  | 'SHIPPED'
+  | 'DELIVERED'
+  | 'FAILED'
+  | 'CANCELED';
 
 export interface OrderItem {
   id: number;
@@ -55,23 +61,34 @@ export interface Address {
 export interface Order {
   id: number;
   name: string;
-  paymentStatus: PaymentStatus;
-  shippingCost: number;
-  total: number;
-  paymentMethod: string;
-  paymentProof: string | null;
-  expirePayment: string;
-  warehouseId: number;
-  cartId: number;
-  addressId: number;
-  voucherId: number | null;
-  shippedAt: string | null;
-  cancellationSource: CancellationSource | null;
   createdAt: string;
-  updatedAt: string;
-  items: OrderItem[];
-  warehouse: Warehouse;
-  cart: Cart;
-  address: Address;
-  voucher: any | null; // Replace 'any' with a proper Voucher type if available
+  total: number;
+  shippingCost: number;
+  paymentStatus: PaymentStatus;
+  paymentMethod: string;
+  paymentProof?: string;
+  expirePayment: string;
+  address: {
+    address: string;
+    city: {
+      name: string;
+    };
+    province: {
+      name: string;
+    };
+    postalCode: string;
+  };
+  items: Array<{
+    id: number;
+    product: {
+      name: string;
+    };
+    quantity: number;
+    price: number;
+  }>;
+  voucher?: {
+    code: string;
+    discountType: 'PERCENTAGE' | 'FIXED';
+    discountValue: number;
+  };
 }
