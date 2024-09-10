@@ -1,7 +1,6 @@
 import React from 'react';
 import { Trash2 } from 'lucide-react';
 import { formatRupiah } from '@/utils/currencyUtils';
-
 interface CartItemType {
   id: number;
   product: {

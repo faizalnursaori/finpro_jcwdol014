@@ -54,8 +54,8 @@ async function main() {
   // Create a category
   const category = await prisma.category.create({
     data: {
-      slug: 'test-order-6',
-      name: 'Test Order 06',
+      slug: 'test-order-7',
+      name: 'Test Order 07',
     },
   });
 
