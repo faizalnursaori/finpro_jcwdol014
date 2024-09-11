@@ -73,7 +73,7 @@ export default function Sidebar() {
           <div className="divider"></div>
           {data?.user ? (
             <div className='w-full'>
-              <button className='btn w-full btn-ghost ' onClick={() => signOut()}>Log Out</button>
+              <button className='btn w-full btn-ghost ' onClick={() => signOut({callbackUrl: '/login'})}>Log Out</button>
             </div>
           ) : (
             <div>

@@ -36,7 +36,7 @@ export default function ProfileMenu() {
             </Link>
           </li>
           <li>
-            <button className="" onClick={() => signOut()}>
+            <button className="" onClick={() => signOut({callbackUrl: '/login'})}>
               <LogOut />
               Log Out
             </button>

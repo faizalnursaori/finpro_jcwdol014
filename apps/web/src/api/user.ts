@@ -3,9 +3,8 @@ import axios from 'axios';
 const base_api = 'http://localhost:8000/api/users';
 
 export const editUser = async (id: string, data: {}) => {
-  const token = localStorage.getItem('token');
   const res = await axios.put(`${base_api}/${id}`, data, {
-    headers: { Authorization: `Bearer ${token}` },
+    headers: {"Content-Type": "multipart/form-data"}
   });
 };
 
@@ -33,5 +32,10 @@ export const getUserByEmail = async(email:string) => {
 
 export const createUser = async (data: any) => {
   const res = await axios.post(`${base_api}/`, data)
+  return res.data
+}
+
+export const verifyUser = async (data: {email: any}) =>{
+  const res = await axios.post(`${base_api}/verify`, data)
   return res.data
 }
