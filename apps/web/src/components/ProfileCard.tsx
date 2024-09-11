@@ -3,10 +3,20 @@ import { SquarePen, BadgeCheck } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
+import { verifyUser } from '@/api/user';
+import { useRouter } from 'next/navigation';
+import { data } from 'cypress/types/jquery';
 
 
 export default  function ProfileCard() {
   const {data} = useSession()
+  const router = useRouter()
+
+  const handleVerify = async () =>{
+    const email = {email: data?.user?.email}
+    const res = await verifyUser(email)
+    router.push('/profile/info/verify')
+  }
 
   return (
     <div className="card card-compact bg-base-100 shadow-xl w-[40vw] p-5 h-fit">
@@ -33,14 +43,21 @@ export default  function ProfileCard() {
         </Link>
       </div>
 
-      <div className="flex flex-col gap-5 mt-7">
-        <div className="flex justify-between">
+      <div className="flex flex-col gap-5 mt-7 ">
+        <div className="flex justify-between items-center">
           <p className="text-xl">Email:</p>
           <p className="font-medium text-xl">{data?.user?.email}</p>
         </div>
-        <div className="flex justify-between">
+        <div className="flex justify-between items-center">
           <p className="text-xl">Referal Code:</p>
           <p className="font-medium text-xl">{data?.user?.referralCode ? data?.user?.referralCode : '-'}</p>
+        </div>
+        <div className='flex justify-between items-center'>
+          {data?.user?.isVerified ? "" : <>
+            <p className='text-xl'>You are not yet verified</p>
+            <button className='btn btn-outline btn-success' onClick={() => handleVerify()}>Verify</button>
+          
+          </>}
         </div>
       </div>
     </div>

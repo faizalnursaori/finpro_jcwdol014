@@ -3,15 +3,23 @@ import prisma from '@/prisma';
 import bcrypt, { genSalt } from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { hashPassword } from '@/utils/auth.utils';
+import { transporter } from '@/utils/auth.utils';
 
 export const updateUser = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const data = req.body;
+    const imageUrl = req.file ? `/profile/${req.file.filename}` : data.image;
+    
+    if(data.isVerified == 'true') {
+      data.isVerified = true
+    } else if(data.isVerified == 'false') {
+      data.isVerified = false
+    }
 
     const user = await prisma.user.update({
       where: { id: Number(id) },
-      data
+      data: {...data, image: imageUrl}
     });
 
     res.status(200).json({ message: 'User data updated successfully!', user });
@@ -136,4 +144,45 @@ export const createUser = async (req: Request, res: Response) => {
     res.status(500).json({message: 'An error occured', error})
     
   }
+}
+
+export const verifyUser = async (req: Request, res: Response) => {
+  const {email}= req.body
+  const emailToken =  jwt.sign({
+    email
+  }, process.env.JWT_SECRET!, {
+    expiresIn: '1h',
+  });
+
+  const url = `http://localhost:8000/api/users/verify/${emailToken}`;
+
+  try {
+    await transporter.sendMail({
+      from: {
+        name: 'Hemart',
+        address: process.env.GMAIL_USER!
+      },
+      to: email,
+      subject: 'Confirmation Email',
+      html: `Please click this link to verify yourself : <a href="${url}">${url}<a/>`,
+    });
+    return res.status(200).json({message: 'Email sent!'})
+  } catch (error) {
+    console.log("error sending an email: ", error);
+  }
+
+}
+
+export const confirmation = async(req:Request, res: Response) => {
+  const {token} = req.params
+  const payload: any = jwt.verify(token, process.env.JWT_SECRET!)
+  const email = payload.email
+  
+  const user = await prisma.user.update({
+    where: {email},
+    data: {isVerified: true}
+  })
+
+  res.status(200).redirect('http://localhost:3000/profile/info/verified')
+
 }

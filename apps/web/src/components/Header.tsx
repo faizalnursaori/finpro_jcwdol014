@@ -64,7 +64,7 @@ export default function Header() {
                   <Link href='/profile'>Profile</Link>
                 </li>
                 <li>
-                  <button onClick={() => signOut()}>Log Out</button>
+                  <button onClick={() => signOut({callbackUrl: '/login'})}>Log Out</button>
                 </li>
               </ul>
             </details>

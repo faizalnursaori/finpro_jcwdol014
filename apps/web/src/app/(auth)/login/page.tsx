@@ -4,19 +4,21 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { FaGoogle, FaGithub } from "react-icons/fa";
 import { signIn } from 'next-auth/react';
+import { useParams } from 'next/navigation';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
     try {
-      const data = await signIn('credentials', {redirect: true, email, password})
+      const data = await signIn('credentials', {callbackUrl: '/', email, password})
       
     } catch (err) {
       console.error('Login error:', err); // Log the full error
@@ -87,8 +89,8 @@ export default function Login() {
             </p>
             <div className="divider">Login with Socials</div>
             <div className='flex gap-5 items-center justify-center my-2'>
-              <button type='button' onClick={() => signIn("google")}><FaGoogle size={25}/></button>
-              <button type='button' onClick={() => signIn("github")}><FaGithub size={25}/></button>
+              <button type='button' onClick={() => signIn("google", {callbackUrl: '/'})}><FaGoogle size={25}/></button>
+              <button type='button' onClick={() => signIn("github", {callbackUrl: '/'})}><FaGithub size={25}/></button>
               
             </div>
             <div className="mt-4 flex w-80 flex-col items-center justify-center gap-8">

@@ -4,6 +4,7 @@ import GoogleProvider from 'next-auth/providers/google'
 import GithubProvider from 'next-auth/providers/github'
 import { loginUser } from "@/lib/ApiClient";
 import { getUserByEmail, createUser } from "@/api/user";
+import { update } from "cypress/types/lodash";
 
 
 
@@ -58,6 +59,7 @@ const handler = NextAuth({
     ],
     pages:{
         signIn: '/login',
+        error: '/login'
     },
     callbacks: {
         async jwt({token, user, trigger, session}) {
@@ -66,11 +68,15 @@ const handler = NextAuth({
                 token.username = user.username
                 token.isVerified = user.isVerified
                 token.id = user.id
+                token.role = user.role
+                token.image = user.image
             }
             if(trigger === "update" && session.username){
+                const updateUser = await getUserByEmail(session.email)
                 token.username = session.username
                 token.email = session.email
-                token.image = session.image
+                token.image = updateUser?.data?.image
+                token.isVerified = updateUser?.data?.isVerified
             }
             return token
         },
@@ -79,9 +85,18 @@ const handler = NextAuth({
                 session.user.username = token.username
                 session.user.isVerified = token.isVerified
                 session.user.id = token.id
+                session.user.role = token.role
+                session.user.image = token.image
             }
             return session
-        }
+        },
+        async redirect({ url, baseUrl }) {
+            
+            if (url.startsWith("/")) return `${baseUrl}${url}`
+            // Allows callback URLs on the same origin
+            else if (new URL(url).origin === baseUrl) return url
+            return baseUrl
+          }
     }
 })
 

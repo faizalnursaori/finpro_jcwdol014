@@ -8,10 +8,17 @@ import { User } from 'lucide-react';
 
 export default function Edit() {
   const {data, update} = useSession()
-  const [Userdata, setData] = useState<{username: string, email: any, image: any}>({username: data?.user?.username , email: data?.user?.email, image: data?.user?.image});
+  const [image, setImage] = useState<File | null>(null)
+  const [Userdata, setData] = useState<{username: string, email: any, image: any, isVerified: any}>({username: data?.user?.username , email: data?.user?.email, image: data?.user?.image, isVerified: data?.user?.isVerified});
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   
+
+  const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setImage(e.target.files[0]);
+    }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setData({ ...Userdata, [e.target.name]: e.target.value });
@@ -20,8 +27,11 @@ export default function Edit() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      await editUser(data?.user?.id, Userdata);
-      update({username: Userdata.username, email: Userdata.email, image: Userdata.image})
+
+      if(Userdata.email != data?.user?.email) Userdata.isVerified = false
+
+      await editUser(data?.user?.id, {...Userdata, image});
+      update({username: Userdata.username, email: Userdata.email, isVerified: Userdata.isVerified})
       toast.success('Profile Updated!');
       router.push('/profile');
     } catch (error) {
@@ -41,8 +51,7 @@ export default function Edit() {
                 New Avatar
               </span>
               <input
-                onChange={handleChange}
-                max={1}
+                onChange={handleImage}
                 type="file"
                 name="image"
                 id="image"
