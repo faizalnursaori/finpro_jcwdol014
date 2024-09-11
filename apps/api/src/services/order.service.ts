@@ -92,15 +92,15 @@ export const handleCheckout = async (id: number, body: CheckoutBody) => {
       data: { isActive: false, deletedAt: new Date() },
     });
 
-    await tx.orderItem.createMany({
-      data: orderItems.map((item) => ({
-        quantity: item.quantity,
-        price: item.price,
-        total: item.total,
-        orderId: order.id,
-        productId: item.productId,
-      })),
-    });
+    // await tx.orderItem.createMany({
+    //   data: orderItems.map((item) => ({
+    //     quantity: item.quantity,
+    //     price: item.price,
+    //     total: item.total,
+    //     orderId: order.id,
+    //     productId: item.productId,
+    //   })),
+    // });
 
     for (const item of orderItems) {
       await tx.productStock.updateMany({
@@ -244,6 +244,47 @@ export const cancelExpiredOrders = async () => {
     }
 
     return canceledCount;
+  });
+};
+
+export const confirmOrder = async (userId: number, orderId: number) => {
+  return await prisma.$transaction(async (tx) => {
+    const order = await tx.order.findFirst({
+      where: {
+        id: orderId,
+        cart: {
+          userId: userId,
+        },
+        paymentStatus: PaymentStatus.PENDING,
+      },
+      include: {
+        items: true,
+      },
+    });
+
+    if (!order) {
+      throw new Error('Order not found or cannot be confirmed');
+    }
+
+    const updatedOrder = await tx.order.update({
+      where: { id: orderId },
+      data: {
+        paymentStatus: PaymentStatus.PAID,
+        createdAt: new Date(),
+      },
+    });
+
+    // Create a transaction history entry
+    await tx.transactionHistory.create({
+      data: {
+        userId: userId,
+        orderId: orderId,
+        amount: order.total,
+        type: TransactionType.PURCHASE,
+      },
+    });
+
+    return updatedOrder;
   });
 };
 

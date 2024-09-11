@@ -3,6 +3,7 @@ import {
   handleCheckout,
   cancelExpiredOrders,
   cancelOrder,
+  confirmOrder,
   uploadPaymentProof,
   checkAndMutateStock,
 } from '../services/order.service';
@@ -114,6 +115,35 @@ export const cancelExpired = async (req: Request, res: Response) => {
     res.status(200).json({ canceledCount });
   } catch (error) {
     res.status(500).json({ message: 'Failed to cancel expired orders' });
+  }
+};
+
+export const confirm = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const userId = req.user?.userId;
+    if (!userId || typeof userId !== 'number') {
+      return res.status(400).json({ error: 'Valid userId is required' });
+    }
+
+    const { orderId } = req.body;
+    if (!orderId || typeof orderId !== 'number') {
+      return res.status(400).json({ error: 'Valid orderId is required' });
+    }
+
+    const confirmedOrder = await confirmOrder(userId, orderId);
+    res.status(200).json({ success: true, order: confirmedOrder });
+  } catch (error) {
+    console.error('Error confirming order:', error);
+    if (
+      error instanceof Error &&
+      error.message === 'Order not found or cannot be confirmed'
+    ) {
+      res.status(404).json({ success: false, message: error.message });
+    } else {
+      res
+        .status(500)
+        .json({ success: false, message: 'Failed to confirm order' });
+    }
   }
 };
 

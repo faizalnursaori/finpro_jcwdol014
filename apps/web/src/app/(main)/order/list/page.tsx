@@ -74,60 +74,77 @@ const OrderListPage = () => {
     }
   };
 
+  const getStatusBadge = (status: PaymentStatus) => {
+    if (status === 'PENDING') {
+      return <span className="badge badge-warning">{status}</span>;
+    } else if (
+      status === 'PAID' ||
+      status === 'SHIPPED' ||
+      status === 'DELIVERED'
+    ) {
+      return <span className="badge badge-success">{status}</span>;
+    } else if (status === 'FAILED' || status === 'CANCELED') {
+      return <span className="badge badge-error">{status}</span>;
+    } else {
+      return <span className="badge">{status}</span>;
+    }
+  };
+
   if (isLoading) {
-    return <div>Loading orders...</div>;
+    return <div className="loading loading-lg"></div>;
   }
 
   if (error) {
-    return <div>Error: {error}</div>;
+    return <div className="alert alert-error">{error}</div>;
   }
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">My Orders</h1>
-      <div className="mb-4">
+      <h1 className="text-3xl font-bold mb-6">My Orders</h1>
+      <div className="flex flex-wrap gap-2 mb-6">
         <input
           type="date"
           value={searchDate}
           onChange={(e) => setSearchDate(e.target.value)}
-          className="p-2 border rounded mr-2"
+          className="input input-bordered"
         />
         <input
           type="text"
           placeholder="Order No"
           value={searchOrderNo}
           onChange={(e) => setSearchOrderNo(e.target.value)}
-          className="p-2 border rounded mr-2"
+          className="input input-bordered"
         />
-        <button
-          onClick={handleSearch}
-          className="bg-blue-500 text-white px-4 py-2 rounded"
-        >
+        <button onClick={handleSearch} className="btn btn-primary">
           Search
         </button>
       </div>
       {filteredOrders.length === 0 ? (
-        <p>No orders found.</p>
+        <p className="text-lg">No orders found.</p>
       ) : (
-        <ul className="space-y-4">
+        <div className="space-y-4">
           {filteredOrders.map((order) => (
-            <li key={order.id} className="border p-4 rounded">
-              <div>Order No: {order.id}</div>
-              <div>Name: {order.name}</div>
-              <div>Status: {order.paymentStatus}</div>
-              <div>Total: ${(order.total / 100).toFixed(2)}</div>
-              <div>Date: {new Date(order.createdAt).toLocaleDateString()}</div>
-              {order.paymentStatus === 'PENDING' && (
-                <button
-                  onClick={() => handleCancelOrder(order.id)}
-                  className="bg-red-500 text-white px-4 py-2 rounded mt-2"
-                >
-                  Cancel Order
-                </button>
-              )}
-            </li>
+            <div key={order.id} className="card bg-base-100 shadow-xl">
+              <div className="card-body">
+                <h2 className="card-title">Order No: {order.id}</h2>
+                <p>Name: {order.name}</p>
+                <p>Status: {getStatusBadge(order.paymentStatus)}</p>
+                <p>Total: ${(order.total / 100).toFixed(2)}</p>
+                <p>Date: {new Date(order.createdAt).toLocaleDateString()}</p>
+                {order.paymentStatus === 'PENDING' && (
+                  <div className="card-actions justify-end">
+                    <button
+                      onClick={() => handleCancelOrder(order.id)}
+                      className="btn btn-error"
+                    >
+                      Cancel Order
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );

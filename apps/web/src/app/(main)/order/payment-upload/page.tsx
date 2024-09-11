@@ -46,7 +46,7 @@ const PaymentUploadPage = () => {
       );
 
       alert('Payment proof uploaded successfully!');
-      router.push('/order/success');
+      router.push(`/order/success?orderId=${orderId}`);
     } catch (error) {
       console.error('Failed to upload payment proof:', error);
       alert('Failed to upload payment proof. Please try again.');
