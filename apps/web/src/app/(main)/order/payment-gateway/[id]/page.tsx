@@ -11,7 +11,7 @@ const OrderDetail = () => {
   const [error, setError] = useState(null);
   const { id } = useParams();
   const router = useRouter();
-  const { cancelOrder } = useOrder();
+  const { cancelOrder, confirmOrder } = useOrder();
 
   const baseApiUrl = 'http://localhost:8000/api';
 
@@ -40,6 +40,18 @@ const OrderDetail = () => {
 
   const handleUploadPaymentProof = () => {
     router.push(`/order/payment-upload?orderId=${id}`);
+  };
+
+  const handleConfirmPayment = async () => {
+    if (!order) return;
+    try {
+      await confirmOrder(order.id);
+      alert('Payment confirmed successfully');
+      router.push(`/order/success?orderId=${order.id}`);
+    } catch (error) {
+      console.error('Payment confirmation failed', error);
+      alert('Failed to confirm payment. Please try again.');
+    }
   };
 
   const handleCancelOrder = async () => {
@@ -127,17 +139,12 @@ const OrderDetail = () => {
           <div className="mt-6">
             <h3 className="text-xl font-semibold mb-2">Order Items</h3>
             <ul className="list-disc pl-5">
-              {order.items.map((item) => {
-                // Console log each item
-                console.log('Rendering item:', item);
-
-                return (
-                  <li key={item.id}>
-                    {item.product.name} - Quantity: {item.quantity} - Price:{' '}
-                    {formatRupiah(item.price * item.quantity)}
-                  </li>
-                );
-              })}
+              {order.items.map((item) => (
+                <li key={item.id}>
+                  {item.product.name} - Quantity: {item.quantity} - Price:{' '}
+                  {formatRupiah(item.price * item.quantity)}
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -160,9 +167,9 @@ const OrderDetail = () => {
             {isPending && (
               <button
                 className="btn btn-primary"
-                onClick={handleUploadPaymentProof}
+                onClick={handleConfirmPayment}
               >
-                Upload Payment Proof
+                Confirm Payment
               </button>
             )}
             {['PENDING', 'PAID'].includes(order.paymentStatus) && (
@@ -174,7 +181,7 @@ const OrderDetail = () => {
 
           {isPending && (
             <div className="alert alert-info mt-4">
-              Please upload your payment proof to confirm your order.
+              Please confirm your payment to proceed with your order.
             </div>
           )}
         </div>

@@ -7,6 +7,7 @@ import {
   checkStock,
   getOrderList,
   getOrderDetail,
+  confirm,
 } from '../controllers/order.controller';
 import { authenticateToken } from '@/middleware/auth.middleware';
 import { uploader } from '@/middleware/uploader.middleware';
@@ -21,6 +22,9 @@ router.post('/checkout', authenticateToken, checkout);
 
 // Route for canceling expired orders
 router.post('/cancel-expired', cancelExpired);
+
+// Route for confirming an order
+router.post('/confirm', authenticateToken, confirm);
 
 // Route for canceling an order
 router.post('/cancel', authenticateToken, cancel);

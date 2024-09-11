@@ -9,11 +9,12 @@ import React, {
 } from 'react';
 import axios from 'axios';
 import { useCart } from './CartContext';
+import { Order } from '@/types/order';
 
-interface Order {
-  id: number;
-  // Add other order properties here
-}
+// interface Order {
+//   id: number;
+//   // Add other order properties here
+// }
 
 interface OrderContextType {
   currentOrder: Order | null;
@@ -23,6 +24,7 @@ interface OrderContextType {
   uploadProof: (orderId: number, file: File) => Promise<void>;
   checkStock: (data: any) => Promise<void>;
   fetchOrder: (orderId: number) => Promise<void>;
+  confirmOrder: (orderId: number) => Promise<void>;
 }
 
 const OrderContext = createContext<OrderContextType | undefined>(undefined);
@@ -43,9 +45,18 @@ export const OrderProvider: React.FC<{ children: ReactNode }> = ({
 
   const checkout = async (data: any) => {
     try {
-      const response = await axios.post(`${baseApi}/orders/checkout`, data, {
-        headers: getHeaders(),
-      });
+      let response;
+      if (data.id) {
+        // If the order already exists, update it
+        response = await axios.put(`${baseApi}/orders/${data.id}`, data, {
+          headers: getHeaders(),
+        });
+      } else {
+        // If it's a new order, create it
+        response = await axios.post(`${baseApi}/orders/checkout`, data, {
+          headers: getHeaders(),
+        });
+      }
       console.log('Checkout successful', response.data);
       setCurrentOrder(response.data);
 
@@ -55,6 +66,21 @@ export const OrderProvider: React.FC<{ children: ReactNode }> = ({
       return { orderId: response.data.id };
     } catch (error) {
       console.error('Checkout failed', error);
+      throw error;
+    }
+  };
+
+  const confirmOrder = async (orderId: number) => {
+    try {
+      const response = await axios.post(
+        `${baseApi}/orders/confirm`,
+        { orderId },
+        { headers: getHeaders() },
+      );
+      console.log('Order confirmed', response.data);
+      setCurrentOrder(response.data);
+    } catch (error) {
+      console.error('Order confirmation failed', error);
       throw error;
     }
   };
@@ -131,6 +157,7 @@ export const OrderProvider: React.FC<{ children: ReactNode }> = ({
         uploadProof,
         checkStock,
         fetchOrder,
+        confirmOrder,
       }}
     >
       {children}

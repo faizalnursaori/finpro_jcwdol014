@@ -99,7 +99,7 @@ const OrderProcessingPage = () => {
       setOrderId(response.orderId);
 
       if (paymentMethod === 'PAYMENT_GATEWAY') {
-        router.push(`/payment-gateway/${response.orderId}`);
+        router.push(`order/payment-gateway/${response.orderId}`);
       } else if (paymentMethod === 'BANK_TRANSFER') {
         router.push(`/order/${response.orderId}`);
       } else {

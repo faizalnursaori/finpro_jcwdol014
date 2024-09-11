@@ -24,7 +24,7 @@ const OrderSuccessPage = () => {
       <div className="card bg-base-100 shadow-xl">
         <div className="card-body text-center">
           <h2 className="card-title text-2xl mb-4 justify-center">
-            Payment Proof Uploaded Successfully!
+            Payment Successfully!
           </h2>
 
           <div className="text-5xl text-success mb-6">
@@ -44,9 +44,7 @@ const OrderSuccessPage = () => {
             </svg>
           </div>
 
-          <p className="mb-4">
-            Thank you for uploading your payment proof for Order #{orderId}.
-          </p>
+          <p className="mb-4">Your order id is #{orderId}.</p>
           <p className="mb-6">
             Our team will verify your payment shortly. You will receive a
             confirmation email once the payment is confirmed.
