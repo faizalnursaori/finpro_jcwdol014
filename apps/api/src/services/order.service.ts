@@ -156,14 +156,14 @@ export const handleCheckout = async (id: number, body: CheckoutBody) => {
 };
 
 export const cancelExpiredOrders = async () => {
-  const now = new Date();
+  const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
   return await prisma.$transaction(async (tx) => {
     const expiredOrders = await tx.order.findMany({
       where: {
         paymentStatus: PaymentStatus.PENDING,
         paymentProof: null,
-        expirePayment: {
-          lt: now,
+        createdAt: {
+          lt: oneHourAgo,
         },
       },
       include: {
@@ -179,19 +179,13 @@ export const cancelExpiredOrders = async () => {
     let canceledCount = 0;
     for (const order of expiredOrders) {
       try {
-        // Update order status
+        // Update order status to CANCELED
         await tx.order.update({
           where: { id: order.id },
           data: {
             paymentStatus: PaymentStatus.CANCELED,
             cancellationSource: CancellationSource.SYSTEM,
           },
-        });
-
-        // Reactivate the cart
-        await tx.cart.update({
-          where: { id: order.cartId },
-          data: { isActive: true },
         });
 
         // Return stock to warehouse and create stock transfer logs
@@ -224,7 +218,7 @@ export const cancelExpiredOrders = async () => {
           });
         }
 
-        // Create transaction history entry
+        // Create transaction history entry for refund
         await tx.transactionHistory.create({
           data: {
             userId: order.cart.user.id,
@@ -234,7 +228,7 @@ export const cancelExpiredOrders = async () => {
           },
         });
 
-        // Create a new cart for the user
+        // Create a new cart for the user (same as in cancelOrder)
         await createNewCart(order.cart.user.id);
 
         canceledCount++;
