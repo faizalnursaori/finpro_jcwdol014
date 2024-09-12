@@ -74,7 +74,7 @@ export const getOrderList = async (
       where: {
         ...filters,
         cart: {
-          userId: userId, // Add this line to filter by userId through the cart relation
+          userId: userId,
         },
       },
       include: {

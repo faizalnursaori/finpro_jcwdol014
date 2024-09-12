@@ -15,7 +15,6 @@ import authRouter from './routers/auth.router';
 import orderRouter from './routers/order.router';
 import warehouseRouter from './routers/warehouse.router';
 import { startOrderCronJobs } from './cron/order.cron';
-
 export default class App {
   private app: Express;
 
@@ -69,11 +68,12 @@ export default class App {
     this.app.use('/api/admins', adminRouter);
   }
 
-  // private startCronJobs(): void {
-  //   startOrderCronJobs();
-  // }
+  private startCronJobs(): void {
+    startOrderCronJobs();
+  }
 
   public start(): void {
+    this.startCronJobs();
     this.app.listen(PORT, () => {
       console.log(`  ➜  [API] Local:   http://localhost:${PORT}/`);
     });

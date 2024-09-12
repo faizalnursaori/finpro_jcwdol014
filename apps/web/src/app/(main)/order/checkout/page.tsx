@@ -99,9 +99,9 @@ const OrderProcessingPage = () => {
       setOrderId(response.orderId);
 
       if (paymentMethod === 'PAYMENT_GATEWAY') {
-        router.push(`order/payment-gateway/${response.orderId}`);
+        router.push(`/order/payment-gateway/${response.orderId}`);
       } else if (paymentMethod === 'BANK_TRANSFER') {
-        router.push(`/order/${response.orderId}`);
+        router.push(`/order/bank-transfer/${response.orderId}`);
       } else {
         // Redirect to home page after successful checkout
         router.push('/');

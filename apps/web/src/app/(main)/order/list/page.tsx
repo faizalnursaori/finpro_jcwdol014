@@ -2,9 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import Link from 'next/link';
 import { useOrder } from '@/context/OrderContext';
 import { Order, PaymentStatus } from '@/types/order';
 import WithAuth from '@/components/WithAuth';
+import { formatRupiah } from '@/utils/currencyUtils';
 
 const OrderListPage = () => {
   const { cancelOrder } = useOrder();
@@ -29,8 +31,29 @@ const OrderListPage = () => {
           },
         );
         if (response.data.success) {
-          setOrders(response.data.orders);
-          setFilteredOrders(response.data.orders);
+          const ordersWithProducts = await Promise.all(
+            response.data.orders.map(async (order) => {
+              const itemsWithProducts = await Promise.all(
+                order.items.map(async (item) => {
+                  const productResponse = await axios.get(
+                    `http://localhost:8000/api/orders/${order.id}`,
+                    {
+                      headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                      },
+                    },
+                  );
+                  const product = productResponse.data.order.items.find(
+                    (i: any) => i.id === item.id,
+                  ).product;
+                  return { ...item, product };
+                }),
+              );
+              return { ...order, items: itemsWithProducts };
+            }),
+          );
+          setOrders(ordersWithProducts);
+          setFilteredOrders(ordersWithProducts);
         } else {
           throw new Error('Failed to fetch orders');
         }
@@ -72,6 +95,26 @@ const OrderListPage = () => {
       console.error('Order cancellation failed', error);
       alert('Failed to cancel order.');
     }
+  };
+
+  // Function to group items by product name and calculate quantity
+  const groupItemsByProductName = (items: any[]) => {
+    const groupedItems: { [key: string]: { name: string; quantity: number } } =
+      {};
+
+    items.forEach((item) => {
+      const productName = item.product.name;
+      if (groupedItems[productName]) {
+        groupedItems[productName].quantity += item.quantity;
+      } else {
+        groupedItems[productName] = {
+          name: productName,
+          quantity: item.quantity,
+        };
+      }
+    });
+
+    return Object.values(groupedItems);
   };
 
   const getStatusBadge = (status: PaymentStatus) => {
@@ -127,20 +170,29 @@ const OrderListPage = () => {
             <div key={order.id} className="card bg-base-100 shadow-xl">
               <div className="card-body">
                 <h2 className="card-title">Order No: {order.id}</h2>
-                <p>Name: {order.name}</p>
+                <ul>
+                  {groupItemsByProductName(order.items).map((item, index) => (
+                    <li key={index} className="font-semibold">
+                      {item.name} - Quantity {item.quantity}
+                    </li>
+                  ))}
+                </ul>
                 <p>Status: {getStatusBadge(order.paymentStatus)}</p>
-                <p>Total: ${(order.total / 100).toFixed(2)}</p>
+                <p>Total: {formatRupiah(order.total)}</p>
                 <p>Date: {new Date(order.createdAt).toLocaleDateString()}</p>
-                {order.paymentStatus === 'PENDING' && (
-                  <div className="card-actions justify-end">
+                <div className="card-actions justify-end">
+                  <Link href={`/order/${order.id}`} className="btn btn-primary">
+                    View Details
+                  </Link>
+                  {order.paymentStatus === 'PENDING' && (
                     <button
                       onClick={() => handleCancelOrder(order.id)}
                       className="btn btn-error"
                     >
                       Cancel Order
                     </button>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             </div>
           ))}
