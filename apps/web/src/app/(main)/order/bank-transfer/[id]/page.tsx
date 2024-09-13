@@ -21,7 +21,7 @@ const OrderDetail = () => {
     return expirationTime;
   };
 
-  const baseApiUrl = 'http://localhost:8000/api';
+  const baseApiUrl = process.env.NEXT_PUBLIC_BASE_API_URL;
 
   useEffect(() => {
     const fetchOrderDetail = async () => {

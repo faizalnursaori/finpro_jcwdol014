@@ -7,114 +7,82 @@ import { useOrder } from '@/context/OrderContext';
 import { Order, PaymentStatus } from '@/types/order';
 import WithAuth from '@/components/WithAuth';
 import { formatRupiah } from '@/utils/currencyUtils';
+import { formatDate } from '@/utils/dateUtils';
 
 const OrderListPage = () => {
   const { cancelOrder } = useOrder();
   const [orders, setOrders] = useState<Order[]>([]);
-  const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
-  const [searchDate, setSearchDate] = useState('');
-  const [searchOrderNo, setSearchOrderNo] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchDate, setSearchDate] = useState('');
+  const [searchOrderNo, setSearchOrderNo] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [sortBy, setSortBy] = useState('createdAt');
+  const [sortOrder, setSortOrder] = useState('desc');
+
+  const fetchOrders = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await axios.get<{
+        success: boolean;
+        orders: Order[];
+        pagination: {
+          currentPage: number;
+          totalPages: number;
+          totalItems: number;
+          itemsPerPage: number;
+        };
+      }>(
+        `${process.env.NEXT_PUBLIC_BASE_API_URL}/orders?page=${currentPage}&limit=10&sortBy=${sortBy}&sortOrder=${sortOrder}&startDate=${searchDate}&orderNumber=${searchOrderNo}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        },
+      );
+      if (response.data.success) {
+        setOrders(response.data.orders);
+        setTotalPages(response.data.pagination.totalPages);
+      } else {
+        throw new Error('Failed to fetch orders');
+      }
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+      setError('Failed to fetch orders. Please try again later.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchOrders = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const response = await axios.get<{ success: boolean; orders: Order[] }>(
-          'http://localhost:8000/api/orders',
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`,
-            },
-          },
-        );
-        if (response.data.success) {
-          const ordersWithProducts = await Promise.all(
-            response.data.orders.map(async (order) => {
-              const itemsWithProducts = await Promise.all(
-                order.items.map(async (item) => {
-                  const productResponse = await axios.get(
-                    `http://localhost:8000/api/orders/${order.id}`,
-                    {
-                      headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`,
-                      },
-                    },
-                  );
-                  const product = productResponse.data.order.items.find(
-                    (i: any) => i.id === item.id,
-                  ).product;
-                  return { ...item, product };
-                }),
-              );
-              return { ...order, items: itemsWithProducts };
-            }),
-          );
-          setOrders(ordersWithProducts);
-          setFilteredOrders(ordersWithProducts);
-        } else {
-          throw new Error('Failed to fetch orders');
-        }
-      } catch (error) {
-        console.error('Error fetching orders:', error);
-        setError('Failed to fetch orders. Please try again later.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchOrders();
-  }, []);
+  }, [currentPage, sortBy, sortOrder]);
 
   const handleSearch = () => {
-    const filtered = orders.filter(
-      (order) =>
-        (!searchDate ||
-          new Date(order.createdAt).toISOString().slice(0, 10) ===
-            searchDate) &&
-        (!searchOrderNo || order.id === parseInt(searchOrderNo)),
-    );
-    setFilteredOrders(filtered);
+    setCurrentPage(1);
+    fetchOrders();
   };
 
   const handleCancelOrder = async (orderId: number) => {
     try {
       await cancelOrder(orderId, 'USER');
       alert('Order cancelled successfully');
-      // Refresh the orders list after cancellation
-      const updatedOrders = orders.map((order) =>
-        order.id === orderId
-          ? { ...order, paymentStatus: 'CANCELLED' as PaymentStatus }
-          : order,
-      );
-      setOrders(updatedOrders);
-      setFilteredOrders(updatedOrders);
+      fetchOrders();
     } catch (error) {
       console.error('Order cancellation failed', error);
       alert('Failed to cancel order.');
     }
   };
 
-  // Function to group items by product name and calculate quantity
-  const groupItemsByProductName = (items: any[]) => {
-    const groupedItems: { [key: string]: { name: string; quantity: number } } =
-      {};
-
-    items.forEach((item) => {
-      const productName = item.product.name;
-      if (groupedItems[productName]) {
-        groupedItems[productName].quantity += item.quantity;
-      } else {
-        groupedItems[productName] = {
-          name: productName,
-          quantity: item.quantity,
-        };
-      }
-    });
-
-    return Object.values(groupedItems);
+  const handleSort = (field: string) => {
+    if (field === sortBy) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortOrder('asc');
+    }
   };
 
   const getStatusBadge = (status: PaymentStatus) => {
@@ -162,40 +130,71 @@ const OrderListPage = () => {
           Search
         </button>
       </div>
-      {filteredOrders.length === 0 ? (
+      {orders.length === 0 ? (
         <p className="text-lg">No orders found.</p>
       ) : (
-        <div className="space-y-4">
-          {filteredOrders.map((order) => (
-            <div key={order.id} className="card bg-base-100 shadow-xl">
-              <div className="card-body">
-                <h2 className="card-title">Order No: {order.id}</h2>
-                <ul>
-                  {groupItemsByProductName(order.items).map((item, index) => (
-                    <li key={index} className="font-semibold">
-                      {item.name} - Quantity {item.quantity}
-                    </li>
-                  ))}
-                </ul>
-                <p>Status: {getStatusBadge(order.paymentStatus)}</p>
-                <p>Total: {formatRupiah(order.total)}</p>
-                <p>Date: {new Date(order.createdAt).toLocaleDateString()}</p>
-                <div className="card-actions justify-end">
-                  <Link href={`/order/${order.id}`} className="btn btn-primary">
-                    View Details
-                  </Link>
-                  {order.paymentStatus === 'PENDING' && (
-                    <button
-                      onClick={() => handleCancelOrder(order.id)}
-                      className="btn btn-error"
+        <div>
+          <table className="table w-full">
+            <thead>
+              <tr>
+                <th onClick={() => handleSort('id')}>
+                  Order No{' '}
+                  {sortBy === 'id' && (sortOrder === 'asc' ? '▲' : '▼')}
+                </th>
+                <th onClick={() => handleSort('createdAt')}>
+                  Date{' '}
+                  {sortBy === 'createdAt' && (sortOrder === 'asc' ? '▲' : '▼')}
+                </th>
+                <th onClick={() => handleSort('paymentStatus')}>
+                  Status{' '}
+                  {sortBy === 'paymentStatus' &&
+                    (sortOrder === 'asc' ? '▲' : '▼')}
+                </th>
+                <th onClick={() => handleSort('total')}>
+                  Total{' '}
+                  {sortBy === 'total' && (sortOrder === 'asc' ? '▲' : '▼')}
+                </th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {orders.map((order) => (
+                <tr key={order.id}>
+                  <td>{order.id}</td>
+                  <td>{formatDate(order.createdAt)}</td>
+                  <td>{getStatusBadge(order.paymentStatus)}</td>
+                  <td>{formatRupiah(order.total)}</td>
+                  <td>
+                    <Link
+                      href={`/order/${order.id}`}
+                      className="btn btn-primary btn-sm mr-2"
                     >
-                      Cancel Order
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-          ))}
+                      View Details
+                    </Link>
+                    {order.paymentStatus === 'PENDING' && (
+                      <button
+                        onClick={() => handleCancelOrder(order.id)}
+                        className="btn btn-error btn-sm"
+                      >
+                        Cancel Order
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="flex justify-center mt-4">
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <button
+                key={page}
+                onClick={() => setCurrentPage(page)}
+                className={`btn btn-sm mx-1 ${currentPage === page ? 'btn-active' : ''}`}
+              >
+                {page}
+              </button>
+            ))}
+          </div>
         </div>
       )}
     </div>

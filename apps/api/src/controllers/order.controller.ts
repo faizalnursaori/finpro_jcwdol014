@@ -53,11 +53,21 @@ export const getOrderList = async (
     if (!userId || typeof userId !== 'number') {
       return res.status(400).json({ error: 'Valid userId is required' });
     }
-    const { startDate, endDate, orderNumber } = req.query;
 
-    const filters: any = {
-      // Remove userId from here
-    };
+    const {
+      startDate,
+      endDate,
+      orderNumber,
+      page = '1',
+      limit = '10',
+      sortBy = 'createdAt',
+      sortOrder = 'desc',
+    } = req.query;
+
+    const pageNumber = parseInt(page as string);
+    const limitNumber = parseInt(limit as string);
+
+    const filters: any = {};
 
     if (startDate && endDate) {
       filters.createdAt = {
@@ -70,6 +80,21 @@ export const getOrderList = async (
       filters.id = parseInt(orderNumber as string);
     }
 
+    const validSortFields = ['createdAt', 'total', 'paymentStatus'];
+    const sortField = validSortFields.includes(sortBy as string)
+      ? sortBy
+      : 'createdAt';
+    const order = sortOrder === 'asc' ? 'asc' : 'desc';
+
+    const totalCount = await prisma.order.count({
+      where: {
+        ...filters,
+        cart: {
+          userId: userId,
+        },
+      },
+    });
+
     const orders = await prisma.order.findMany({
       where: {
         ...filters,
@@ -78,18 +103,33 @@ export const getOrderList = async (
         },
       },
       include: {
-        items: true,
+        items: {
+          include: {
+            product: true,
+          },
+        },
         warehouse: true,
         cart: true,
         address: true,
         voucher: true,
       },
       orderBy: {
-        createdAt: 'desc',
+        [sortField as string]: order,
       },
+      skip: (pageNumber - 1) * limitNumber,
+      take: limitNumber,
     });
 
-    res.status(200).json({ success: true, orders });
+    res.status(200).json({
+      success: true,
+      orders,
+      pagination: {
+        currentPage: pageNumber,
+        totalPages: Math.ceil(totalCount / limitNumber),
+        totalItems: totalCount,
+        itemsPerPage: limitNumber,
+      },
+    });
   } catch (error) {
     console.error('Error fetching orders:', error);
     res.status(500).json({ success: false, message: 'Error fetching orders' });

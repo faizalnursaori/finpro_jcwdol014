@@ -11,10 +11,41 @@ const PaymentUploadPage = () => {
 
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const validateFile = (file: File): boolean => {
+    const allowedExtensions = ['.jpg', '.jpeg', '.png'];
+    const maxSize = 1 * 1024 * 1024; // 1MB in bytes
+
+    const fileExtension = file.name
+      .toLowerCase()
+      .slice(((file.name.lastIndexOf('.') - 1) >>> 0) + 2);
+
+    if (!allowedExtensions.includes(`.${fileExtension}`)) {
+      setErrorMessage(
+        'Invalid file type. Only .jpg, .jpeg, and .png files are allowed.',
+      );
+      return false;
+    }
+
+    if (file.size > maxSize) {
+      setErrorMessage('File size exceeds 1MB. Please choose a smaller file.');
+      return false;
+    }
+
+    setErrorMessage(null);
+    return true;
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      setFile(e.target.files[0]);
+      const selectedFile = e.target.files[0];
+      if (validateFile(selectedFile)) {
+        setFile(selectedFile);
+      } else {
+        setFile(null);
+        e.target.value = ''; // Reset file input
+      }
     }
   };
 
@@ -22,7 +53,7 @@ const PaymentUploadPage = () => {
     e.preventDefault();
 
     if (!file || !orderId) {
-      alert('Please upload a file or provide a valid order ID.');
+      alert('Please upload a valid file or provide a valid order ID.');
       return;
     }
 
@@ -35,7 +66,7 @@ const PaymentUploadPage = () => {
       const token = localStorage.getItem('token');
 
       await axios.post(
-        'http://localhost:8000/api/orders/payment-proof',
+        `${process.env.NEXT_PUBLIC_BASE_API_URL}/orders/payment-proof`,
         formData,
         {
           headers: {
@@ -63,11 +94,15 @@ const PaymentUploadPage = () => {
           <label className="block mb-2">Upload Payment Receipt:</label>
           <input
             type="file"
-            accept="image/*"
+            accept=".jpg,.jpeg,.png"
             onChange={handleFileChange}
             className="w-full p-2 border rounded"
             required
           />
+          <p className="text-sm text-gray-500 mt-1">
+            Allowed file types: .jpg, .jpeg, .png. Maximum file size: 1MB.
+          </p>
+          {errorMessage && <p className="text-red-500 mt-2">{errorMessage}</p>}
         </div>
         <button
           type="submit"
