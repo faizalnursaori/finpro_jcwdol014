@@ -13,16 +13,17 @@ const OrderDetail = () => {
   const router = useRouter();
   const { cancelOrder, confirmOrder } = useOrder();
 
-  const baseApiUrl = 'http://localhost:8000/api';
-
   useEffect(() => {
     const fetchOrderDetail = async () => {
       try {
-        const response = await fetch(`${baseApiUrl}/orders/${id}`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BASE_API_URL}/orders/${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`,
+            },
           },
-        });
+        );
         if (!response.ok) {
           throw new Error('Failed to fetch order details');
         }
