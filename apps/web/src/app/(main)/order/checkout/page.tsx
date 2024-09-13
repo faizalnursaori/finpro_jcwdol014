@@ -7,6 +7,9 @@ import { getClosestWarehouse } from '@/api/warehouse';
 import { useRouter } from 'next/navigation';
 import OrderDetails from '@/components/OrderDetail';
 import WithAuth from '@/components/WithAuth';
+import Image from 'next/image';
+import { paymentMethods } from '@/utils/paymentList';
+import BankInstructionsModal from '@/components/BankInstructionModal';
 
 const OrderProcessingPage = () => {
   const { cart } = useCart();
@@ -17,6 +20,12 @@ const OrderProcessingPage = () => {
   const [isStockAvailable, setIsStockAvailable] = useState(false);
   const [orderId, setOrderId] = useState<number | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<string>('');
+  const [selectedBank, setSelectedBank] = useState<string>('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedBankData, setSelectedBankData] = useState<
+    (typeof paymentMethods)[0] | null
+  >(null);
+
   const router = useRouter();
 
   useEffect(() => {
@@ -51,6 +60,12 @@ const OrderProcessingPage = () => {
     checkStockAvailability();
   }, [closestWarehouseId, cart, checkStock]);
 
+  const handleBankSelection = (bank: (typeof paymentMethods)[0]) => {
+    setSelectedBank(bank.name);
+    setSelectedBankData(bank);
+    setIsModalOpen(true);
+  };
+
   const handleCheckout = async () => {
     if (!isStockAvailable) {
       alert('Sorry, some items in your order are out of stock.');
@@ -63,26 +78,26 @@ const OrderProcessingPage = () => {
     }
 
     try {
-      const shippingCost = 15000; // This can be dynamic
+      const shippingCost = 15000;
       const total =
         cart.items.reduce(
           (sum, item) => sum + item.product.price * item.quantity,
           0,
         ) + shippingCost;
 
-      // Set expiration for payment to 1 hour from now
       const expirePayment = new Date();
       expirePayment.setHours(expirePayment.getHours() + 1);
 
       const orderData = {
-        name: `Order-${Date.now()}`, // Generate a unique name for the order
+        name: `Order-${Date.now()}`,
         paymentStatus: 'PENDING',
         shippingCost,
         total,
-        paymentMethod,
+        paymentMethod:
+          paymentMethod === 'BANK_TRANSFER' ? selectedBank : 'PAYMENT_GATEWAY',
         warehouseId: closestWarehouseId,
         cartId: cart.id,
-        addressId: 1, // You might want to make this dynamic based on user's selected address
+        addressId: 1,
         orderItems: cart.items.map((item) => ({
           productId: item.product.id,
           quantity: item.quantity,
@@ -92,9 +107,6 @@ const OrderProcessingPage = () => {
         expirePayment: expirePayment.toISOString(),
       };
 
-      console.log('Checkout data:', orderData);
-      console.log('Items:', orderData.orderItems);
-
       const response = await checkout(orderData);
       setOrderId(response.orderId);
 
@@ -103,7 +115,6 @@ const OrderProcessingPage = () => {
       } else if (paymentMethod === 'BANK_TRANSFER') {
         router.push(`/order/bank-transfer/${response.orderId}`);
       } else {
-        // Redirect to home page after successful checkout
         router.push('/');
       }
     } catch (error) {
@@ -117,24 +128,80 @@ const OrderProcessingPage = () => {
       <h1 className="text-2xl font-bold mb-4">Order Processing</h1>
       {cart && <OrderDetails cart={cart} />}
       <div className="mb-4">
-        <label className="block mb-2">Payment Method:</label>
-        <select
-          value={paymentMethod}
-          onChange={(e) => setPaymentMethod(e.target.value)}
-          className="w-full p-2 border rounded"
-        >
-          <option value="">Select payment method</option>
-          <option value="BANK_TRANSFER">Bank Transfer</option>
-          <option value="PAYMENT_GATEWAY">Payment Gateway</option>
-        </select>
+        <label className="label">
+          <span className="label-text font-semibold">Payment Method:</span>
+        </label>
+        <div className="grid grid-cols-2 gap-4">
+          <div
+            className={`btn ${paymentMethod === 'BANK_TRANSFER' ? 'btn-primary' : 'btn-outline'} flex items-center justify-center`}
+            onClick={() => {
+              setPaymentMethod('BANK_TRANSFER');
+              setSelectedBank('');
+            }}
+          >
+            <span>Bank Transfer</span>
+          </div>
+          <div
+            className={`btn ${paymentMethod === 'PAYMENT_GATEWAY' ? 'btn-primary' : 'btn-outline'} flex items-center justify-center`}
+            onClick={() => {
+              setPaymentMethod('PAYMENT_GATEWAY');
+              setSelectedBank('');
+            }}
+          >
+            <Image
+              src="/icons/doku.png"
+              alt="Doku"
+              width={32}
+              height={32}
+              className="mr-2"
+            />
+            <span>Doku Payment Gateway</span>
+          </div>
+        </div>
+
+        {paymentMethod === 'BANK_TRANSFER' && (
+          <div className="mt-4">
+            <label className="label">
+              <span className="label-text font-semibold">Select Bank:</span>
+            </label>
+            <div className="grid grid-cols-2 gap-4">
+              {paymentMethods.map((bank) => (
+                <div
+                  key={bank.name}
+                  className={`btn ${selectedBank === bank.name ? 'btn-primary' : 'btn-outline'} flex items-center justify-start`}
+                  onClick={() => handleBankSelection(bank)}
+                >
+                  <Image
+                    src={bank.icon}
+                    alt={bank.name}
+                    width={32}
+                    height={32}
+                    className="mr-2"
+                  />
+                  <span>{bank.name}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
       <button
         onClick={handleCheckout}
-        disabled={!isStockAvailable || !paymentMethod}
-        className="bg-blue-500 text-white px-4 py-2 rounded disabled:bg-gray-400"
+        disabled={
+          !isStockAvailable ||
+          !paymentMethod ||
+          (paymentMethod === 'BANK_TRANSFER' && !selectedBank)
+        }
+        className="btn btn-primary w-full mt-4"
       >
         Place Order
       </button>
+
+      <BankInstructionsModal
+        bank={selectedBankData}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </div>
   );
 };
