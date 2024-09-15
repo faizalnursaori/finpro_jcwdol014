@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useCart } from '../../context/CartContext';
+import { useCart } from '../../../context/CartContext';
 import Link from 'next/link';
 import EmptyCart from '@/components/EmptyCart';
 import { ArrowLeft, Trash2 } from 'lucide-react';

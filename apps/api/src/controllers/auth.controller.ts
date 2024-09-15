@@ -25,7 +25,11 @@ export const register = async (req: Request, res: Response) => {
       data: {
         username: email,
         email,
-        password: email,
+        password: '',
+        name: '',
+        dob: null,
+        mobileNumber: null,
+        gender: null,
         carts: {
           create: {
             isActive: true,
@@ -136,7 +140,6 @@ export const resetPassword = async (req: Request, res: Response) =>  {
     const idToken = jwt.sign({id: user?.id}, process.env.JWT_SECRET!, {expiresIn: '1h'})
 
     const url = `http://localhost:3000/login/reset-password/${idToken}`
-
 
 
   try {

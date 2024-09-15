@@ -1,5 +1,4 @@
 'use client'
-import type { Metadata } from 'next';
 import { CartProvider } from '../context/CartContext';
 import './globals.css';
 import Header from '@/components/Header';
@@ -8,13 +7,16 @@ import Footer from '@/components/Footer';
 import FooterMobile from '@/components/FooterMobile';
 import {SessionProvider} from 'next-auth/react'
 
+import './globals.css';
+import { ReactNode } from 'react';
 
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+type LayoutProps = {
+  children: ReactNode;
+  dashboard: ReactNode;
+};
+
+export default function RootLayout({ children, dashboard }: LayoutProps) {
   return (
     <html lang="en">
       <body>
@@ -24,7 +26,7 @@ export default function RootLayout({
             <Header />
             <HeaderMobile />
             <main className="flex-grow container mx-auto px-4 py-8">
-              {children}
+              {children || dashboard}
             </main>
             <FooterMobile />
             <Footer />

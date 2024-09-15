@@ -1,12 +1,11 @@
 import axios from "axios";
-const base_api = 'http://localhost:8000/api'
 import { haversineDistance } from "@/utils/getClosestStore";
 import { getUserCurrentLocation } from "@/utils/getUserCurrentLocation";
+import 'dotenv/config'
 
 export const getClosestWarehouse = async () =>{
-    const res = await axios.get(`${base_api}/warehouses/`)
+    const res = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}warehouses/`)
     const data = res.data.warehouses
-
     const userLoc =  getUserCurrentLocation()
     let distance = 0
     let wareId = 1 //default store

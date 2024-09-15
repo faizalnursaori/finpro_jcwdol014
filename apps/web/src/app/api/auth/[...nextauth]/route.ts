@@ -45,8 +45,8 @@ const handler = NextAuth({
             clientId: process.env.GITHUB_ID as string,
             clientSecret: process.env.GITHUB_SECRET as string,
             async profile(profile) {
-                const user = await getUserByEmail(profile.email)
-                if(!user.data.email){
+                const user = await getUserByEmail(profile?.email)
+                if(!user?.data?.email){
                 const Userdata = {email: profile.email, username: profile.name, provider: 'github'}
                 const newUser = await createUser(Userdata)
                 return newUser.data
@@ -70,13 +70,22 @@ const handler = NextAuth({
                 token.id = user.id
                 token.role = user.role
                 token.image = user.image
+                token.name = user.name
+                token.dob = user.dob
+                token.mobileNumber = user.mobileNumber
+                token.gender = user.gender
+
             }
             if(trigger === "update" && session.username){
                 const updateUser = await getUserByEmail(session.email)
                 token.username = session.username
                 token.email = session.email
                 token.image = updateUser?.data?.image
-                token.isVerified = updateUser?.data?.isVerified
+                token.isVerified = updateUser?.data.isVerified
+                token.name = updateUser?.data?.name
+                token.gender = updateUser?.data?.gender
+                token.dob = updateUser?.data?.dob
+                token.mobileNumber = updateUser?.data?.mobileNumber
             }
             return token
         },
@@ -87,6 +96,10 @@ const handler = NextAuth({
                 session.user.id = token.id
                 session.user.role = token.role
                 session.user.image = token.image
+                session.user.gender = token.gender
+                session.user.name = token.name
+                session.user.dob = token.dob
+                session.user.mobileNumber = token.mobileNumber
             }
             return session
         },

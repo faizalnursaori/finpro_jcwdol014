@@ -71,8 +71,8 @@ export default function Register() {
             </p>
             <div className="divider">Login with Socials</div>
             <div className='flex gap-5 items-center justify-center my-2'>
-              <button onClick={() => signIn('google')}><FaGoogle size={25}/></button>
-              <button onClick={() => signIn('google')}><FaGithub size={25}/></button>
+              <button onClick={() => signIn('google',{callbackUrl: '/'})}><FaGoogle size={25}/></button>
+              <button onClick={() => signIn('github',{callbackUrl: '/'})}><FaGithub size={25}/></button>
             </div>
             <div className="mt-4 flex w-80 flex-col items-center justify-center gap-8">
               <Link

@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { editUserByToken } from '@/api/user';
-import Link from 'next/link';
 import toast from 'react-hot-toast';
 
 export default function SetUserData() {
@@ -26,18 +25,22 @@ export default function SetUserData() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setIsLoading(!isLoading)
    
-
     if(password !== confirmPassword){
         toast.error('Password Unmatched!')
+        setIsLoading(!isLoading)
+        return
     }
 
     try {
       await editUserByToken(params.token, data);
+      setIsLoading(!isLoading)
       toast.success('Regristation Success! Welcome to Hemart.')
       router.push('/login');
     } catch (err) {
       setError('Registration failed. Please try again.');
+      setIsLoading(!isLoading)
     }
   };
 
@@ -50,6 +53,22 @@ export default function SetUserData() {
 
       <div>
         <form className="form-control gap-4 w-[30vw]" onSubmit={handleSubmit}>
+          <div className="form-control relative focus-within:border-white">
+            <input
+              onChange={handleChange}
+              type="text"
+              name="name"
+              id="name"
+              placeholder=" "
+              className="peer input input-bordered relative z-0 w-full focus:outline-none"
+            />
+            <label
+              htmlFor="email"
+              className="label pointer-events-none absolute left-3 top-1 select-none px-1 transition-all duration-300 peer-focus:-translate-y-[21px] peer-focus:text-xs peer-[:not(:placeholder-shown)]:-translate-y-[21px] peer-[:not(:placeholder-shown)]:text-xs"
+            >
+              <span className="bg-base-100 px-1">Name</span>
+            </label>
+          </div>
           <div className="form-control relative focus-within:border-white">
             <input
               onChange={handleChange}

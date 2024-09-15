@@ -49,6 +49,7 @@ export default function Sidebar() {
           {data?.user ? <div>
             <h2 className='text-xl font-medium mb-2'>Profile</h2>
           <li><Link href='/profile'>My Profile</Link></li>
+          {data?.user?.role == "SUPER_ADMIN" ? <li><Link href='/admin-management'>Dashboard</Link></li> : ''}
           <li><Link href='/cart'>My Cart</Link></li>
           <div className='divider'></div>
           </div>: <div></div>}

@@ -1,13 +1,12 @@
 import axios from "axios";
 
-const base_api = 'http://localhost:8000/api'
+const base_api = process.env.BASE_API_PRODUCTS
 
-export const getProducts = async (id: number | undefined) =>{
-    const res = await axios.get(`${base_api}/products`)
-    // const data = res.data.data.filter((product: {warehouseId: number}) => {
-    //     return product.warehouseId == id
-    // })
-  console.log(id);
-  
- return res.data.data
+export const getProducts = async () =>{
+    try {
+        const res = await axios.get(`${base_api}/products/`)
+        return res.data
+    } catch (error) {
+        console.log(error);
+    }
 }

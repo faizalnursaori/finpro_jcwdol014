@@ -1,146 +1,158 @@
-import { PrismaClient } from '@prisma/client';
+import {
+  PrismaClient,
+  Role,
+  PaymentStatus,
+  DiscountType,
+} from '@prisma/client';
+import { faker } from '@faker-js/faker';
 
 const prisma = new PrismaClient();
 
 async function main() {
-  // Create or update categories
-  const categories = await Promise.all([
-    prisma.category.upsert({
-      where: { slug: 'electronics' },
-      update: {},
-      create: { name: 'Electronics', slug: 'electronics' },
-    }),
-    prisma.category.upsert({
-      where: { slug: 'clothing' },
-      update: {},
-      create: { name: 'Clothing', slug: 'clothing' },
-    }),
-    prisma.category.upsert({
-      where: { slug: 'books' },
-      update: {},
-      create: { name: 'Books', slug: 'books' },
-    }),
-  ]);
+  // Create a user
+  const user = await prisma.user.create({
+    data: {
+      username: faker.internet.userName(),
+      email: faker.internet.email(),
+      password: faker.internet.password(),
+      isVerified: true,
+      role: Role.USER,
+    },
+  });
 
-  // Create products (only if they don't exist)
-  const products = await Promise.all([
-    prisma.product.upsert({
-      where: { slug: 'smartphone-x' },
-      update: {},
-      create: {
-        name: 'Smartphone X',
-        slug: 'smartphone-x',
-        description: 'Latest smartphone with advanced features',
-        price: 799.99,
-        category: { connect: { id: categories[0].id } },
-        productImages: {
-          create: [
-            {
-              name: 'smartphone-x-front.jpg',
-              url: '/images/smartphone-x-front.jpg',
-            },
-            {
-              name: 'smartphone-x-back.jpg',
-              url: '/images/smartphone-x-back.jpg',
-            },
-          ],
-        },
-      },
-    }),
-    prisma.product.upsert({
-      where: { slug: 'classic-t-shirt' },
-      update: {},
-      create: {
-        name: 'Classic T-Shirt',
-        slug: 'classic-t-shirt',
-        description: 'Comfortable cotton t-shirt for everyday wear',
-        price: 19.99,
-        category: { connect: { id: categories[1].id } },
-        productImages: {
-          create: [
-            {
-              name: 'classic-t-shirt-front.jpg',
-              url: '/images/classic-t-shirt-front.jpg',
-            },
-            {
-              name: 'classic-t-shirt-back.jpg',
-              url: '/images/classic-t-shirt-back.jpg',
-            },
-          ],
-        },
-      },
-    }),
-    prisma.product.upsert({
-      where: { slug: 'the-great-novel' },
-      update: {},
-      create: {
-        name: 'The Great Novel',
-        slug: 'the-great-novel',
-        description: 'Bestselling fiction novel of the year',
-        price: 24.99,
-        category: { connect: { id: categories[2].id } },
-        productImages: {
-          create: [
-            {
-              name: 'the-great-novel-cover.jpg',
-              url: '/images/the-great-novel-cover.jpg',
-            },
-          ],
-        },
-      },
-    }),
-  ]);
+  // Create a province
+  const province = await prisma.province.create({
+    data: {
+      id: faker.number.int({ min: 1, max: 100 }),
+      name: faker.location.state(),
+    },
+  });
 
-  // Create or update mock users
-  const users = await Promise.all([
-    prisma.user.upsert({
-      where: { email: 'john@example.com' },
-      update: {},
-      create: {
-        username: 'john_doe',
-        email: 'john@example.com',
-        password: 'hashed_password', // In real scenario, ensure this is properly hashed
-        isVerified: true,
-      },
-    }),
-    prisma.user.upsert({
-      where: { email: 'jane@example.com' },
-      update: {},
-      create: {
-        username: 'jane_smith',
-        email: 'jane@example.com',
-        password: 'hashed_password', // In real scenario, ensure this is properly hashed
-        isVerified: true,
-      },
-    }),
-  ]);
+  // Create a city
+  const city = await prisma.city.create({
+    data: {
+      name: faker.location.city(),
+      provinceId: province.id,
+    },
+  });
 
-  // Create carts with items (this will create new carts each time the script runs)
-  const carts = await Promise.all([
-    prisma.cart.create({
-      data: {
-        userId: users[0].id,
-        isActive: true,
-        items: {
-          create: [
-            { quantity: 1, productId: products[0].id },
-            { quantity: 2, productId: products[1].id },
-          ],
-        },
-      },
-    }),
-    prisma.cart.create({
-      data: {
-        userId: users[1].id,
-        isActive: true,
-        items: {
-          create: [{ quantity: 1, productId: products[2].id }],
-        },
-      },
-    }),
-  ]);
+  // Create a warehouse
+  const warehouse = await prisma.warehouse.create({
+    data: {
+      name: faker.company.name(),
+      address: faker.location.streetAddress(),
+      provinceId: province.id,
+      cityId: city.id,
+      postalCode: faker.location.zipCode(),
+      latitude: faker.location.latitude(),
+      longitude: faker.location.longitude(),
+      storeRadius: faker.number.float({ min: 1, max: 10 }),
+      userId: user.id,
+    },
+  });
 
-  console.log('Mockup data inserted or updated successfully');
+  // Create a category
+  const category = await prisma.category.create({
+    data: {
+      slug: 'test-order-6',
+      name: 'Test Order 06',
+    },
+  });
+
+  // Create some products
+  const products = await Promise.all(
+    Array.from({ length: 5 }).map(() =>
+      prisma.product.create({
+        data: {
+          slug: faker.helpers.slugify(faker.commerce.productName()),
+          name: faker.commerce.productName(),
+          description: faker.commerce.productDescription(),
+          price: parseFloat(faker.commerce.price()),
+          categoryId: category.id,
+        },
+      }),
+    ),
+  );
+
+  // Create product stocks
+  await Promise.all(
+    products.map((product) =>
+      prisma.productStock.create({
+        data: {
+          productId: product.id,
+          warehouseId: warehouse.id,
+          stock: faker.number.int({ min: 10, max: 100 }),
+        },
+      }),
+    ),
+  );
+
+  // Create an address
+  const address = await prisma.address.create({
+    data: {
+      name: faker.person.fullName(),
+      address: faker.location.streetAddress(),
+      provinceId: province.id,
+      cityId: city.id,
+      postalCode: faker.location.zipCode(),
+      isPrimary: true,
+      userId: user.id,
+      latitude: faker.location.latitude(),
+      longitude: faker.location.longitude(),
+    },
+  });
+
+  // Create a cart
+  const cart = await prisma.cart.create({
+    data: {
+      userId: user.id,
+      isActive: true,
+    },
+  });
+
+  // Add items to the cart
+  await Promise.all(
+    products.slice(0, 2).map((product) =>
+      prisma.cartItem.create({
+        data: {
+          quantity: faker.number.int({ min: 1, max: 5 }),
+          productId: product.id,
+          cartId: cart.id,
+        },
+      }),
+    ),
+  );
+
+  // Create a voucher
+  const voucher = await prisma.voucher.create({
+    data: {
+      code: faker.string.alphanumeric(8).toUpperCase(),
+      discountType: DiscountType.PERCENTAGE,
+      discountValue: faker.number.int({ min: 5, max: 20 }),
+      minPurchase: faker.number.float({ min: 50, max: 100 }),
+      maxDiscount: faker.number.float({ min: 20, max: 50 }),
+      expiryDate: faker.date.future(),
+    },
+  });
+
+  console.log(`Database has been seeded. 🌱`);
+  console.log(`Created user with id: ${user.id}`);
+  console.log(`Created warehouse with id: ${warehouse.id}`);
+  console.log(`Created ${products.length} products`);
+  console.log(`Created address with id: ${address.id}`);
+  console.log(`Created cart with id: ${cart.id}`);
+  console.log(`Created voucher with id: ${voucher.id}`);
+
+  console.log(
+    '\nUse these IDs to test the handleCheckout function in Postman:',
+  );
+  console.log(`User ID: ${user.id}`);
+  console.log(`Warehouse ID: ${warehouse.id}`);
+  console.log(`Cart ID: ${cart.id}`);
+  console.log(`Address ID: ${address.id}`);
+  console.log(`Voucher ID: ${voucher.id}`);
+  console.log('Product IDs:');
+  products.forEach((product) => console.log(`- ${product.id}`));
 }
 
 main()
