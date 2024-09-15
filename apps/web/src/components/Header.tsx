@@ -3,7 +3,6 @@ import Link from 'next/link';
 import { ShoppingCart } from 'lucide-react';
 import Image from 'next/image';
 import { useCart } from '@/context/CartContext';
-import { useState,useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { signOut } from 'next-auth/react';
 
@@ -11,9 +10,6 @@ import { signOut } from 'next-auth/react';
 export default function Header() {
   const { cartItemCount } = useCart();
   const {data} = useSession()
-  console.log(data);
-  
-  
 
   const categories = [
     'Rice & Flour',
@@ -58,11 +54,12 @@ export default function Header() {
         <div className="navbar-end gap-2">
           {data?.user ? (
             <details className="dropdown">
-              <summary className="btn btn-ghost hover:btn-link">Hello, {data?.user?.name ? data.user.name : data.user.username}</summary>
+              <summary  className="btn btn-ghost hover:btn-link">Hello, {data?.user?.name ? data.user.name : data.user.username}</summary>
               <ul className="menu dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
                 <li>
                   <Link href='/profile'>Profile</Link>
                 </li>
+                {data?.user?.role == "SUPER_ADMIN" ? <li><Link href='/admin-management'>Dashboard</Link></li> : ''}
                 <li>
                   <button onClick={() => signOut({callbackUrl: '/login'})}>Log Out</button>
                 </li>

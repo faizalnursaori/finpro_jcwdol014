@@ -4,7 +4,6 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { FaGoogle, FaGithub } from "react-icons/fa";
 import { signIn } from 'next-auth/react';
-import { useParams } from 'next/navigation';
 
 export default function Login() {
   const [email, setEmail] = useState('');

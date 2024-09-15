@@ -2,7 +2,6 @@ import { Request, Response } from 'express';
 import prisma from '@/prisma';
 import bcrypt, { genSalt } from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { hashPassword } from '@/utils/auth.utils';
 import { transporter } from '@/utils/auth.utils';
 
 export const updateUser = async (req: Request, res: Response) => {
@@ -10,6 +9,7 @@ export const updateUser = async (req: Request, res: Response) => {
     const { id } = req.params;
     const data = req.body;
     const imageUrl = req.file ? `/profile/${req.file.filename}` : data.image;
+    const dob = data.dob ? new Date(data.dob): null
     
     if(data.isVerified == 'true') {
       data.isVerified = true
@@ -19,7 +19,7 @@ export const updateUser = async (req: Request, res: Response) => {
 
     const user = await prisma.user.update({
       where: { id: Number(id) },
-      data: {...data, image: imageUrl}
+      data: {...data, image: imageUrl, dob}
     });
 
     res.status(200).json({ message: 'User data updated successfully!', user });

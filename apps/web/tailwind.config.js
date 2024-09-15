@@ -1,25 +1,23 @@
-
-import daisyui from 'daisyui'
-
-const config = {
-  darkMode: ["class"],
+/** @type {import('tailwindcss').Config} */
+module.exports = {
   content: [
-    './pages/**/*.{ts,tsx}',
-    './components/**/*.{ts,tsx}',
-    './app/**/*.{ts,tsx}',
-    './src/**/*.{ts,tsx}',
-	],
-  prefix: "",
-  theme: {
-    colors: {
-      'pinky': '#F7F2E6'
-    },
-    extend: {},
-  },
-  plugins: [daisyui],
-  daisyui: {
-    themes:['emerald']
-  }
-} 
+    './app/**/*.{js,ts,jsx,tsx,mdx}',
+    './pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './components/**/*.{js,ts,jsx,tsx,mdx}',
 
-export default config
+    // Or if using `src` directory:
+    './src/**/*.{js,ts,jsx,tsx,mdx}',
+  ],
+  theme: {
+    extend: {
+      colors: {
+        pinky: '#F7F2E6',
+      },
+    },
+  },
+
+  plugins: [require('daisyui')],
+  daisyui: {
+    themes: ['emerald'],
+  },
+};
