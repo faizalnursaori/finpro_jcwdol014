@@ -3,9 +3,13 @@ import Link from 'next/link';
 import { ShoppingCart } from 'lucide-react';
 import Image from 'next/image';
 import { useCart } from '@/context/CartContext';
+import { useSession } from 'next-auth/react';
+import { signOut } from 'next-auth/react';
+
 
 export default function Header() {
   const { cartItemCount } = useCart();
+  const {data} = useSession()
 
   const categories = [
     'Rice & Flour',
@@ -15,18 +19,19 @@ export default function Header() {
     'Snacks & Biscuits',
     'Frozen',
   ];
+
   return (
     <header className="items-center justify-center hidden lg:flex p-4 flex-col">
       <nav className="navbar max-w-[85%]">
         <div className="navbar-start gap-3">
-          <a href="/" className="btn btn-ghost text-xl">
+          <Link href="/" className="text-xl">
             <Image
               alt="hemart"
               src="/logo-revisi.png"
               width={100}
               height={50}
             />
-          </a>
+          </Link>
           <label className="input input-bordered flex items-center gap-2">
             <input
               type="text"
@@ -34,7 +39,10 @@ export default function Header() {
               placeholder="Find a product..."
             />
           </label>
-          <Link href="/cart" className="btn btn-ghost relative">
+          <Link
+            href="/cart"
+            className={data?.user ? 'btn btn-ghost' : 'btn btn-disabled'}
+          >
             <ShoppingCart />
             {cartItemCount > 0 && (
               <span className="absolute -top-1 left-7 bg-red-500 text-white rounded-full px-2 py-1 text-xs">
@@ -44,12 +52,29 @@ export default function Header() {
           </Link>
         </div>
         <div className="navbar-end gap-2">
-          <Link className="btn btn-ghost" href="/login">
-            Log in
-          </Link>
-          <Link className="btn btn-outline btn-success" href="/register">
-            Sign in
-          </Link>
+          {data?.user ? (
+            <details className="dropdown">
+              <summary  className="btn btn-ghost hover:btn-link">Hello, {data?.user?.name ? data.user.name : data.user.username}</summary>
+              <ul className="menu dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+                <li>
+                  <Link href='/profile'>Profile</Link>
+                </li>
+                {data?.user?.role == "SUPER_ADMIN" ? <li><Link href='/admin-management'>Dashboard</Link></li> : ''}
+                <li>
+                  <button onClick={() => signOut({callbackUrl: '/login'})}>Log Out</button>
+                </li>
+              </ul>
+            </details>
+          ) : (
+            <div className='flex gap-2'>
+              <Link className="btn btn-ghost" href="/login">
+                Log In
+              </Link>
+              <Link className="btn btn-outline btn-success" href="/register">
+                Sign Up
+              </Link>
+            </div>
+          )}
         </div>
       </nav>
       <div>

@@ -6,17 +6,15 @@ import ListCategories from '@/components/ListCategories';
 import LandingProducts from '@/components/LandingProducts';
 import { useState, useEffect } from 'react';
 import { useCart } from '../../context/CartContext';
-import { useRouter } from 'next/navigation';
-import { Product } from '@/types/product';
+import { ProductType } from '@/types/product';
+import 'dotenv/config'
 
 export default function Home() {
   const [userLoc, setUserLoc] = useState<{ lon: number; lat: number }>();
-  const [closestWarehouseId, setClosestWarehouseId] = useState<number>();
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [closestWarehouseId, setClosestWarehouseId] = useState<number>(1);
+  const [products, setProducts] = useState<ProductType[]>([]);
   const { addToCart, fetchCart, cart } = useCart();
 
-  const base_api = 'http://localhost:8000/api';
 
   const getWarehouseId = async () => {
     const data = await getClosestWarehouse();
@@ -24,28 +22,19 @@ export default function Home() {
   };
 
   const getProducts = async (id: number | undefined) => {
-    if (!id) return;
-    const res = await axios.get(`${base_api}/products`);
-
-    console.log(res.data);
-
-    const filteredProducts = res.data.filter((item: Product) =>
+    const res = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}products/`);
+    
+    const filteredProducts = res.data.filter((item: ProductType) =>
       item.productStocks.some((stock) => stock.warehouse.id === id),
     );
-
     setProducts(filteredProducts);
   };
 
   useEffect(() => {
     setUserLoc(getUserCurrentLocation());
     getWarehouseId();
+    getProducts(closestWarehouseId);
     fetchCart();
-  }, [closestWarehouseId]);
-
-  useEffect(() => {
-    if (closestWarehouseId) {
-      getProducts(closestWarehouseId);
-    }
   }, [closestWarehouseId]);
 
   return (

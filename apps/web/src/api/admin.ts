@@ -17,7 +17,7 @@ interface User {
 }
 
 export const getAllAdmin = async (page: number, limit: number) => {
-  const token = cookies().get('token')?.value;
+  const token = cookies().get('next-auth.session-token')?.value;
   if (!token) {
     return { ok: false, message: 'Unauthenticated' };
   }
@@ -44,7 +44,7 @@ export const getAllAdmin = async (page: number, limit: number) => {
 };
 
 export const updateUser = async (id: number, user: Partial<User>) => {
-  const token = cookies().get('token')?.value;
+  const token = cookies().get('next-auth.session-token')?.value;
   if (!token) {
     return { ok: false, message: 'Unauthenticated' };
   }
@@ -71,7 +71,7 @@ export const updateUser = async (id: number, user: Partial<User>) => {
 };
 
 export const deleteAdmin = async (id: number) => {
-  const token = cookies().get('token')?.value;
+  const token = cookies().get('next-auth.session-token')?.value;
   if (!token) {
     return { ok: false, message: 'Unauthenticated' };
   }
@@ -88,7 +88,7 @@ export const deleteAdmin = async (id: number) => {
 };
 
 export const searchUser = async (query: string) => {
-  const token = cookies().get('token')?.value;
+  const token = cookies().get('next-auth.session-token')?.value;
   if (!token) {
     return { ok: false, message: 'Unauthenticated' };
   }
@@ -106,7 +106,7 @@ export const searchUser = async (query: string) => {
 };
 
 export const createAdmin = async (adminData: User) => {
-  const token = cookies().get('token')?.value;
+  const token = cookies().get('next-auth.session-token')?.value;
   if (!token) {
     return { ok: false, message: 'Unauthenticated' };
   }
