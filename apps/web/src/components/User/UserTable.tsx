@@ -5,6 +5,7 @@ import { getAllUser, searchUser } from '@/api/user';
 import { Search } from '../Search';
 import { Pagination } from '../Pagination';
 import { ErrorAlert } from '../ErrorAlert';
+import Image from 'next/image';
 
 interface User {
   id: number;
@@ -13,10 +14,10 @@ interface User {
   email: string;
   role: string;
   gender: string;
-  avatarUrl: string;
-  location: string;
+  image: string;
   isVerified: boolean;
   mobileNumber: string;
+  dob: Date;
 }
 
 export const UserTable = () => {
@@ -25,7 +26,7 @@ export const UserTable = () => {
   const [error, setError] = useState<string>('');
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
-  const [limit] = useState<number>(5); // Change this value if you want a different limit per page
+  const [limit] = useState<number>(5);
 
   const fetchUsers = async (page: number) => {
     setLoading(true);
@@ -54,7 +55,7 @@ export const UserTable = () => {
       if (!res.ok) {
         throw new Error('Failed to search user');
       }
-      setUsers(res.data);
+      setUsers(res.data.user);
     } catch (error) {
       setError((error as Error).message);
     }
@@ -84,6 +85,8 @@ export const UserTable = () => {
               <th>Name</th>
               <th>Username</th>
               <th>Email</th>
+              <th>Mobile Number</th>
+              <th>Date of Birth</th>
               <th>Role</th>
               <th></th>
             </tr>
@@ -96,12 +99,11 @@ export const UserTable = () => {
                   <div className="flex items-center gap-3">
                     <div className="avatar">
                       <div className="mask mask-squircle h-12 w-12">
-                        <img
-                          src={
-                            user.avatarUrl ||
-                            'https://img.daisyui.com/images/profile/demo/2@94.webp'
-                          }
+                        <Image
+                          src={user.image}
                           alt="User Avatar"
+                          width={100}
+                          height={100}
                         />
                       </div>
                     </div>
@@ -118,6 +120,10 @@ export const UserTable = () => {
                   <span className="badge badge-ghost badge-sm">
                     {user.isVerified ? 'Verified' : 'Unverified'}
                   </span>
+                </td>
+                <td>{user.mobileNumber}</td>
+                <td>
+                  {user.dob ? new Date(user.dob).toLocaleDateString() : ''}
                 </td>
                 <td>{user.role}</td>
               </tr>
