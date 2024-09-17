@@ -7,7 +7,7 @@ import LandingProducts from '@/components/LandingProducts';
 import { useState, useEffect } from 'react';
 import { useCart } from '../../context/CartContext';
 import { ProductType } from '@/types/product';
-import 'dotenv/config'
+import 'dotenv/config';
 
 export default function Home() {
   const [userLoc, setUserLoc] = useState<{ lon: number; lat: number }>();
@@ -15,16 +15,17 @@ export default function Home() {
   const [products, setProducts] = useState<ProductType[]>([]);
   const { addToCart, fetchCart, cart } = useCart();
 
-
   const getWarehouseId = async () => {
     const data = await getClosestWarehouse();
     setClosestWarehouseId(data);
   };
 
   const getProducts = async (id: number | undefined) => {
-    const res = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}products/`);
-    
-    const filteredProducts = res.data.filter((item: ProductType) =>
+    const res = await axios.get(
+      `${process.env.NEXT_PUBLIC_BASE_API_URL}products/`,
+    );
+
+    const filteredProducts = res.data.products.filter((item: ProductType) =>
       item.productStocks.some((stock) => stock.warehouse.id === id),
     );
     setProducts(filteredProducts);
