@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface ErrorAlertProps {
   message: string;
@@ -9,6 +9,15 @@ export const ErrorAlert: React.FC<ErrorAlertProps> = ({
   message,
   className = '',
 }) => {
+  const [isVisible, setIsVisible] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsVisible(false), 10000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (!isVisible) return null;
+
   return (
     <div role="alert" className={`alert alert-error ${className}`}>
       <svg
