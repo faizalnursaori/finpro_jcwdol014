@@ -18,18 +18,13 @@ export const authenticateToken = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const authToken = await getToken({req})
+  const authToken = await getToken({ req });
   if (authToken == null) return res.sendStatus(401);
-  req.user = authToken
-  next()
-  
+  req.user = authToken;
+  next();
 };
 
-export async function AdminGuard(
-  req: any,
-  res: Response,
-  next: NextFunction,
-) {
+export async function AdminGuard(req: any, res: Response, next: NextFunction) {
   if (!req.user) {
     return res.status(401).send('Unauthorized');
   }

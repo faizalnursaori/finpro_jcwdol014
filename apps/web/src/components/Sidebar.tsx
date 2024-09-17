@@ -4,10 +4,9 @@ import { useState } from 'react';
 import { useCart } from '@/context/CartContext';
 import { useSession, signOut } from 'next-auth/react';
 
-
 export default function Sidebar() {
   const { cartItemCount } = useCart();
-  const {data} = useSession()
+  const { data } = useSession();
 
   const categories = [
     'Rice & Flour',
@@ -46,13 +45,27 @@ export default function Sidebar() {
             </label>
           </div>
           <div className="divider"></div>
-          {data?.user ? <div>
-            <h2 className='text-xl font-medium mb-2'>Profile</h2>
-          <li><Link href='/profile'>My Profile</Link></li>
-          {data?.user?.role == "SUPER_ADMIN" ? <li><Link href='/admin-management'>Dashboard</Link></li> : ''}
-          <li><Link href='/cart'>My Cart</Link></li>
-          <div className='divider'></div>
-          </div>: <div></div>}
+          {data?.user ? (
+            <div>
+              <h2 className="text-xl font-medium mb-2">Profile</h2>
+              <li>
+                <Link href="/profile">My Profile</Link>
+              </li>
+              {data?.user?.role == 'SUPER_ADMIN' ? (
+                <li>
+                  <Link href="/dashboard/product-management">Dashboard</Link>
+                </li>
+              ) : (
+                ''
+              )}
+              <li>
+                <Link href="/cart">My Cart</Link>
+              </li>
+              <div className="divider"></div>
+            </div>
+          ) : (
+            <div></div>
+          )}
           <h2 className="text-xl font-medium mb-2">Categories</h2>
           {categories.map((category, index) => {
             return (
@@ -73,13 +86,22 @@ export default function Sidebar() {
           </li>
           <div className="divider"></div>
           {data?.user ? (
-            <div className='w-full'>
-              <button className='btn w-full btn-ghost ' onClick={() => signOut({callbackUrl: '/login'})}>Log Out</button>
+            <div className="w-full">
+              <button
+                className="btn w-full btn-ghost "
+                onClick={() => signOut({ callbackUrl: '/login' })}
+              >
+                Log Out
+              </button>
             </div>
           ) : (
             <div>
-              <button className="btn mb-2 btn-ghost"><Link href='/login'>Log In</Link></button>
-              <button className="btn btn-outline btn-success"><Link href='/register'>Sign Up</Link></button>
+              <button className="btn mb-2 btn-ghost">
+                <Link href="/login">Log In</Link>
+              </button>
+              <button className="btn btn-outline btn-success">
+                <Link href="/register">Sign Up</Link>
+              </button>
             </div>
           )}
         </ul>
