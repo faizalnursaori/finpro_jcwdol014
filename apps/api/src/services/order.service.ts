@@ -249,10 +249,7 @@ export const confirmOrder = async (userId: number, orderId: number) => {
         cart: {
           userId: userId,
         },
-        paymentStatus: PaymentStatus.PENDING,
-      },
-      include: {
-        items: true,
+        paymentStatus: PaymentStatus.SHIPPED,
       },
     });
 
@@ -263,8 +260,37 @@ export const confirmOrder = async (userId: number, orderId: number) => {
     const updatedOrder = await tx.order.update({
       where: { id: orderId },
       data: {
+        paymentStatus: PaymentStatus.DELIVERED,
+      },
+    });
+
+    return updatedOrder;
+  });
+};
+
+export const confirmPayment = async (userId: number, orderId: number) => {
+  return await prisma.$transaction(async (tx) => {
+    const order = await tx.order.findFirst({
+      where: {
+        id: orderId,
+        cart: {
+          userId: userId,
+        },
+        paymentStatus: PaymentStatus.PENDING,
+      },
+      include: {
+        items: true,
+      },
+    });
+
+    if (!order) {
+      throw new Error('Order not found or cannot confirm payment');
+    }
+
+    const updatedOrder = await tx.order.update({
+      where: { id: orderId },
+      data: {
         paymentStatus: PaymentStatus.PAID,
-        createdAt: new Date(),
       },
     });
 
@@ -516,41 +542,36 @@ export const checkAndMutateStock = async (
 };
 
 export const autoReceiveOrders = async () => {
-  const now = new Date();
+  const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
 
-  try {
-    return await prisma.$transaction(async (tx) => {
-      const ordersToAutoReceive = await tx.order.findMany({
-        where: {
-          paymentStatus: 'SHIPPED',
-          shippedAt: {
-            lt: now,
-          },
+  return await prisma.$transaction(async (tx) => {
+    const ordersToAutoReceive = await tx.order.findMany({
+      where: {
+        paymentStatus: PaymentStatus.SHIPPED,
+        shippedAt: {
+          lt: twoDaysAgo,
         },
-      });
-
-      let autoReceivedCount = 0;
-
-      for (const order of ordersToAutoReceive) {
-        try {
-          await tx.order.update({
-            where: {
-              id: order.id,
-            },
-            data: {
-              paymentStatus: 'DELIVERED',
-            },
-          });
-          autoReceivedCount++;
-        } catch (error) {
-          console.error(`Failed to auto-receive order ${order.id}:`, error);
-        }
-      }
-
-      return autoReceivedCount;
+      },
     });
-  } catch (error) {
-    console.error('Transaction failed:', error);
-    throw error;
-  }
+
+    let autoReceivedCount = 0;
+
+    for (const order of ordersToAutoReceive) {
+      try {
+        await tx.order.update({
+          where: {
+            id: order.id,
+          },
+          data: {
+            paymentStatus: PaymentStatus.DELIVERED,
+          },
+        });
+        autoReceivedCount++;
+      } catch (error) {
+        console.error(`Failed to auto-receive order ${order.id}:`, error);
+      }
+    }
+
+    return autoReceivedCount;
+  });
 };

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Order, PaymentStatus } from '@/types/order';
 import { useOrder } from '@/context/OrderContext';
@@ -14,6 +14,7 @@ const OrderDetail = () => {
   const { id } = useParams();
   const router = useRouter();
   const { cancelOrder } = useOrder();
+  const countdownRef = useRef<Countdown>(null);
 
   const calculateExpirationTime = (createdAt: string) => {
     const creationTime = new Date(createdAt);
@@ -55,8 +56,10 @@ const OrderDetail = () => {
     try {
       await cancelOrder(order.id, 'USER');
       alert('Order cancelled successfully');
-      // Refresh the order details after cancellation
-      setOrder({ ...order, paymentStatus: 'CANCELLED' as PaymentStatus });
+      setOrder({ ...order, paymentStatus: 'CANCELED' as PaymentStatus });
+      if (countdownRef.current) {
+        countdownRef.current.stop();
+      }
     } catch (error) {
       console.error('Order cancellation failed', error);
       alert('Failed to cancel order.');
@@ -78,7 +81,7 @@ const OrderDetail = () => {
     seconds: number;
     completed: boolean;
   }) => {
-    if (completed) {
+    if (completed || order?.paymentStatus === 'CANCELED') {
       return <span>Order expired</span>;
     } else {
       return (
@@ -119,7 +122,7 @@ const OrderDetail = () => {
             <div>
               <h3 className="text-xl font-semibold mb-2">Order Details</h3>
               <p>
-                <strong>Name:</strong> {order.name}
+                <strong>Invoices:</strong> {order.name}
               </p>
               <p>
                 <strong>Created At:</strong>{' '}
@@ -151,7 +154,14 @@ const OrderDetail = () => {
               )}
               <div>
                 <strong>Expires in: </strong>
-                <Countdown date={expirationTime} renderer={renderer} />
+                <Countdown
+                  date={expirationTime}
+                  renderer={renderer}
+                  ref={countdownRef}
+                  onComplete={() =>
+                    order && setOrder({ ...order, paymentStatus: 'CANCELED' })
+                  }
+                />
               </div>
             </div>
           </div>
@@ -160,8 +170,8 @@ const OrderDetail = () => {
             <h3 className="text-xl font-semibold mb-2">Order Items</h3>
             <ul className="list-disc pl-5">
               {order.items.map((item) => {
-                // Console log each item
-                console.log('Rendering item:', item);
+                //Console log each item
+                // console.log('Rendering item:', item);
 
                 return (
                   <li key={item.id}>

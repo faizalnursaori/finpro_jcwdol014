@@ -11,7 +11,7 @@ const OrderDetail = () => {
   const [error, setError] = useState(null);
   const { id } = useParams();
   const router = useRouter();
-  const { cancelOrder, confirmOrder } = useOrder();
+  const { cancelOrder, confirmOrderPayment } = useOrder();
 
   useEffect(() => {
     const fetchOrderDetail = async () => {
@@ -46,7 +46,7 @@ const OrderDetail = () => {
   const handleConfirmPayment = async () => {
     if (!order) return;
     try {
-      await confirmOrder(order.id);
+      await confirmOrderPayment(order.id);
       alert('Payment confirmed successfully');
       router.push(`/order/success?orderId=${order.id}`);
     } catch (error) {
