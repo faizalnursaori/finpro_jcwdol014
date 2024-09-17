@@ -4,16 +4,15 @@ import {
   cancelExpiredOrders,
   cancelOrder,
   confirmOrder,
+  confirmPayment,
   uploadPaymentProof,
   checkAndMutateStock,
+  getOrderDetailById,
+  autoReceiveOrders,
 } from '../services/order.service';
-import multer from 'multer';
 import { CancellationSource } from '@prisma/client';
 import { AuthenticatedRequest } from '@/middleware/auth.middleware';
-import { getOrderDetailById } from '../services/order.service';
 import prisma from '@/prisma';
-
-const upload = multer({ dest: 'uploads/' });
 
 export const getOrderDetail = async (
   req: AuthenticatedRequest,
@@ -158,7 +157,10 @@ export const cancelExpired = async (req: Request, res: Response) => {
   }
 };
 
-export const confirm = async (req: AuthenticatedRequest, res: Response) => {
+export const confirmOrderReceived = async (
+  req: AuthenticatedRequest,
+  res: Response,
+) => {
   try {
     const userId = req.user?.userId;
     if (!userId || typeof userId !== 'number') {
@@ -173,7 +175,7 @@ export const confirm = async (req: AuthenticatedRequest, res: Response) => {
     const confirmedOrder = await confirmOrder(userId, orderId);
     res.status(200).json({ success: true, order: confirmedOrder });
   } catch (error) {
-    console.error('Error confirming order:', error);
+    console.error('Error confirming order received:', error);
     if (
       error instanceof Error &&
       error.message === 'Order not found or cannot be confirmed'
@@ -182,7 +184,39 @@ export const confirm = async (req: AuthenticatedRequest, res: Response) => {
     } else {
       res
         .status(500)
-        .json({ success: false, message: 'Failed to confirm order' });
+        .json({ success: false, message: 'Failed to confirm order received' });
+    }
+  }
+};
+
+export const confirmOrderPayment = async (
+  req: AuthenticatedRequest,
+  res: Response,
+) => {
+  try {
+    const userId = req.user?.userId;
+    if (!userId || typeof userId !== 'number') {
+      return res.status(400).json({ error: 'Valid userId is required' });
+    }
+
+    const { orderId } = req.body;
+    if (!orderId || typeof orderId !== 'number') {
+      return res.status(400).json({ error: 'Valid orderId is required' });
+    }
+
+    const confirmedPayment = await confirmPayment(userId, orderId);
+    res.status(200).json({ success: true, order: confirmedPayment });
+  } catch (error) {
+    console.error('Error confirming payment:', error);
+    if (
+      error instanceof Error &&
+      error.message === 'Order not found or cannot confirm payment'
+    ) {
+      res.status(404).json({ success: false, message: error.message });
+    } else {
+      res
+        .status(500)
+        .json({ success: false, message: 'Failed to confirm payment' });
     }
   }
 };
@@ -217,7 +251,6 @@ export const uploadProof = async (req: AuthenticatedRequest, res: Response) => {
       return res.status(400).json({ error: 'Payment proof file is required' });
     }
 
-    // File is already uploaded by the middleware, so we proceed with logic
     const updatedOrder = await uploadPaymentProof(userId, orderId, req.file);
     res.status(200).json(updatedOrder);
   } catch (error) {
@@ -233,5 +266,15 @@ export const checkStock = async (req: Request, res: Response) => {
     res.status(200).json({ message: 'Stock checked and mutated successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+export const runAutoReceiveOrders = async (req: Request, res: Response) => {
+  try {
+    const autoReceivedCount = await autoReceiveOrders();
+    res.status(200).json({ autoReceivedCount });
+  } catch (error) {
+    console.error('Error auto-receiving orders:', error);
+    res.status(500).json({ message: 'Failed to auto-receive orders' });
   }
 };

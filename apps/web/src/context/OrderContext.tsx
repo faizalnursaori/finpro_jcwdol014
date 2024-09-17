@@ -24,7 +24,8 @@ interface OrderContextType {
   uploadProof: (orderId: number, file: File) => Promise<void>;
   checkStock: (data: any) => Promise<void>;
   fetchOrder: (orderId: number) => Promise<void>;
-  confirmOrder: (orderId: number) => Promise<void>;
+  confirmOrderReceived: (orderId: number) => Promise<void>;
+  confirmOrderPayment: (orderId: number) => Promise<void>;
 }
 
 const OrderContext = createContext<OrderContextType | undefined>(undefined);
@@ -70,17 +71,32 @@ export const OrderProvider: React.FC<{ children: ReactNode }> = ({
     }
   };
 
-  const confirmOrder = async (orderId: number) => {
+  const confirmOrderPayment = async (orderId: number) => {
     try {
       const response = await axios.post(
-        `${baseApi}/orders/confirm`,
+        `${baseApi}/orders/confirm-payment`,
         { orderId },
         { headers: getHeaders() },
       );
-      console.log('Order confirmed', response.data);
+      console.log('Order payment confirmed', response.data);
       setCurrentOrder(response.data);
     } catch (error) {
-      console.error('Order confirmation failed', error);
+      console.error('Order payment confirmation failed', error);
+      throw error;
+    }
+  };
+
+  const confirmOrderReceived = async (orderId: number) => {
+    try {
+      const response = await axios.post(
+        `${baseApi}/orders/confirm-receipt`,
+        { orderId },
+        { headers: getHeaders() },
+      );
+      console.log('Order received confirmed', response.data);
+      setCurrentOrder(response.data);
+    } catch (error) {
+      console.error('Order received confirmation failed', error);
       throw error;
     }
   };
@@ -157,7 +173,8 @@ export const OrderProvider: React.FC<{ children: ReactNode }> = ({
         uploadProof,
         checkStock,
         fetchOrder,
-        confirmOrder,
+        confirmOrderReceived,
+        confirmOrderPayment,
       }}
     >
       {children}

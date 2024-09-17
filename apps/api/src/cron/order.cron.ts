@@ -5,23 +5,37 @@ import {
 } from '@/services/order.service';
 
 export function startOrderCronJobs() {
-  cron.schedule('*/2 * * * *', async () => {
+  // Cancel expired orders every 5 minutes
+  cron.schedule('*/5 * * * *', async () => {
     try {
       const canceledCount = await cancelExpiredOrders();
-      console.log(`Canceled ${canceledCount} expired orders`);
+      console.log(
+        `[${new Date().toISOString()}] Canceled ${canceledCount} expired orders`,
+      );
     } catch (error) {
-      console.error(`Error canceling expired orders:`, error);
+      console.error(
+        `[${new Date().toISOString()}] Error canceling expired orders:`,
+        error,
+      );
     }
   });
 
-  cron.schedule('*/2 * * * *', async () => {
+  // Auto-receive orders every hour
+  cron.schedule('0 * * * *', async () => {
     try {
       const receivedCount = await autoReceiveOrders();
-      console.log(`Auto-received ${receivedCount} orders`);
+      console.log(
+        `[${new Date().toISOString()}] Auto-received ${receivedCount} orders`,
+      );
     } catch (error) {
-      console.error(`Error auto-receiving orders:`, error);
+      console.error(
+        `[${new Date().toISOString()}] Error auto-receiving orders:`,
+        error,
+      );
     }
   });
 
-  console.log('====[CRON JOBS STARTED]====');
+  console.log(
+    `[${new Date().toISOString()}] ====[ORDER CRON JOBS STARTED]====`,
+  );
 }

@@ -5,13 +5,14 @@ import { useParams, useRouter } from 'next/navigation';
 import { Order, PaymentStatus } from '@/types/order';
 import { useOrder } from '@/context/OrderContext';
 import { formatRupiah } from '@/utils/currencyUtils';
+
 const OrderDetail = () => {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { id } = useParams();
   const router = useRouter();
-  const { cancelOrder } = useOrder();
+  const { cancelOrder, confirmOrderReceived } = useOrder();
 
   useEffect(() => {
     const fetchOrderDetail = async () => {
@@ -48,11 +49,22 @@ const OrderDetail = () => {
     try {
       await cancelOrder(order.id, 'USER');
       alert('Order cancelled successfully');
-      // Refresh the order details after cancellation
-      setOrder({ ...order, paymentStatus: 'CANCELLED' as PaymentStatus });
+      setOrder({ ...order, paymentStatus: 'CANCELED' as PaymentStatus });
     } catch (error) {
       console.error('Order cancellation failed', error);
       alert('Failed to cancel order.');
+    }
+  };
+
+  const handleConfirmReceived = async () => {
+    if (!order) return;
+    try {
+      await confirmOrderReceived(order.id);
+      alert('Order received confirmed successfully');
+      setOrder({ ...order, paymentStatus: 'DELIVERED' as PaymentStatus });
+    } catch (error) {
+      console.error('Order received confirmation failed', error);
+      alert('Failed to confirm order received. Please try again.');
     }
   };
 
@@ -77,6 +89,8 @@ const OrderDetail = () => {
   };
 
   const isPending = order.paymentStatus === 'PENDING';
+  const isDelivered = order.paymentStatus === 'DELIVERED';
+  const isShipped = order.paymentStatus === 'SHIPPED';
 
   return (
     <div className="container mx-auto p-4">
@@ -128,17 +142,12 @@ const OrderDetail = () => {
           <div className="mt-6">
             <h3 className="text-xl font-semibold mb-2">Order Items</h3>
             <ul className="list-disc pl-5">
-              {order.items.map((item) => {
-                // Console log each item
-                console.log('Rendering item:', item);
-
-                return (
-                  <li key={item.id}>
-                    {item.product.name} - Quantity: {item.quantity} - Price:{' '}
-                    {formatRupiah(item.price * item.quantity)}
-                  </li>
-                );
-              })}
+              {order.items.map((item) => (
+                <li key={item.id}>
+                  {item.product.name} - Quantity: {item.quantity} - Price:{' '}
+                  {formatRupiah(item.price * item.quantity)}
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -166,6 +175,14 @@ const OrderDetail = () => {
                 Upload Payment Proof
               </button>
             )}
+            {isShipped && (
+              <button
+                className="btn btn-success"
+                onClick={handleConfirmReceived}
+              >
+                Confirm Received
+              </button>
+            )}
             {['PENDING', 'PAID'].includes(order.paymentStatus) && (
               <button className="btn btn-error" onClick={handleCancelOrder}>
                 Cancel Order
@@ -176,6 +193,17 @@ const OrderDetail = () => {
           {isPending && (
             <div className="alert alert-info mt-4">
               Please upload your payment proof to confirm your order.
+            </div>
+          )}
+          {isShipped && (
+            <div className="alert alert-success mt-4">
+              Your order has been shipped. It will be delivered soon!
+            </div>
+          )}
+          {isDelivered && (
+            <div className="alert alert-success mt-4">
+              Your order has been delivered. Please confirm if you have received
+              it.
             </div>
           )}
         </div>
