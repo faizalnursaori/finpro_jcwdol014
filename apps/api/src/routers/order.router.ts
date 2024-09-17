@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import {
   checkout,
   cancelExpired,
@@ -10,35 +10,58 @@ import {
   confirmOrderReceived,
   confirmOrderPayment,
 } from '../controllers/order.controller';
-import { authenticateToken } from '@/middleware/auth.middleware';
+import {
+  authenticateToken,
+  AuthenticatedRequest,
+} from '@/middleware/auth.middleware';
 import { uploader } from '@/middleware/uploader.middleware';
 
 const router = express.Router();
 
-router.get('/', authenticateToken, getOrderList);
-router.get('/:id', authenticateToken, getOrderDetail);
+// Helper function to wrap handlers that use AuthenticatedRequest
+const wrapAuthHandler = (
+  handler: (
+    req: AuthenticatedRequest,
+    res: Response,
+  ) => Promise<Response | undefined>,
+) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    handler(req as AuthenticatedRequest, res).catch(next);
+  };
+};
+
+router.get('/', authenticateToken, wrapAuthHandler(getOrderList));
+router.get('/:id', authenticateToken, wrapAuthHandler(getOrderDetail));
 
 // Route for checkout
-router.post('/checkout', authenticateToken, checkout);
+router.post('/checkout', authenticateToken, wrapAuthHandler(checkout));
 
 // Route for canceling expired orders
 router.post('/cancel-expired', cancelExpired);
 
 // Route for confirming order receipt
-router.post('/confirm-receipt', authenticateToken, confirmOrderReceived);
+router.post(
+  '/confirm-receipt',
+  authenticateToken,
+  wrapAuthHandler(confirmOrderReceived),
+);
 
 // Route for confirming order payment
-router.post('/confirm-payment', authenticateToken, confirmOrderPayment);
+router.post(
+  '/confirm-payment',
+  authenticateToken,
+  wrapAuthHandler(confirmOrderPayment),
+);
 
 // Route for canceling an order
-router.post('/cancel', authenticateToken, cancel);
+router.post('/cancel', authenticateToken, wrapAuthHandler(cancel));
 
 // Route for uploading payment proof
 router.post(
   '/payment-proof',
   authenticateToken,
   uploader('/payment', 'PAYMENT').single('image'),
-  uploadProof,
+  wrapAuthHandler(uploadProof),
 );
 
 // Route for checking stock

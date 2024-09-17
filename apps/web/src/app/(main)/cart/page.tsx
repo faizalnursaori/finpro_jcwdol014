@@ -6,9 +6,10 @@ import Link from 'next/link';
 import EmptyCart from '@/components/EmptyCart';
 import { ArrowLeft, Trash2 } from 'lucide-react';
 import WithAuth from '@/components/WithAuth';
+import CheckoutSummary from '@/components/CheckOutSummary';
+import { formatRupiah } from '@/utils/currencyUtils';
 import { ConfirmationDeleteCart } from '@/components/ConfirmationDeleteCart';
 import CartTable from '@/components/CartTable';
-import CheckoutSummary from '@/components/CheckOutSummary';
 
 const CartPage = () => {
   const { cart, fetchCart, updateItemQuantity, removeItem } = useCart();
@@ -84,4 +85,4 @@ const CartPage = () => {
   );
 };
 
-export default WithAuth(CartPage);
+export default CartPage;
