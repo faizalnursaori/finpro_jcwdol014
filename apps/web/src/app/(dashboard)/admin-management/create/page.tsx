@@ -3,6 +3,8 @@
 import React, { ChangeEvent, FormEvent, useState } from 'react';
 import { createAdmin } from '@/api/admin';
 import { ErrorAlert } from '@/components/ErrorAlert';
+import { useSession } from 'next-auth/react';
+import Link from 'next/link';
 
 export interface FormData {
   name: string;
@@ -16,6 +18,7 @@ export interface FormData {
 }
 
 const CreatePage: React.FC = () => {
+  const {data} = useSession()
   const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
@@ -58,7 +61,7 @@ const CreatePage: React.FC = () => {
 
   return (
     <div className="content-wrapper">
-      <div>
+      {data?.user?.role == "SUPER_ADMIN" ? <><div>
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-medium">Create Admin</h3>
           <div
@@ -261,7 +264,36 @@ const CreatePage: React.FC = () => {
             </div>
           </form>
         </div>
-      </div>
+      </div></> : <>
+            <div className='flex justify-center items-center flex-col p-3'>
+            <h2 className="text-3xl text-center my-2">
+              You Don't have an access to this page.
+            </h2>
+            <div className="mt-4 flex w-80 items-center justify-center gap-8">
+              <Link
+                className="relative flex items-center justify-center text-xl no-underline outline-none transition-opacity hover:opacity-80 active:opacity-60"
+                href="/"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="25"
+                  height="25"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="mr-2"
+                >
+                  <path d="m12 19-7-7 7-7"></path>
+                  <path d="M19 12H5"></path>
+                </svg>
+                <span className="flex items-center">Back to Homepage</span>
+              </Link>
+            </div>
+            </div>
+          </>}
     </div>
   );
 };

@@ -15,6 +15,8 @@ export const getUserCurrentLocation = () =>{
 
 
     navigator.geolocation.getCurrentPosition(success, fail)
-
+    
+    console.log(userLoc);
+    
     return userLoc;
 }

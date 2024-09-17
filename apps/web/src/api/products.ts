@@ -1,13 +1,12 @@
 import axios from 'axios';
-import { Product } from '../types/product';
 
-const baseUrl = 'http://localhost:8000/api/products';
+const base_api = process.env.BASE_API_PRODUCTS;
 
-export const getProducts = async (warehouseId?: number) => {
-  const response = await axios.get<Product[]>(baseUrl, {
-    params: {
-      warehouseId,
-    },
-  });
-  return response.data;
+export const getProducts = async () => {
+  try {
+    const res = await axios.get(`${base_api}/products/`);
+    return res.data;
+  } catch (error) {
+    console.log(error);
+  }
 };
