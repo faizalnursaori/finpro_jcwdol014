@@ -16,6 +16,7 @@ import orderRouter from './routers/order.router';
 import warehouseRouter from './routers/warehouse.router';
 import { startOrderCronJobs } from './cron/order.cron';
 import userRouter from './routers/user.router';
+import { categoryRouter } from './routers/category.router';
 
 export default class App {
   private app: Express;
@@ -69,6 +70,7 @@ export default class App {
     this.app.use('/api/warehouses', warehouseRouter);
     this.app.use('/api/users', userRouter);
     this.app.use('/api/admins', adminRouter);
+    this.app.use('/api/categories', categoryRouter);
   }
 
   private startCronJobs(): void {

@@ -3,7 +3,7 @@
 import axios from 'axios';
 import { cookies } from 'next/headers';
 
-const API_URL = process.env.BASE_API_URL;
+const API_URL = process.env.BASE_API_ADMIN;
 
 interface User {
   name: string;
@@ -18,12 +18,9 @@ interface User {
 
 export const getAllAdmin = async (page: number, limit: number) => {
   const token = cookies().get('next-auth.session-token')?.value;
-  if (!token) {
-    return { ok: false, message: 'Unauthenticated' };
-  }
   try {
     const res = await axios.get(
-      `${API_URL}admins/admins?page=${page}&limit=${limit}`,
+      `${API_URL}/admins?page=${page}&limit=${limit}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -49,7 +46,7 @@ export const updateUser = async (id: number, user: Partial<User>) => {
     return { ok: false, message: 'Unauthenticated' };
   }
   try {
-    const res = await axios.patch(`${API_URL}admins/${id}`, user, {
+    const res = await axios.patch(`${API_URL}/${id}`, user, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -76,7 +73,7 @@ export const deleteAdmin = async (id: number) => {
     return { ok: false, message: 'Unauthenticated' };
   }
   try {
-    const res = await axios.delete(`${API_URL}admins/${id}`, {
+    const res = await axios.delete(`${API_URL}/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -93,7 +90,7 @@ export const searchUser = async (query: string) => {
     return { ok: false, message: 'Unauthenticated' };
   }
   try {
-    const res = await axios.get(`${API_URL}admins/search/admins`, {
+    const res = await axios.get(`${API_URL}/admins?search=${query}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -107,11 +104,8 @@ export const searchUser = async (query: string) => {
 
 export const createAdmin = async (adminData: User) => {
   const token = cookies().get('next-auth.session-token')?.value;
-  if (!token) {
-    return { ok: false, message: 'Unauthenticated' };
-  }
   try {
-    const response = await axios.post(`${API_URL}admins`, adminData, {
+    const response = await axios.post(`${API_URL}`, adminData, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

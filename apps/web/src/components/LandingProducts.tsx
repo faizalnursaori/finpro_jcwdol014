@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { useCart } from '../context/CartContext';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import toast, {Toaster} from 'react-hot-toast';
+import toast, { Toaster } from 'react-hot-toast';
 import { ProductType } from '@/types/product';
 
 interface Warehouse {
@@ -20,14 +20,24 @@ interface ProductStock {
   warehouse: Warehouse;
 }
 
+interface Category {
+  name: string;
+}
+
+interface ProductImage {
+  url: string;
+}
+
 interface Product {
   id: number;
   name: string;
   description: string;
   price: number;
   productStocks: ProductStock[];
+  category: Category;
+  slug: string;
+  productImages: ProductImage[];
 }
-
 
 type Props = {
   catHeader: string;
@@ -38,7 +48,7 @@ export default function LandingProducts({ catHeader, products }: Props) {
   const [error, setError] = useState<string | null>(null);
   const { addToCart, fetchCart, cart } = useCart();
   const router = useRouter();
-  const {data} = useSession()
+  const { data } = useSession();
 
   const getTotalStock = (product: ProductType) => {
     return product.productStocks.reduce(
@@ -55,7 +65,7 @@ export default function LandingProducts({ catHeader, products }: Props) {
 
   const handleAddToCart = async (product: ProductType) => {
     if (!data?.user) {
-      toast.error('Login Required')
+      toast.error('Login Required');
       return;
     }
 
@@ -85,7 +95,7 @@ export default function LandingProducts({ catHeader, products }: Props) {
 
   return (
     <>
-      <Toaster/>
+      <Toaster />
       <div className="max-w-[80%] m-auto">
         <div className="flex justify-between mt-5 items-center">
           <h2 className="text-xl font-bold ">{catHeader}</h2>
@@ -95,15 +105,15 @@ export default function LandingProducts({ catHeader, products }: Props) {
           {filteredProducts?.map((product, index) => (
             <div key={index} className="card card-compact max-w-[200px]">
               <div className="card-body">
-                <figure className="bg-base-200 rounded-md max-w-[150px] max-h-[150px]">
+                {/* <figure className="bg-base-200 rounded-md max-w-[150px] max-h-[150px]">
                   <Image
-                    src={`/${product.productImages[0]}.jpeg`}
+                    src={`${product.productImages[0].url}`}
                     alt={product.name}
                     width={150}
                     height={150}
                     className="max-w-[150px] max-h-[150px]"
                   />
-                </figure>
+                </figure> */}
                 <Link
                   href={`/products/${product.slug}`}
                   className="card-title hover:underline hover:text-success duration-500"
