@@ -18,7 +18,7 @@ export default function ProfileMenu() {
             </Link>
           </li>
           <li>
-            <Link href="/profile">
+            <Link href="/profile/addresses">
               <MapPinHouse />
               Addresses
             </Link>
