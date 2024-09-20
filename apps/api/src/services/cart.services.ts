@@ -30,6 +30,13 @@ export const getOrCreateCart = async (userId: number) => {
 
 export const deactivateCart = async (cartId: number) => {
   try {
+    const cart = await CartModel.findById(cartId);
+    if (!cart) {
+      throw new Error('Cart not found');
+    }
+    if (!cart.isActive) {
+      throw new Error('Cart is already inactive');
+    }
     await CartModel.deactivate(cartId);
   } catch (error) {
     console.error('Error in deactivateCart service:', error);

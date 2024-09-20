@@ -1,27 +1,46 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { loginUser } from '@/lib/ApiClient';
-import { setCookies } from '@/actions/cookies';
+import Link from 'next/link';
+import { FaGoogle, FaGithub } from 'react-icons/fa';
+import { signIn } from 'next-auth/react';
+
+import Cookies from 'js-cookie';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
     try {
-      const data = await loginUser(email, password);
-      console.log('Login successful:', data); // Log successful login
-      localStorage.setItem('token', data.token);
-      // localStorage.setItem('userId', data.user.id.toString());
-      setCookies('token', data.token);
-      router.push('/'); // Redirect to dashboard or home page
+      // console.log(data);
+
+      const res = await fetch('http://localhost:8000/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        Cookies.set('token', data.token, { expires: 7 }); // Set token in cookie, expires in 7 days
+
+        const dataLog = await signIn('credentials', {
+          callbackUrl: '/',
+          email,
+          password,
+        });
+      } else {
+        setError(data.message || 'An unexpected error occurred');
+      }
     } catch (err) {
       console.error('Login error:', err); // Log the full error
       setError(
@@ -31,59 +50,106 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Sign in to your account
-          </h2>
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <input type="hidden" name="remember" defaultValue="true" />
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <label htmlFor="email-address" className="sr-only">
-                Email address
-              </label>
-              <input
-                id="email-address"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="sr-only">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-          </div>
+    <div className="bg-base-100 flex flex-col justify-center items-center gap-6">
+      <h2 className="font-bold text-2xl">ACCOUNT LOGIN</h2>
+      <p className="font-medium text-center">
+        Login to create shopping list, access exclusive offers & manage you
+        orders.
+      </p>
 
-          {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
-
-          <div>
-            <button
-              type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+      <div>
+        <form className="form-control gap-4" onSubmit={handleSubmit}>
+          <div className="form-control relative focus-within:border-white">
+            <input
+              onChange={(e) => setEmail(e.target.value)}
+              type="email"
+              name="email"
+              id="email"
+              placeholder=" "
+              className="peer input input-bordered relative z-0 w-full focus:outline-none"
+            />
+            <label
+              htmlFor="email"
+              className="label pointer-events-none absolute left-3 top-1 select-none px-1 transition-all duration-300 peer-focus:-translate-y-[21px] peer-focus:text-xs peer-[:not(:placeholder-shown)]:-translate-y-[21px] peer-[:not(:placeholder-shown)]:text-xs"
             >
-              Sign in
+              <span className="bg-base-100 px-1">Email</span>
+            </label>
+          </div>
+          <div className="form-control relative focus-within:border-white">
+            <input
+              onChange={(e) => setPassword(e.target.value)}
+              type="password"
+              name="password"
+              id="password"
+              placeholder=" "
+              className="peer input input-bordered relative z-0 w-full pr-10 focus:outline-none"
+            />
+            <label
+              htmlFor="password"
+              className="label pointer-events-none absolute left-3 top-1 select-none px-1 transition-all duration-300 peer-focus:-translate-y-[21px] peer-focus:text-xs peer-[:not(:placeholder-shown)]:-translate-y-[21px] peer-[:not(:placeholder-shown)]:text-xs"
+            >
+              <span className="bg-base-100 px-1">Password</span>
+            </label>
+            <label className="label">
+              <span className="label-text-alt hover:underline hover:text-success">
+                <Link href="/login/forget-password">Forget your password?</Link>
+              </span>
+            </label>
+          </div>
+          <div className="form-control mt-6">
+            <button
+              className="btn btn-success mb-4 text-base-100"
+              disabled={isLoading}
+            >
+              {isLoading ? 'Logging in...' : 'Login'}
             </button>
+            <p className="text-center">
+              Dont have an account?{' '}
+              <Link
+                href={'/register'}
+                className="font-semibold text-indigo-500 hover:underline"
+              >
+                Sign Up
+              </Link>
+            </p>
+            <div className="divider">Login with Socials</div>
+            <div className="flex gap-5 items-center justify-center my-2">
+              <button
+                type="button"
+                onClick={() => signIn('google', { callbackUrl: '/' })}
+              >
+                <FaGoogle size={25} />
+              </button>
+              <button
+                type="button"
+                onClick={() => signIn('github', { callbackUrl: '/' })}
+              >
+                <FaGithub size={25} />
+              </button>
+            </div>
+            <div className="mt-4 flex w-80 flex-col items-center justify-center gap-8">
+              <Link
+                className="relative inline-flex items-center justify-center text-sm no-underline outline-none transition-opacity hover:opacity-80 active:opacity-60"
+                href="/"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="mr-2"
+                >
+                  <path d="m12 19-7-7 7-7"></path>
+                  <path d="M19 12H5"></path>
+                </svg>
+                <span className="flex items-center">Back to Home page</span>
+              </Link>
+            </div>
           </div>
         </form>
       </div>

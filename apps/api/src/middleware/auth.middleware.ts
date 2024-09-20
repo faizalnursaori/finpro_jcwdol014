@@ -1,38 +1,50 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { Role } from '@prisma/client';
+import { getToken } from 'next-auth/jwt';
 
-interface AuthenticatedRequest extends Request {
+export interface AuthenticatedRequest extends Request {
+  req: any;
   user?: {
-    userId: number;
-    email: string;
-    username: string;
-    role: string;
+    userId: any;
+    email: any;
+    username: any;
+    role: any;
   };
 }
 
-export const authenticateToken = (
-  req: AuthenticatedRequest,
+export const authenticateToken = async (
+  req: any,
   res: Response,
   next: NextFunction,
 ) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+  // Extract the Authorization header
+  const authHeader = req.headers.authorization;
 
-  if (token == null) return res.sendStatus(401);
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ message: 'No token provided' });
+  }
 
-  jwt.verify(token, process.env.JWT_SECRET as string, (err: any, user: any) => {
-    if (err) return res.sendStatus(403);
-    req.user = user;
+  // Get the token from the Authorization header (remove "Bearer " prefix)
+  const token = authHeader.split(' ')[1];
+
+  try {
+    // Verify the token and decode it
+    const secret = process.env.JWT_SECRET || 'H3LL0_FINPR0';
+    const decoded = jwt.verify(token, secret);
+
+    // Save the decoded token in req.user for use in next middleware/routes
+    req.user = decoded;
+
+    // Proceed to the next middleware
     next();
-  });
+  } catch (err) {
+    // If verification fails, send a 403 Forbidden response
+    return res.status(403).json({ message: 'Invalid or expired token' });
+  }
 };
 
-export async function AdminGuard(
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction,
-) {
+export async function AdminGuard(req: any, res: Response, next: NextFunction) {
   if (!req.user) {
     return res.status(401).send('Unauthorized');
   }
@@ -45,7 +57,7 @@ export async function AdminGuard(
 }
 
 export async function SuperAdminGuard(
-  req: AuthenticatedRequest,
+  req: any,
   res: Response,
   next: NextFunction,
 ) {
