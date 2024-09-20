@@ -9,7 +9,6 @@ const axiosInstance = axios.create({
 });
 
 axiosInstance.interceptors.request.use((config) => {
-  // Get the token from cookies instead of localStorage
   const token = Cookies.get('token');
 
   console.log('token from cookie:', token);
