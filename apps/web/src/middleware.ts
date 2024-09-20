@@ -8,8 +8,6 @@ export const config = {
     '/enduser-management',
     '/products-management/:path*',
     '/cat-management',
+    '/order-management',
   ],
 };
-
-
-

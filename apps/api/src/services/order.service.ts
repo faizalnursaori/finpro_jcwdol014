@@ -7,8 +7,104 @@ import {
   CancellationSource,
   TransactionType,
   TransferStatus,
+  Role,
 } from '@prisma/client';
 import { calculateDistance } from '@/utils/distance.utils';
+
+export const updateStatusOrderResolver = async (
+  orderId: string, // Ubah tipe data menjadi string
+  status: PaymentStatus,
+) => {
+  const shippedAtLimit = new Date(Date.now() + 2 * 60 * 1000); // in 2 minutes
+  const order = await prisma.order.findFirst({
+    where: {
+      id: parseInt(orderId, 10), // Konversi string ke integer
+    },
+  });
+
+  if (!order) {
+    throw new Error('Order not found');
+  }
+
+  return await prisma.order.update({
+    where: {
+      id: parseInt(orderId, 10), // Konversi string ke integer
+    },
+    data: {
+      paymentStatus: status,
+    },
+  });
+};
+
+export const getOrderListByRole = async (
+  userId: number,
+  role: Role,
+  warehouseId?: number,
+  page = 1,
+  limit = 10,
+  sortBy = 'createdAt',
+  sortOrder: 'asc' | 'desc' = 'desc',
+) => {
+  const pageNumber = Number(page);
+  const limitNumber = Number(limit);
+
+  const filters: any = {};
+  if (warehouseId) {
+    filters.warehouseId = warehouseId;
+  }
+
+  if (role === Role.ADMIN) {
+    // Admin dapat melihat semua pesanan
+  } else if (role === Role.USER) {
+    // Store admin hanya dapat melihat pesanan pada gudang mereka
+    const userWarehouse = await prisma.warehouse.findUnique({
+      where: { userId: userId },
+    });
+    if (!userWarehouse) {
+      throw new Error('User does not have an associated warehouse');
+    }
+    filters.warehouseId = userWarehouse.id;
+  } else {
+    throw new Error('Invalid role');
+  }
+
+  const validSortFields = ['createdAt', 'total', 'paymentStatus'];
+  const sortField = validSortFields.includes(sortBy) ? sortBy : 'createdAt';
+
+  const totalCount = await prisma.order.count({
+    where: filters,
+  });
+
+  const orders = await prisma.order.findMany({
+    where: filters,
+    include: {
+      items: {
+        include: {
+          product: true,
+        },
+      },
+      warehouse: true,
+      cart: true,
+      address: true,
+      voucher: true,
+    },
+    orderBy: {
+      [sortField]: sortOrder,
+    },
+    skip: (pageNumber - 1) * limitNumber,
+    take: limitNumber,
+  });
+
+  return {
+    orders,
+    pagination: {
+      currentPage: pageNumber,
+      totalPages: Math.ceil(totalCount / limitNumber),
+      totalItems: totalCount,
+      itemsPerPage: limitNumber,
+    },
+  };
+};
 
 export const getOrderDetailById = async (userId: number, orderId: number) => {
   return await prisma.order.findFirst({

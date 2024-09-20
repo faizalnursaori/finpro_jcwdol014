@@ -16,6 +16,71 @@ interface User {
   isVerified: boolean;
 }
 
+export const getAllOrders = async (page: number, limit: number) => {
+  const token = cookies().get('token')?.value;
+  if (!token) {
+    return { ok: false, message: 'Unauthenticated' };
+  }
+  try {
+    const res = await axios.get(
+      `${process.env.NEXT_PUBLIC_BASE_API_URL}/orders?page=${page}&limit=${limit}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    return {
+      ok: true,
+      data: res.data,
+    };
+  } catch (error: any) {
+    // Provide a detailed error response based on error status or type
+    const errorMessage =
+      error.response?.data?.message || 'Failed to get orders';
+    console.error('Error getting Orders data:', errorMessage);
+    return {
+      ok: false,
+      message: errorMessage,
+    };
+  }
+};
+
+export const updateStatusOrder = async (id: number, status: string) => {
+  const token = cookies().get('token')?.value;
+  if (!token) {
+    return { ok: false, message: 'Unauthenticated' };
+  }
+  try {
+    let user = {
+      orderId: id,
+      status: status,
+    };
+    const res = await axios.post(
+      `${process.env.NEXT_PUBLIC_BASE_API_URL}/orders/update_status`,
+      user,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    return { ok: true, data: res.data };
+  } catch (error: any) {
+    let errorMessage = 'Failed to update Status';
+
+    if (error.response && error.response.data && error.response.data.message) {
+      errorMessage = error.response.data.message;
+    }
+
+    return {
+      ok: false,
+      message: errorMessage,
+      error: error.message,
+    };
+  }
+};
+
 export const getAllAdmin = async (page: number, limit: number) => {
   const token = cookies().get('next-auth.session-token')?.value;
   try {
