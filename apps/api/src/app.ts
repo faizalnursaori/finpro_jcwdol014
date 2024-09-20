@@ -16,6 +16,7 @@ import warehouseRouter from './routers/warehouse.router';
 import userRouter from './routers/user.router'
 import locationRouter from './routers/location.router'
 import addressRouter from './routers/address.router'
+import { categoryRouter } from './routers/category.router';
 
 export default class App {
   private app: Express;
@@ -69,6 +70,7 @@ export default class App {
     this.app.use('/api/admins', adminRouter);
     this.app.use('/api/locations', locationRouter);
     this.app.use('/api/addresses', addressRouter);
+    this.app.use('/api/categories', categoryRouter);
   }
 
   public start(): void {

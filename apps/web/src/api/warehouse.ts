@@ -1,3 +1,4 @@
+'use server'
 import axios from "axios";
 import { haversineDistance } from "@/utils/getClosestStore";
 import { getUserCurrentLocation } from "@/utils/getUserCurrentLocation";
@@ -9,7 +10,7 @@ import { cookies } from 'next/headers';
 const token = cookies().get('next-auth.session-token')?.value;
 
 export const getClosestWarehouse = async () =>{
-    const res = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}warehouses/`)
+    const res = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/warehouses/`)
     const data = res.data.warehouses
     const userLoc =  getUserCurrentLocation()
     let distance = 0
@@ -26,13 +27,35 @@ export const getClosestWarehouse = async () =>{
     
 }
 
-export const getWarehouse = async (id:number) =>{
+export const getWarehouseByPage = async (page: number, limit: number) => {
+  const token = cookies().get('next-auth.session-token')?.value;
+  try {
+    const res = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/warehouses/page`, {
+      params: { page, limit },
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return {
+      ok: true,
+      data: res.data,
+    };
+  } catch (error) {
+    console.error('Error getting warehouses data:', error);
+    return {
+      ok: false,
+      message: 'Failed to get warehouses data',
+    };
+  }
+}
+
+export const getWarehouse = async (id:string) =>{
   if (!token) {
     return { ok: false, message: 'Unauthenticated' };
   }
 
   try {
-    const res = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}warehouses/${id}`,{
+    const res = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/warehouses/${id}`,{
       headers:{
         Authorization: `Bearer ${token}`
       }
@@ -56,7 +79,7 @@ export const createWarehouse = async (data:any) =>{
   }
 
   try {
-    const res = await axios.post(`${process.env.NEXT_PUBLIC_BASE_API_URL}warehouses/create`, data,{
+    const res = await axios.post(`${process.env.NEXT_PUBLIC_BASE_API_URL}/warehouses/create`, data,{
       headers:{
         Authorization: `Bearer ${token}`
       }
@@ -76,13 +99,13 @@ export const createWarehouse = async (data:any) =>{
   }
 }
 
-export const editWarehouse = async (data:any, id: number) =>{
+export const editWarehouse = async (data:any, id: string) =>{
   if (!token) {
     return { ok: false, message: 'Unauthenticated' };
   }
 
   try {
-    const res = await axios.put(`${process.env.NEXT_PUBLIC_BASE_API_URL}warehouses/update/${id}`, data,{
+    const res = await axios.put(`${process.env.NEXT_PUBLIC_BASE_API_URL}/warehouses/update/${id}`, data,{
       headers:{
         Authorization: `Bearer ${token}`
       }
@@ -108,7 +131,7 @@ export const deleteWarehouse = async (id: number) =>{
   }
 
   try {
-    const res = await axios.delete(`${process.env.NEXT_PUBLIC_BASE_API_URL}warehouses/delete/${id}`,{
+    const res = await axios.delete(`${process.env.NEXT_PUBLIC_BASE_API_URL}/warehouses/delete/${id}`,{
       headers:{
         Authorization: `Bearer ${token}`
       }
@@ -127,3 +150,14 @@ export const deleteWarehouse = async (id: number) =>{
     
   }
 }
+
+export const searchWarehouse = async (query: string) => {
+  try {
+    const res = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/warehouses?search=${query}`, {
+      params: { query },
+    });
+    return { ok: true, data: res.data };
+  } catch (error) {
+    return { ok: false, message: 'Warehouse not found.' };
+  }
+};

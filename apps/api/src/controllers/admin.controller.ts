@@ -1,15 +1,14 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
-import { sign } from 'jsonwebtoken';
-import bcrypt, { genSalt, hash } from 'bcrypt';
+import { genSalt, hash } from 'bcrypt';
 
 const prisma = new PrismaClient();
 
-export const getUserByPage = async (req: Request, res: Response) => {
+export const getUsers = async (req: Request, res: Response) => {
   try {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 5;
-
+    const search = (req.query.search as string) || '';
     const skip = (page - 1) * limit;
 
     const user = await prisma.user.findMany({
@@ -18,6 +17,11 @@ export const getUserByPage = async (req: Request, res: Response) => {
         role: {
           in: ['USER'],
         },
+        OR: [
+          { username: { contains: search } },
+          { email: { contains: search } },
+          { name: { contains: search } },
+        ],
       },
       select: {
         id: true,
@@ -41,6 +45,11 @@ export const getUserByPage = async (req: Request, res: Response) => {
         role: {
           in: ['USER'],
         },
+        OR: [
+          { username: { contains: search } },
+          { email: { contains: search } },
+          { name: { contains: search } },
+        ],
       },
     });
 
@@ -59,11 +68,11 @@ export const getUserByPage = async (req: Request, res: Response) => {
   }
 };
 
-export const getAdminByPage = async (req: Request, res: Response) => {
+export const getAdmins = async (req: Request, res: Response) => {
   try {
     const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 2;
-
+    const limit = parseInt(req.query.limit as string) || 5;
+    const search = (req.query.search as string) || '';
     const skip = (page - 1) * limit;
 
     const user = await prisma.user.findMany({
@@ -72,6 +81,11 @@ export const getAdminByPage = async (req: Request, res: Response) => {
         role: {
           in: ['ADMIN', 'SUPER_ADMIN'],
         },
+        OR: [
+          { username: { contains: search } },
+          { email: { contains: search } },
+          { name: { contains: search } },
+        ],
       },
       select: {
         id: true,
@@ -80,10 +94,9 @@ export const getAdminByPage = async (req: Request, res: Response) => {
         email: true,
         mobileNumber: true,
         role: true,
-        gender: true,
-        dob: true,
         isVerified: true,
         image: true,
+        warehouse: true
       },
       skip: skip,
       take: limit,
@@ -95,6 +108,11 @@ export const getAdminByPage = async (req: Request, res: Response) => {
         role: {
           in: ['ADMIN', 'SUPER_ADMIN'],
         },
+        OR: [
+          { username: { contains: search } },
+          { email: { contains: search } },
+          { name: { contains: search } },
+        ],
       },
     });
 
@@ -117,10 +135,6 @@ export const updateUser = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { username, email, role, name, gender, mobileNumber } = req.body;
-
-    if (role && !['SUPER_ADMIN', 'ADMIN', 'USER'].includes(role)) {
-      return res.status(400).json({ message: 'Invalid role specified' });
-    }
 
     const updatedUser = await prisma.user.update({
       where: { id: parseInt(id) },
@@ -165,46 +179,6 @@ export const deleteAdmin = async (req: Request, res: Response) => {
     res.status(500).json({
       message: 'Failed to delete user',
     });
-  }
-};
-
-export const searchUsers = async (req: Request, res: Response) => {
-  try {
-    const { query } = req.query;
-
-    if (!query || typeof query !== 'string') {
-      return res
-        .status(400)
-        .json({ error: 'Search query is required and must be a string' });
-    }
-
-    const users = await prisma.user.findMany({
-      where: {
-        isVerified: true,
-        OR: [
-          { name: { contains: query } },
-          { email: { contains: query } },
-          { username: { contains: query } },
-        ],
-      },
-      select: {
-        id: true,
-        name: true,
-        username: true,
-        email: true,
-        mobileNumber: true,
-        role: true,
-        gender: true,
-        dob: true,
-        isVerified: true,
-        image: true,
-      },
-    });
-
-    res.json(users);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Something went wrong' });
   }
 };
 

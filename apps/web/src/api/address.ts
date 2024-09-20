@@ -10,7 +10,7 @@ export const createAddress = async (data: any) => {
   }
   try {
     await axios.post(
-      `${process.env.NEXT_PUBLIC_BASE_API_URL}addresses/new`,
+      `${process.env.NEXT_PUBLIC_BASE_API_URL}/addresses/new`,
       data,{
         headers: {
             Authorization: `Bearer ${token}`,
@@ -30,7 +30,7 @@ export const editAddress = async (data: any, id:string) => {
   }
   try {
     await axios.put(
-      `${process.env.NEXT_PUBLIC_BASE_API_URL}addresses/edit/${id}`,
+      `${process.env.NEXT_PUBLIC_BASE_API_URL}/addresses/edit/${id}`,
       data,{
         headers: {
             Authorization: `Bearer ${token}`,
@@ -51,7 +51,7 @@ export const getUserAddresses = async (id: any) => {
   }
   try {
     const res = await axios.get(
-      `${process.env.NEXT_PUBLIC_BASE_API_URL}addresses/${id}`,{
+      `${process.env.NEXT_PUBLIC_BASE_API_URL}/addresses/${id}`,{
         headers: {
             Authorization: `Bearer ${token}`,
           }
@@ -70,7 +70,7 @@ export const deleteUserAddresses = async (id: any) => {
   }
   try {
     await axios.delete(
-      `${process.env.NEXT_PUBLIC_BASE_API_URL}addresses/${id}`,{
+      `${process.env.NEXT_PUBLIC_BASE_API_URL}/addresses/${id}`,{
         headers: {
             Authorization: `Bearer ${token}`,
           }
