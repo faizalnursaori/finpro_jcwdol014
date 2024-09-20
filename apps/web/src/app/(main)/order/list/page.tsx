@@ -8,6 +8,7 @@ import { Order, PaymentStatus } from '@/types/order';
 import WithAuth from '@/components/WithAuth';
 import { formatRupiah } from '@/utils/currencyUtils';
 import { formatDate } from '@/utils/dateUtils';
+import Cookies from 'js-cookie';
 
 const OrderListPage = () => {
   const { cancelOrder } = useOrder();
@@ -38,7 +39,7 @@ const OrderListPage = () => {
         `${process.env.NEXT_PUBLIC_BASE_API_URL}/orders?page=${currentPage}&limit=10&sortBy=${sortBy}&sortOrder=${sortOrder}&startDate=${searchDate}&orderNumber=${searchOrderNo}`,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            Authorization: `Bearer ${Cookies.get('token')}`,
           },
         },
       );

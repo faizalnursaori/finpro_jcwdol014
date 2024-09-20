@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { Order, PaymentStatus } from '@/types/order';
 import { useOrder } from '@/context/OrderContext';
 import { formatRupiah } from '@/utils/currencyUtils';
+import Cookies from 'js-cookie';
 const OrderDetail = () => {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
@@ -20,7 +21,7 @@ const OrderDetail = () => {
           `${process.env.NEXT_PUBLIC_BASE_API_URL}/orders/${id}`,
           {
             headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`,
+              Authorization: `Bearer ${Cookies.get('token')}`,
             },
           },
         );

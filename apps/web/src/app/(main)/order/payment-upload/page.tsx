@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import axios from 'axios';
+import Cookies from 'js-cookie';
 
 const PaymentUploadPage = () => {
   const router = useRouter();
@@ -63,7 +64,7 @@ const PaymentUploadPage = () => {
 
     try {
       setIsUploading(true);
-      const token = localStorage.getItem('token');
+      const token = Cookies.get('token');
 
       await axios.post(
         `${process.env.NEXT_PUBLIC_BASE_API_URL}/orders/payment-proof`,

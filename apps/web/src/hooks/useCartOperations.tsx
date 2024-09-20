@@ -2,6 +2,7 @@ import { useState } from 'react';
 import axiosInstance from '../utils/axiosInstance';
 import { Cart } from '@/types/cart';
 import axios from 'axios';
+import Cookies from 'js-cookie';
 
 export const useCartOperations = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -11,7 +12,7 @@ export const useCartOperations = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const token = localStorage.getItem('token');
+      const token = Cookies.get('token');
       if (!token) {
         throw new Error('No token found');
       }
