@@ -9,8 +9,6 @@ interface User {
   email: string;
   role: string;
   gender: string;
-  avatarUrl: string;
-  location: string;
   isVerified: boolean;
   mobileNumber: string;
 }

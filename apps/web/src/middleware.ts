@@ -1,20 +1,15 @@
-'use server';
-
-import { protectRoute } from '@/actions/token';
-import { NextRequest } from 'next/server';
+export { default } from 'next-auth/middleware';
 
 export const config = {
   matcher: [
-    '/admin-management',
-    '/admin-management/create',
+    '/profile/:path*/:path*',
+    '/cart/:path*/:path*',
+    '/admin-management/:path*',
     '/enduser-management',
-    '/products-management',
-    '/products-management/edit',
-    '/products-management/create',
+    '/products-management/:path*',
     '/cat-management',
   ],
 };
 
-export async function middleware(req: NextRequest) {
-  return await protectRoute(req);
-}
+
+

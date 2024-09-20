@@ -5,8 +5,8 @@ import { useCart } from '../../../context/CartContext';
 import Link from 'next/link';
 import EmptyCart from '@/components/EmptyCart';
 import { ArrowLeft, Trash2 } from 'lucide-react';
-import CheckoutSummary from '@/components/CheckOutSummary';
 import WithAuth from '@/components/WithAuth';
+import CheckoutSummary from '@/components/CheckOutSummary';
 import { formatRupiah } from '@/utils/currencyUtils';
 import { ConfirmationDeleteCart } from '@/components/ConfirmationDeleteCart';
 import CartTable from '@/components/CartTable';
@@ -54,11 +54,6 @@ const CartPage = () => {
   if (error) return <div>{error}</div>;
   if (!cart || cart.items.length === 0) return <EmptyCart />;
 
-  const totalPrice = cart.items.reduce(
-    (total, item) => total + item.product.price * item.quantity,
-    0,
-  );
-
   return (
     <div className="container mx-6 p-4">
       <div className="-my-4 mb-10">
@@ -90,4 +85,4 @@ const CartPage = () => {
   );
 };
 
-export default WithAuth(CartPage);
+export default CartPage;

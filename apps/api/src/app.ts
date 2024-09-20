@@ -12,7 +12,11 @@ import { adminRouter } from './routers/admin.router';
 import cartRouter from './routers/cart.router';
 import productRouter from './routers/product.routers';
 import authRouter from './routers/auth.router';
+import orderRouter from './routers/order.router';
 import warehouseRouter from './routers/warehouse.router';
+import { startOrderCronJobs } from './cron/order.cron';
+import userRouter from './routers/user.router';
+import { categoryRouter } from './routers/category.router';
 
 export default class App {
   private app: Express;
@@ -22,6 +26,7 @@ export default class App {
     this.configure();
     this.routes();
     this.handleError();
+    // this.startCronJobs();
   }
 
   private configure(): void {
@@ -61,11 +66,19 @@ export default class App {
     this.app.use('/api/carts', cartRouter);
     this.app.use('/api/products', productRouter);
     this.app.use('/api/auth', authRouter);
+    this.app.use('/api/orders', orderRouter);
     this.app.use('/api/warehouses', warehouseRouter);
+    this.app.use('/api/users', userRouter);
     this.app.use('/api/admins', adminRouter);
+    this.app.use('/api/categories', categoryRouter);
+  }
+
+  private startCronJobs(): void {
+    startOrderCronJobs();
   }
 
   public start(): void {
+    this.startCronJobs();
     this.app.listen(PORT, () => {
       console.log(`  ➜  [API] Local:   http://localhost:${PORT}/`);
     });

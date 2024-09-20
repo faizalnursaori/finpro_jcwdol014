@@ -16,8 +16,6 @@ interface User {
   email: string;
   role: string;
   gender: string;
-  avatarUrl: string;
-  location: string;
   isVerified: boolean;
   mobileNumber: string;
 }
@@ -31,7 +29,7 @@ export const AdminTable = () => {
   const [isDeleteModalOpen, setDeleteModalOpen] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
-  const [limit] = useState<number>(5); // Change this value if you want a different limit per page
+  const [limit] = useState<number>(5);
 
   const fetchUsers = async (page: number) => {
     setLoading(true);
@@ -76,6 +74,7 @@ export const AdminTable = () => {
       setUsers(updatedUsers);
       setEditModalOpen(false);
       setSelectedUser(null);
+      setError('');
     } catch (error) {
       setError((error as Error).message);
     }
@@ -113,7 +112,7 @@ export const AdminTable = () => {
       if (!res.ok) {
         throw new Error('Failed to search user');
       }
-      setUsers(res.data);
+      setUsers(res.data.user);
     } catch (error) {
       setError((error as Error).message);
     }
@@ -128,11 +127,11 @@ export const AdminTable = () => {
   };
 
   if (loading) return <span className="loading loading-bars loading-lg"></span>;
-  if (error) return <ErrorAlert message={error} />;
 
   return (
     <>
       <div className="overflow-x-auto">
+        {error && <ErrorAlert message={error} />}
         <div className="flex flex-row justify-between my-3 mx-3 gap-10">
           <Search onSearch={handleSearch} onClear={handleClearSearch} />
           <NewUser />

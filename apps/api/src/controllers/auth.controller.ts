@@ -2,30 +2,34 @@ import { Request, Response } from 'express';
 import prisma from '@/prisma';
 import jwt from 'jsonwebtoken';
 import bcrypt, { genSalt } from 'bcrypt';
+import { transporter } from '@/utils/auth.utils';
+import { configDotenv } from 'dotenv';
 
 export const register = async (req: Request, res: Response) => {
   try {
-    const { username, email, password } = req.body;
+    const { email } = req.body;
 
-    if (!email || !password) {
+    if (!email) {
       return res.status(400).json({ message: 'All fields are required' });
     }
 
-    const existingUser = await prisma.user.findUnique({
+    const existingVerifiedUser = await prisma.user.findUnique({
       where: { email },
     });
 
-    if (existingUser) {
-      return res.status(409).json({ message: 'User already exist' });
+    if (existingVerifiedUser) {
+      return res.status(409).json({ message: 'User already registered.' });
     }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await prisma.user.create({
       data: {
-        username,
+        username: email,
         email,
-        password: hashedPassword,
+        password: '',
+        name: '',
+        dob: null,
+        mobileNumber: null,
+        gender: null,
         carts: {
           create: {
             isActive: true,
@@ -37,12 +41,33 @@ export const register = async (req: Request, res: Response) => {
       },
     });
 
+
+    const idToken =  jwt.sign({
+      id: user.id
+    }, process.env.JWT_SECRET!, {
+      expiresIn: '1h',
+    });
+
+
+    const url = `http://localhost:3000/register/set-user-data/${idToken}`;
+
+    try {
+      await transporter.sendMail({
+        from: {
+          name: 'Hemart',
+          address: process.env.GMAIL_USER!
+        },
+        to: email,
+        subject: 'Confirmation Email',
+        html: `Please click this link to complete your registration: <a href="${url}">${url}<a/>`,
+      }); 
+    } catch (error) {
+      console.log("error sending an email: ", error);
+    }
+
     res.status(201).json({
-      message: 'Register success',
-      user: {
-        ...user,
-        password: undefined, // Remove password from the response
-      },
+      message: 'Registration success',
+      user,
     });
   } catch (error) {
     console.error('Error registering user:', error);
@@ -53,7 +78,6 @@ export const register = async (req: Request, res: Response) => {
 };
 
 export const login = async (req: Request, res: Response) => {
-  const JWT_SECRET = process.env.JWT_SECRET;
   try {
     const { email, password } = req.body;
 
@@ -100,3 +124,42 @@ export const login = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
+export const resetPassword = async (req: Request, res: Response) =>  {
+  const {email} = req.body
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: {email}
+    })
+
+    if(user?.provider === 'google' || user?.provider === 'github') {
+      return res.status(404).json({message: 'Login with provider cannot reset password.'})
+    }
+
+    const idToken = jwt.sign({id: user?.id}, process.env.JWT_SECRET!, {expiresIn: '1h'})
+
+    const url = `http://localhost:3000/login/reset-password/${idToken}`
+
+
+  try {
+    await transporter.sendMail({
+      from: {
+        name: 'Hemart',
+        address: process.env.GMAIL_USER!
+      },
+      to: email,
+      subject: 'Reset Password Confirmation',
+      html: `Please click this link to reset your password: <a href="${url}">${url}<a/>`,
+    });
+  } catch (error) {
+    return res.status(500).json({message: "Email not sent!"})
+    
+  }
+
+  res.status(200).json({message: 'Success requesting reset password.'})
+  } catch (error) {
+    res.status(404).json({message: "User not found!"})
+  }
+
+}
