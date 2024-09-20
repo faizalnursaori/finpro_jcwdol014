@@ -11,7 +11,22 @@ export const useCartOperations = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await axiosInstance.post<{ cart: Cart }>('/carts');
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No token found');
+      }
+
+      // Set the token in the Authorization header
+      const response = await axiosInstance.post<{ cart: Cart }>(
+        '/carts',
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
       localStorage.setItem('cartId', response.data.cart.id.toString());
       return response.data.cart;
     } catch (err) {
@@ -98,6 +113,7 @@ export const useCartOperations = () => {
         quantity,
       });
     } catch (err) {
+      console.log('error server', err);
       setError('Failed to add item to cart');
       throw err;
     } finally {
