@@ -6,6 +6,7 @@ import { Order, PaymentStatus } from '@/types/order';
 import { useOrder } from '@/context/OrderContext';
 import { formatRupiah } from '@/utils/currencyUtils';
 import Countdown from 'react-countdown';
+import Cookies from 'js-cookie';
 
 const OrderDetail = () => {
   const [order, setOrder] = useState<Order | null>(null);
@@ -29,7 +30,7 @@ const OrderDetail = () => {
       try {
         const response = await fetch(`${baseApiUrl}/orders/${id}`, {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            Authorization: `Bearer ${Cookies.get('token')}`,
           },
         });
         if (!response.ok) {

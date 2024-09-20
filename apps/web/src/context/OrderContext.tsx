@@ -10,6 +10,7 @@ import React, {
 import axios from 'axios';
 import { useCart } from './CartContext';
 import { Order } from '@/types/order';
+import Cookies from 'js-cookie';
 
 // interface Order {
 //   id: number;
@@ -41,7 +42,7 @@ export const OrderProvider: React.FC<{ children: ReactNode }> = ({
   // useEffect(() => {}, []);
 
   const getHeaders = () => ({
-    Authorization: `Bearer ${localStorage.getItem('token')}`,
+    Authorization: `Bearer ${Cookies.get('token')}`,
   });
 
   const checkout = async (data: any) => {
