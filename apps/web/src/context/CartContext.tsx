@@ -6,13 +6,14 @@ import React, {
   useState,
   ReactNode,
   useEffect,
+  useCallback,
 } from 'react';
 import { Cart } from '@/types/cart';
 import { useCartOperations } from '../hooks/useCartOperations';
 
 interface CartContextType {
   cart: Cart | null;
-  setCart: (cart: Cart | null) => void;
+  cartItemCount: number;
   fetchCart: () => Promise<void>;
   updateItemQuantity: (itemId: number, newQuantity: number) => Promise<void>;
   removeItem: (itemId: number) => Promise<void>;
@@ -21,7 +22,6 @@ interface CartContextType {
     quantity: number,
     availableStock: number,
   ) => Promise<void>;
-  cartItemCount: number;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -30,7 +30,6 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [cart, setCart] = useState<Cart | null>(null);
-  const [cartItemCount, setCartItemCount] = useState(0);
   const {
     createNewCart,
     fetchCartData,
@@ -39,37 +38,33 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
     addItemToCart,
   } = useCartOperations();
 
+  const calculateCartItemCount = useCallback(
+    (currentCart: Cart | null): number => {
+      return (
+        currentCart?.items?.reduce((total, item) => total + item.quantity, 0) ||
+        0
+      );
+    },
+    [],
+  );
+
+  const [cartItemCount, setCartItemCount] = useState<number>(0);
+
   useEffect(() => {
     fetchCart();
   }, []);
 
   useEffect(() => {
+    const newCartItemCount = calculateCartItemCount(cart);
+    setCartItemCount(newCartItemCount);
     console.log('Cart updated:', cart);
-    console.log('Cart item count in context:', cartItemCount);
-  }, [cart, cartItemCount]);
+    console.log('Cart item count in context:', newCartItemCount);
+  }, [cart, calculateCartItemCount]);
 
-  // Fungsi untuk menghitung jumlah item di dalam keranjang
-  const updateCartItemCount = (cart: Cart | null) => {
-    if (cart && cart.items) {
-      const itemCount = cart.items.reduce(
-        (total, item) => total + item.quantity,
-        0,
-      );
-      if (itemCount !== cartItemCount) {
-        console.log('Updating cart item count:', itemCount);
-        setCartItemCount(itemCount);
-      }
-    } else if (cartItemCount !== 0) {
-      setCartItemCount(0);
-    }
-  };
-
-  // Fetch cart and update cart state
   const fetchCart = async () => {
     try {
       const fetchedCart = await fetchCartData();
       setCart(fetchedCart);
-      updateCartItemCount(fetchedCart); // Menghitung jumlah item setelah fetch
     } catch (err) {
       console.error('Failed to load cart:', err);
     }
@@ -149,12 +144,11 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
     <CartContext.Provider
       value={{
         cart,
-        setCart,
+        cartItemCount,
         fetchCart,
         updateItemQuantity,
         removeItem,
         addToCart,
-        cartItemCount,
       }}
     >
       {children}

@@ -13,9 +13,5 @@ export default function MainLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <CartProvider>
-      <OrderProvider>{children}</OrderProvider>
-    </CartProvider>
-  );
+  return <OrderProvider>{children}</OrderProvider>;
 }
