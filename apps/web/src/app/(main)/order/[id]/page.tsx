@@ -92,6 +92,8 @@ const OrderDetail = () => {
   const isPending = order.paymentStatus === 'PENDING';
   const isDelivered = order.paymentStatus === 'DELIVERED';
   const isShipped = order.paymentStatus === 'SHIPPED';
+  const isPaymentProofUploaded =
+    order.paymentProof !== null && order.paymentStatus === 'PENDING';
 
   return (
     <div className="container mx-auto p-4">
@@ -133,10 +135,12 @@ const OrderDetail = () => {
                   <button className="btn btn-link btn-xs">View Proof</button>
                 </p>
               )}
-              <p>
-                <strong>Expires:</strong>{' '}
-                {new Date(order.expirePayment).toLocaleString()}
-              </p>
+              {!isPaymentProofUploaded && (
+                <p>
+                  <strong>Expires:</strong>{' '}
+                  {new Date(order.expirePayment).toLocaleString()}
+                </p>
+              )}
             </div>
           </div>
 
@@ -168,7 +172,7 @@ const OrderDetail = () => {
           )}
 
           <div className="card-actions justify-end mt-6">
-            {isPending && (
+            {isPending && !isPaymentProofUploaded && (
               <button
                 className="btn btn-primary"
                 onClick={handleUploadPaymentProof}
@@ -184,16 +188,22 @@ const OrderDetail = () => {
                 Confirm Received
               </button>
             )}
-            {['PENDING'].includes(order.paymentStatus) && (
-              <button className="btn btn-error" onClick={handleCancelOrder}>
-                Cancel Order
-              </button>
-            )}
+            {['PENDING'].includes(order.paymentStatus) &&
+              !isPaymentProofUploaded && (
+                <button className="btn btn-error" onClick={handleCancelOrder}>
+                  Cancel Order
+                </button>
+              )}
           </div>
 
-          {isPending && (
+          {isPending && !isPaymentProofUploaded && (
             <div className="alert alert-info mt-4">
               Please upload your payment proof to confirm your order.
+            </div>
+          )}
+          {isPaymentProofUploaded && (
+            <div className="alert alert-info mt-4">
+              Your Payment proof is under review by admin.
             </div>
           )}
           {isShipped && (
@@ -203,8 +213,7 @@ const OrderDetail = () => {
           )}
           {isDelivered && (
             <div className="alert alert-success mt-4">
-              Your order has been delivered. Please confirm if you have received
-              it.
+              Your order has been delivered.
             </div>
           )}
         </div>
