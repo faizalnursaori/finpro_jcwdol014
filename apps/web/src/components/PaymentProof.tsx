@@ -38,7 +38,7 @@ const PaymentProofUpload: React.FC<PaymentProofUploadProps> = ({ orderId }) => {
       toast.success('Payment proof uploaded successfully');
     } catch (error) {
       console.error('Upload failed', error);
-      setError('Failed to upload payment proof. Please try again.');
+      toast.error('Failed to upload payment proof. Please try again.');
     }
   };
 

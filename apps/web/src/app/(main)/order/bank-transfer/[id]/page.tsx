@@ -171,17 +171,12 @@ const OrderDetail = () => {
           <div className="mt-6">
             <h3 className="text-xl font-semibold mb-2">Order Items</h3>
             <ul className="list-disc pl-5">
-              {order.items.map((item) => {
-                //Console log each item
-                // console.log('Rendering item:', item);
-
-                return (
-                  <li key={item.id}>
-                    {item.product.name} - Quantity: {item.quantity} - Price:{' '}
-                    {formatRupiah(item.price * item.quantity)}
-                  </li>
-                );
-              })}
+              {order.items.map((item) => (
+                <li key={item.id}>
+                  {item.product.name} - Quantity: {item.quantity} - Price:{' '}
+                  {formatRupiah(item.price * item.quantity)}
+                </li>
+              ))}
             </ul>
           </div>
 
