@@ -12,11 +12,10 @@ export default function Header() {
   const { data } = useSession();
   const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
-  const { cartItemCount } = useCart(); // Use the cartItemCount from CartContext
-  console.log('Header Cart item count:', cartItemCount);
+  const { cartItemCount } = useCart();
 
   useEffect(() => {
-    console.log('Header Cart item count updated:', cartItemCount);
+    console.log('Header Cart item count:', cartItemCount);
   }, [cartItemCount]);
 
   const handleSearch = (e: React.FormEvent) => {
