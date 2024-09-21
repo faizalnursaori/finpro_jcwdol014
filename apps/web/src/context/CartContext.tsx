@@ -9,6 +9,8 @@ import React, {
 } from 'react';
 import { Cart } from '@/types/cart';
 import { useCartOperations } from '../hooks/useCartOperations';
+import { toast } from 'react-hot-toast';
+
 interface CartContextType {
   cart: Cart | null;
   setCart: (cart: Cart | null) => void;
@@ -119,21 +121,23 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
       if (existingItem) {
         const newQuantity = existingItem.quantity + quantity;
         if (newQuantity > availableStock) {
-          console.error('Not enough stock available');
+          toast.error('Not enough stock available');
           return;
         }
         await updateItemQuantity(existingItem.id, newQuantity);
       } else {
         if (quantity > availableStock) {
-          console.error('Not enough stock available');
+          toast.error('Not enough stock available');
           return;
         }
         await addItemToCart(currentCart.id, productId, quantity);
       }
 
       await fetchCart();
+      toast.success('Item added to cart');
     } catch (err) {
       console.error('Failed to add item to cart:', err);
+      toast.error('Failed to add item to cart');
       throw err;
     }
   };

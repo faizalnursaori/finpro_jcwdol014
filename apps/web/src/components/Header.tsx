@@ -59,11 +59,13 @@ export default function Header() {
           </form>
           <Link
             href="/cart"
-            className={data?.user ? 'btn btn-ghost' : 'btn btn-disabled'}
+            className={
+              data?.user ? 'btn btn-ghost relative' : 'btn btn-disabled'
+            }
           >
             <ShoppingCart />
             {cartItemCount > 0 && (
-              <span className="absolute -top-1 left-7 bg-red-500 text-white rounded-full px-2 py-1 text-xs">
+              <span className="absolute top-0 right-0 bg-red-500 text-white rounded-full px-2 py-1 text-xs">
                 {cartItemCount}
               </span>
             )}

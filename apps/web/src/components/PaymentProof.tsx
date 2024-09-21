@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useOrder } from '@/context/OrderContext';
+import { toast } from 'react-hot-toast';
 
 interface PaymentProofUploadProps {
   orderId: number;
@@ -34,7 +35,7 @@ const PaymentProofUpload: React.FC<PaymentProofUploadProps> = ({ orderId }) => {
 
     try {
       await uploadProof(orderId, file);
-      alert('Payment proof uploaded successfully');
+      toast.success('Payment proof uploaded successfully');
     } catch (error) {
       console.error('Upload failed', error);
       setError('Failed to upload payment proof. Please try again.');
