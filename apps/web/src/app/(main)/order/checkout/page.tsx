@@ -10,6 +10,7 @@ import WithAuth from '@/components/WithAuth';
 import Image from 'next/image';
 import { paymentMethods } from '@/utils/paymentList';
 import BankInstructionsModal from '@/components/BankInstructionModal';
+import { toast } from 'react-hot-toast';
 
 const OrderProcessingPage = () => {
   const { cart } = useCart();
@@ -68,12 +69,12 @@ const OrderProcessingPage = () => {
 
   const handleCheckout = async () => {
     if (!isStockAvailable) {
-      alert('Sorry, some items in your order are out of stock.');
+      toast.error('Sorry, some items in your order are out of stock.');
       return;
     }
 
     if (!cart || !closestWarehouseId) {
-      alert('Unable to process order. Please try again.');
+      toast.error('Unable to process order. Please try again.');
       return;
     }
 
@@ -119,7 +120,7 @@ const OrderProcessingPage = () => {
       }
     } catch (error) {
       console.error('Checkout failed', error);
-      alert('Failed to process your order. Please try again.');
+      toast.error('Failed to process your order. Please try again.');
     }
   };
 

@@ -7,6 +7,7 @@ import { useOrder } from '@/context/OrderContext';
 import { formatRupiah } from '@/utils/currencyUtils';
 import Countdown from 'react-countdown';
 import Cookies from 'js-cookie';
+import { toast } from 'react-hot-toast';
 
 const OrderDetail = () => {
   const [order, setOrder] = useState<Order | null>(null);
@@ -56,14 +57,14 @@ const OrderDetail = () => {
     if (!order) return;
     try {
       await cancelOrder(order.id, 'USER');
-      alert('Order cancelled successfully');
+      toast.success('Order cancelled successfully');
       setOrder({ ...order, paymentStatus: 'CANCELED' as PaymentStatus });
       if (countdownRef.current) {
         countdownRef.current.stop();
       }
     } catch (error) {
       console.error('Order cancellation failed', error);
-      alert('Failed to cancel order.');
+      toast.error('Failed to cancel order.');
     }
   };
 

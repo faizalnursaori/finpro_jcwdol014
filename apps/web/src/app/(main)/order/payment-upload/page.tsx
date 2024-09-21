@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import axios from 'axios';
 import Cookies from 'js-cookie';
+import { toast } from 'react-hot-toast';
 
 const PaymentUploadPage = () => {
   const router = useRouter();
@@ -54,7 +55,7 @@ const PaymentUploadPage = () => {
     e.preventDefault();
 
     if (!file || !orderId) {
-      alert('Please upload a valid file or provide a valid order ID.');
+      toast.error('Please upload a valid file or provide a valid order ID.');
       return;
     }
 
@@ -77,11 +78,11 @@ const PaymentUploadPage = () => {
         },
       );
 
-      alert('Payment proof uploaded successfully!');
+      toast.success('Payment proof uploaded successfully!');
       router.push(`/order/success?orderId=${orderId}`);
     } catch (error) {
       console.error('Failed to upload payment proof:', error);
-      alert('Failed to upload payment proof. Please try again.');
+      toast.error('Failed to upload payment proof. Please try again.');
     } finally {
       setIsUploading(false);
     }
