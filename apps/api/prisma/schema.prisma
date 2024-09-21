@@ -244,6 +244,8 @@ model Warehouse {
   productStocks     ProductStock[]
   orders            Order[]
   stockTransferLogs StockTransferLog[]
+  sourceMutations     StockTransfer[]         @relation("SourceWarehouse")
+  destinationutations StockTransfer[]         @relation("DestinationWarehouse")
 }
 
 model ProductStock {
@@ -267,17 +269,20 @@ model StockTransfer {
   stockProcess Int
   note         String         @db.Text
   productId    Int
+  sourceWarehouseId      Int?
+  destinationWarehouseId Int?
   status       TransferStatus
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
   product      Product        @relation(fields: [productId], references: [id])
+  sourceWarehouse      Warehouse?         @relation("SourceWarehouse", fields: [sourceWarehouseId], references: [id])
+  destinationWarehouse Warehouse?         @relation("DestinationWarehouse", fields: [destinationWarehouseId], references: [id])
 }
 
 enum TransferStatus {
   PENDING
-  PROCESSING
+  REJECTED
   COMPLETED
-  CANCELLED
 }
 
 model StockTransferLog {

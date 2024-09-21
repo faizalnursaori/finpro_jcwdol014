@@ -15,6 +15,10 @@ import authRouter from './routers/auth.router';
 import warehouseRouter from './routers/warehouse.router';
 import userRouter from './routers/user.router';
 import { categoryRouter } from './routers/category.router';
+import { stockRouter } from './routers/productStock.router';
+import { stockTransferRouter } from './routers/stockTransfer.router';
+import { stockTransferLogRouter } from './routers/stockTransferLog.router';
+import { voucherRouter } from './routers/voucher.router';
 
 export default class App {
   private app: Express;
@@ -67,6 +71,10 @@ export default class App {
     this.app.use('/api/users', userRouter);
     this.app.use('/api/admins', adminRouter);
     this.app.use('/api/categories', categoryRouter);
+    this.app.use('/api/stocks', stockRouter);
+    this.app.use('/api/stock-transfers', stockTransferRouter);
+    this.app.use('/api/logs', stockTransferLogRouter);
+    this.app.use('/api/vouchers', voucherRouter);
   }
 
   public start(): void {
