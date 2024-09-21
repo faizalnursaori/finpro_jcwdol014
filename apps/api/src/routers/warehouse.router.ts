@@ -1,10 +1,14 @@
 import { Router } from 'express';
 
-import { getWarehouses } from '@/controllers/warehouse.controller';
+import {
+  getWarehouseByUserId,
+  getWarehouses,
+} from '@/controllers/warehouse.controller';
 
-const router = Router()
+const router = Router();
 
 //get Warehouse
-router.get('/', getWarehouses)
+router.get('/', getWarehouses);
+router.get('/:userId', getWarehouseByUserId);
 
-export default router
+export default router;

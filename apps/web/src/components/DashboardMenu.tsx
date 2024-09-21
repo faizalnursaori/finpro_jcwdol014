@@ -9,6 +9,9 @@ import {
   PackageSearch,
   Blocks,
   UsersRound,
+  TicketPercent,
+  Layers,
+  ClipboardList,
 } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 import { useSession } from 'next-auth/react';
@@ -67,9 +70,31 @@ export default function DashboardMenu() {
             </Link>
           </li>
           <li>
-            <Link href="/dashboard/inventory-management">
-              <Blocks />
-              Inventory Management
+            <details className="group">
+              <summary className="font-normal group-open:font-bold cursor-pointer list-none">
+                <Blocks />
+                Inventory Management
+              </summary>
+              <ul>
+                <li>
+                  <Link href="/dashboard/inventory-management">
+                    <Layers />
+                    Stock Management
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/dashboard/inventory-management/request-management">
+                    <ClipboardList />
+                    Request Inventory Management
+                  </Link>
+                </li>
+              </ul>
+            </details>
+          </li>
+          <li>
+            <Link href="/dashboard/voucher-management">
+              <TicketPercent />
+              Voucher Management
             </Link>
           </li>
           <li>
