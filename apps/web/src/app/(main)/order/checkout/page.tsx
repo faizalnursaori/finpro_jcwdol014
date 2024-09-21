@@ -10,7 +10,7 @@ import WithAuth from '@/components/WithAuth';
 import Image from 'next/image';
 import { paymentMethods } from '@/utils/paymentList';
 import BankInstructionsModal from '@/components/BankInstructionModal';
-import { toast } from 'react-hot-toast';
+import { Toaster, toast } from 'react-hot-toast';
 
 const OrderProcessingPage = () => {
   const { cart } = useCart();
@@ -54,6 +54,7 @@ const OrderProcessingPage = () => {
         } catch (error) {
           console.error('Stock check failed', error);
           setIsStockAvailable(false);
+          toast.error('Some items in your order are out of stock.');
         }
       }
     };
@@ -111,6 +112,8 @@ const OrderProcessingPage = () => {
       const response = await checkout(orderData);
       setOrderId(response.orderId);
 
+      toast.success('Order placed successfully!');
+
       if (paymentMethod === 'PAYMENT_GATEWAY') {
         router.push(`/order/payment-gateway/${response.orderId}`);
       } else if (paymentMethod === 'BANK_TRANSFER') {
@@ -126,6 +129,7 @@ const OrderProcessingPage = () => {
 
   return (
     <div className="container mx-auto p-4">
+      <Toaster position="top-center" reverseOrder={false} />
       <h1 className="text-2xl font-bold mb-4">Order Processing</h1>
       {cart && <OrderDetails cart={cart} />}
       <div className="mb-4">

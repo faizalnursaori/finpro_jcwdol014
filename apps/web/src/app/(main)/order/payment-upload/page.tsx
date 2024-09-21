@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import { toast } from 'react-hot-toast';
+import { Toaster, toast } from 'react-hot-toast';
 
 const PaymentUploadPage = () => {
   const router = useRouter();
@@ -90,6 +90,7 @@ const PaymentUploadPage = () => {
 
   return (
     <div className="container mx-auto p-4">
+      <Toaster position="top-center" reverseOrder={false} />
       <h1 className="text-2xl font-bold mb-4">Upload Payment Proof</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
