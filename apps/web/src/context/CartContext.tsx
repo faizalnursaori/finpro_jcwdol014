@@ -6,7 +6,6 @@ import React, {
   useState,
   ReactNode,
   useEffect,
-  useCallback,
 } from 'react';
 import { Cart } from '@/types/cart';
 import { useCartOperations } from '../hooks/useCartOperations';
@@ -14,7 +13,7 @@ import { toast } from 'react-hot-toast';
 
 interface CartContextType {
   cart: Cart | null;
-  cartItemCount: number;
+  setCart: (cart: Cart | null) => void;
   fetchCart: () => Promise<void>;
   updateItemQuantity: (itemId: number, newQuantity: number) => Promise<void>;
   removeItem: (itemId: number) => Promise<void>;
@@ -23,6 +22,7 @@ interface CartContextType {
     quantity: number,
     availableStock: number,
   ) => Promise<void>;
+  cartItemCount: number;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -31,6 +31,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [cart, setCart] = useState<Cart | null>(null);
+  const [cartItemCount, setCartItemCount] = useState(0);
   const {
     createNewCart,
     fetchCartData,
@@ -39,33 +40,31 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
     addItemToCart,
   } = useCartOperations();
 
-  const calculateCartItemCount = useCallback(
-    (currentCart: Cart | null): number => {
-      return (
-        currentCart?.items?.reduce((total, item) => total + item.quantity, 0) ||
-        0
-      );
-    },
-    [],
-  );
-
-  const [cartItemCount, setCartItemCount] = useState<number>(0);
-
   useEffect(() => {
     fetchCart();
   }, []);
 
   useEffect(() => {
-    const newCartItemCount = calculateCartItemCount(cart);
-    setCartItemCount(newCartItemCount);
-    console.log('Cart updated:', cart);
-    console.log('Cart item count in context:', newCartItemCount);
-  }, [cart, calculateCartItemCount]);
+    updateCartItemCount(cart);
+  }, [cart]);
+
+  const updateCartItemCount = (cart: Cart | null) => {
+    if (cart) {
+      const itemCount = cart.items.reduce(
+        (total, item) => total + item.quantity,
+        0,
+      );
+      setCartItemCount(itemCount);
+    } else {
+      setCartItemCount(0);
+    }
+  };
 
   const fetchCart = async () => {
     try {
       const fetchedCart = await fetchCartData();
       setCart(fetchedCart);
+      updateCartItemCount(fetchedCart);
     } catch (err) {
       console.error('Failed to load cart:', err);
     }
@@ -147,11 +146,12 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
     <CartContext.Provider
       value={{
         cart,
-        cartItemCount,
+        setCart,
         fetchCart,
         updateItemQuantity,
         removeItem,
         addToCart,
+        cartItemCount,
       }}
     >
       {children}
@@ -160,6 +160,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
 };
 
 export const useCart = () => {
+  // console.log('useCart called');
   const context = useContext(CartContext);
   if (!context) {
     throw new Error('useCart must be used within a CartProvider');
