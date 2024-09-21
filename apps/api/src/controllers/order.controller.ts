@@ -13,8 +13,7 @@ import {
   getOrderListByRole,
 } from '../services/order.service';
 import { AuthenticatedRequest } from '@/middleware/auth.middleware';
-import prisma from '@/prisma';
-
+import { Role } from '@prisma/client';
 export const updateStatusOrder = async (
   req: AuthenticatedRequest,
   res: Response,
@@ -82,16 +81,22 @@ export const getOrderList = async (
       limit = '10',
       sortBy = 'createdAt',
       sortOrder = 'desc',
+      startDate,
+      endDate,
+      orderNumber,
     } = req.query;
 
     const result = await getOrderListByRole(
       userId,
-      role,
+      role as Role,
       warehouseId ? Number(warehouseId) : undefined,
       Number(page),
       Number(limit),
       sortBy as string,
       sortOrder as 'asc' | 'desc',
+      startDate as string,
+      endDate as string,
+      orderNumber as string,
     );
 
     res.status(200).json({
@@ -240,8 +245,9 @@ export const checkStock = async (req: Request, res: Response) => {
 
 export const runAutoReceiveOrders = async (req: Request, res: Response) => {
   try {
-    const autoReceivedCount = await autoReceiveOrders();
-    res.status(200).json({ autoReceivedCount });
+    const { autoConfirmedCount, autoCompletedCount } =
+      await autoReceiveOrders();
+    res.status(200).json({ autoConfirmedCount, autoCompletedCount });
   } catch (error) {
     console.error('Error auto-receiving orders:', error);
     res.status(500).json({ message: 'Failed to auto-receive orders' });

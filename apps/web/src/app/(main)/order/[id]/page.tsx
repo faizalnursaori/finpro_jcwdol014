@@ -184,7 +184,7 @@ const OrderDetail = () => {
                 Confirm Received
               </button>
             )}
-            {['PENDING', 'PAID'].includes(order.paymentStatus) && (
+            {['PENDING'].includes(order.paymentStatus) && (
               <button className="btn btn-error" onClick={handleCancelOrder}>
                 Cancel Order
               </button>

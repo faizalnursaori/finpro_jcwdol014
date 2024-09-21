@@ -44,26 +44,36 @@ export const getOrderListByRole = async (
   limit = 10,
   sortBy = 'createdAt',
   sortOrder: 'asc' | 'desc' = 'desc',
+  startDate?: string,
+  endDate?: string,
+  orderNumber?: string,
 ) => {
   const pageNumber = Number(page);
   const limitNumber = Number(limit);
 
   const filters: any = {};
-  if (warehouseId) {
-    filters.warehouseId = warehouseId;
+
+  // Date range filter
+  if (startDate && endDate) {
+    filters.createdAt = {
+      gte: new Date(startDate),
+      lte: new Date(endDate),
+    };
   }
 
-  if (role === Role.ADMIN) {
-    // Admin dapat melihat semua pesanan
-  } else if (role === Role.USER) {
-    // Store admin hanya dapat melihat pesanan pada gudang mereka
-    const userWarehouse = await prisma.warehouse.findUnique({
-      where: { userId: userId },
-    });
-    if (!userWarehouse) {
-      throw new Error('User does not have an associated warehouse');
+  // Order number filter
+  if (orderNumber) {
+    filters.id = parseInt(orderNumber, 10);
+  }
+
+  if (role === Role.SUPER_ADMIN || role === Role.ADMIN) {
+    // Super Admin and Admin can see all orders
+    if (warehouseId) {
+      filters.warehouseId = warehouseId;
     }
-    filters.warehouseId = userWarehouse.id;
+  } else if (role === Role.USER) {
+    // Regular users can only see their own orders
+    filters.cart = { userId: userId };
   } else {
     throw new Error('Invalid role');
   }
@@ -639,9 +649,11 @@ export const checkAndMutateStock = async (
 
 export const autoReceiveOrders = async () => {
   const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
   return await prisma.$transaction(async (tx) => {
-    const ordersToAutoReceive = await tx.order.findMany({
+    // Proses untuk Order Confirmation (2 hari)
+    const ordersToAutoConfirm = await tx.order.findMany({
       where: {
         paymentStatus: PaymentStatus.SHIPPED,
         shippedAt: {
@@ -650,24 +662,44 @@ export const autoReceiveOrders = async () => {
       },
     });
 
-    let autoReceivedCount = 0;
+    let autoConfirmedCount = 0;
 
-    for (const order of ordersToAutoReceive) {
+    for (const order of ordersToAutoConfirm) {
       try {
         await tx.order.update({
-          where: {
-            id: order.id,
-          },
-          data: {
-            paymentStatus: PaymentStatus.DELIVERED,
-          },
+          where: { id: order.id },
+          data: { paymentStatus: PaymentStatus.DELIVERED },
         });
-        autoReceivedCount++;
+        autoConfirmedCount++;
       } catch (error) {
-        console.error(`Failed to auto-receive order ${order.id}:`, error);
+        console.error(`Failed to auto-confirm order ${order.id}:`, error);
       }
     }
 
-    return autoReceivedCount;
+    // Proses untuk Send User Orders (7 hari)
+    const ordersToAutoComplete = await tx.order.findMany({
+      where: {
+        paymentStatus: PaymentStatus.SHIPPED,
+        shippedAt: {
+          lt: sevenDaysAgo,
+        },
+      },
+    });
+
+    let autoCompletedCount = 0;
+
+    for (const order of ordersToAutoComplete) {
+      try {
+        await tx.order.update({
+          where: { id: order.id },
+          data: { paymentStatus: PaymentStatus.DELIVERED },
+        });
+        autoCompletedCount++;
+      } catch (error) {
+        console.error(`Failed to auto-complete order ${order.id}:`, error);
+      }
+    }
+
+    return { autoConfirmedCount, autoCompletedCount };
   });
 };
