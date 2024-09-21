@@ -282,8 +282,7 @@ export const cancelExpiredOrders = async () => {
       },
     });
 
-    let canceledCount = 0;
-    for (const order of expiredOrders) {
+    const cancelOrderPromises = expiredOrders.map(async (order) => {
       try {
         // Update order status to CANCELED
         await tx.order.update({
@@ -295,7 +294,7 @@ export const cancelExpiredOrders = async () => {
         });
 
         // Return stock to warehouse and create stock transfer logs
-        for (const item of order.items) {
+        const updateStockPromises = order.items.map(async (item) => {
           const productStock = await tx.productStock.update({
             where: {
               productId_warehouseId: {
@@ -313,7 +312,7 @@ export const cancelExpiredOrders = async () => {
             select: { name: true },
           });
 
-          await tx.stockTransferLog.create({
+          return tx.stockTransferLog.create({
             data: {
               quantity: item.quantity,
               transactionType: TransactionType.IN,
@@ -322,7 +321,10 @@ export const cancelExpiredOrders = async () => {
               warehouseId: order.warehouseId,
             },
           });
-        }
+        });
+
+        // Wait for all stock updates to complete
+        await Promise.all(updateStockPromises);
 
         // Create transaction history entry for refund
         await tx.transactionHistory.create({
@@ -337,11 +339,15 @@ export const cancelExpiredOrders = async () => {
         // Create a new cart for the user (same as in cancelOrder)
         await createNewCart(order.cart.user.id);
 
-        canceledCount++;
+        return true;
       } catch (error) {
         console.error(`Failed to cancel order ${order.id}:`, error);
+        return false;
       }
-    }
+    });
+
+    const results = await Promise.all(cancelOrderPromises);
+    const canceledCount = results.filter((result) => result).length;
 
     return canceledCount;
   });
@@ -511,7 +517,7 @@ export const uploadPaymentProof = async (
     },
     data: {
       paymentProof: `/assets/payment/${file.filename}`,
-      paymentStatus: PaymentStatus.PAID,
+      paymentStatus: PaymentStatus.PENDING,
       shippedAt: shippedAtLimit,
     },
   });
