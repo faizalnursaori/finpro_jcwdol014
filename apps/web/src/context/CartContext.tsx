@@ -9,6 +9,7 @@ import React, {
 } from 'react';
 import { Cart } from '@/types/cart';
 import { useCartOperations } from '../hooks/useCartOperations';
+
 interface CartContextType {
   cart: Cart | null;
   setCart: (cart: Cart | null) => void;
@@ -43,26 +44,32 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
   }, []);
 
   useEffect(() => {
-    updateCartItemCount(cart);
-  }, [cart]);
+    console.log('Cart updated:', cart);
+    console.log('Cart item count in context:', cartItemCount);
+  }, [cart, cartItemCount]);
 
+  // Fungsi untuk menghitung jumlah item di dalam keranjang
   const updateCartItemCount = (cart: Cart | null) => {
-    if (cart) {
+    if (cart && cart.items) {
       const itemCount = cart.items.reduce(
         (total, item) => total + item.quantity,
         0,
       );
-      setCartItemCount(itemCount);
-    } else {
+      if (itemCount !== cartItemCount) {
+        console.log('Updating cart item count:', itemCount);
+        setCartItemCount(itemCount);
+      }
+    } else if (cartItemCount !== 0) {
       setCartItemCount(0);
     }
   };
 
+  // Fetch cart and update cart state
   const fetchCart = async () => {
     try {
       const fetchedCart = await fetchCartData();
       setCart(fetchedCart);
-      updateCartItemCount(fetchedCart);
+      updateCartItemCount(fetchedCart); // Menghitung jumlah item setelah fetch
     } catch (err) {
       console.error('Failed to load cart:', err);
     }
@@ -156,7 +163,6 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
 };
 
 export const useCart = () => {
-  // console.log('useCart called');
   const context = useContext(CartContext);
   if (!context) {
     throw new Error('useCart must be used within a CartProvider');

@@ -9,6 +9,7 @@ import WithAuth from '@/components/WithAuth';
 import { formatRupiah } from '@/utils/currencyUtils';
 import { formatDate } from '@/utils/dateUtils';
 import Cookies from 'js-cookie';
+import { toast } from 'react-hot-toast';
 
 const OrderListPage = () => {
   const { cancelOrder } = useOrder();
@@ -69,11 +70,11 @@ const OrderListPage = () => {
   const handleCancelOrder = async (orderId: number) => {
     try {
       await cancelOrder(orderId, 'USER');
-      alert('Order cancelled successfully');
+      toast.success('Order cancelled successfully');
       fetchOrders();
     } catch (error) {
       console.error('Order cancellation failed', error);
-      alert('Failed to cancel order.');
+      toast.error('Failed to cancel order.');
     }
   };
 

@@ -6,6 +6,8 @@ import { Order, PaymentStatus } from '@/types/order';
 import { useOrder } from '@/context/OrderContext';
 import { formatRupiah } from '@/utils/currencyUtils';
 import Cookies from 'js-cookie';
+import { Toaster, toast } from 'react-hot-toast';
+
 const OrderDetail = () => {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
@@ -48,11 +50,11 @@ const OrderDetail = () => {
     if (!order) return;
     try {
       await confirmOrderPayment(order.id);
-      alert('Payment confirmed successfully');
+      toast.success('Payment confirmed successfully');
       router.push(`/order/success?orderId=${order.id}`);
     } catch (error) {
       console.error('Payment confirmation failed', error);
-      alert('Failed to confirm payment. Please try again.');
+      toast.error('Failed to confirm payment. Please try again.');
     }
   };
 
@@ -60,12 +62,12 @@ const OrderDetail = () => {
     if (!order) return;
     try {
       await cancelOrder(order.id, 'USER');
-      alert('Order cancelled successfully');
+      toast.success('Order cancelled successfully');
       // Refresh the order details after cancellation
       setOrder({ ...order, paymentStatus: 'CANCELLED' as PaymentStatus });
     } catch (error) {
       console.error('Order cancellation failed', error);
-      alert('Failed to cancel order.');
+      toast.error('Failed to cancel order.');
     }
   };
 
@@ -93,6 +95,7 @@ const OrderDetail = () => {
 
   return (
     <div className="container mx-auto p-4">
+      <Toaster position="top-center" reverseOrder={false} />
       <div className="card bg-base-100 shadow-xl">
         <div className="card-body">
           <h2 className="card-title text-2xl">Order #{order.id}</h2>

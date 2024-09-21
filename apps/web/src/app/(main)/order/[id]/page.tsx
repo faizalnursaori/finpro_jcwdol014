@@ -6,6 +6,7 @@ import { Order, PaymentStatus } from '@/types/order';
 import { useOrder } from '@/context/OrderContext';
 import { formatRupiah } from '@/utils/currencyUtils';
 import Cookies from 'js-cookie';
+import { toast } from 'react-hot-toast';
 
 const OrderDetail = () => {
   const [order, setOrder] = useState<Order | null>(null);
@@ -49,11 +50,11 @@ const OrderDetail = () => {
     if (!order) return;
     try {
       await cancelOrder(order.id, 'USER');
-      alert('Order cancelled successfully');
+      toast.success('Order cancelled successfully');
       setOrder({ ...order, paymentStatus: 'CANCELED' as PaymentStatus });
     } catch (error) {
       console.error('Order cancellation failed', error);
-      alert('Failed to cancel order.');
+      toast.error('Failed to cancel order.');
     }
   };
 
@@ -61,11 +62,11 @@ const OrderDetail = () => {
     if (!order) return;
     try {
       await confirmOrderReceived(order.id);
-      alert('Order received confirmed successfully');
+      toast.success('Order received confirmed successfully');
       setOrder({ ...order, paymentStatus: 'DELIVERED' as PaymentStatus });
     } catch (error) {
       console.error('Order received confirmation failed', error);
-      alert('Failed to confirm order received. Please try again.');
+      toast.error('Failed to confirm order received. Please try again.');
     }
   };
 
