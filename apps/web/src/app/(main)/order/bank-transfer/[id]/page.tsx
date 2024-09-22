@@ -13,6 +13,7 @@ const OrderDetail = () => {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedBank, setSelectedBank] = useState<any>(null); // For storing bank data
   const { id } = useParams();
   const router = useRouter();
   const { cancelOrder } = useOrder();
@@ -27,6 +28,12 @@ const OrderDetail = () => {
   const baseApiUrl = process.env.NEXT_PUBLIC_BASE_API_URL;
 
   useEffect(() => {
+    // Retrieve the selected bank from localStorage
+    const bank = localStorage.getItem('selectedBank');
+    if (bank) {
+      setSelectedBank(JSON.parse(bank));
+    }
+
     const fetchOrderDetail = async () => {
       try {
         const response = await fetch(`${baseApiUrl}/orders/${id}`, {
@@ -194,6 +201,26 @@ const OrderDetail = () => {
               </p>
             </div>
           )}
+
+          <div className="mt-6">
+            {selectedBank && (
+              <div className="collapse collapse-arrow bg-base-200">
+                <input type="checkbox" />
+                <div className="collapse-title text-xl font-medium">
+                  {selectedBank.name} Instructions
+                </div>
+                <div className="collapse-content">
+                  <ul className="list-disc pl-5">
+                    {selectedBank.instructions.map(
+                      (instruction: string, index: number) => (
+                        <li key={index}>{instruction}</li>
+                      ),
+                    )}
+                  </ul>
+                </div>
+              </div>
+            )}
+          </div>
 
           <div className="card-actions justify-end mt-6">
             {isPending && (

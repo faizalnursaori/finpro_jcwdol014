@@ -9,7 +9,6 @@ import OrderDetails from '@/components/OrderDetail';
 import WithAuth from '@/components/WithAuth';
 import Image from 'next/image';
 import { paymentMethods } from '@/utils/paymentList';
-import BankInstructionsModal from '@/components/BankInstructionModal';
 import { Toaster, toast } from 'react-hot-toast';
 
 const OrderProcessingPage = () => {
@@ -22,7 +21,6 @@ const OrderProcessingPage = () => {
   const [orderId, setOrderId] = useState<number | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<string>('');
   const [selectedBank, setSelectedBank] = useState<string>('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedBankData, setSelectedBankData] = useState<
     (typeof paymentMethods)[0] | null
   >(null);
@@ -65,7 +63,8 @@ const OrderProcessingPage = () => {
   const handleBankSelection = (bank: (typeof paymentMethods)[0]) => {
     setSelectedBank(bank.name);
     setSelectedBankData(bank);
-    setIsModalOpen(true);
+
+    localStorage.setItem('selectedBank', JSON.stringify(bank));
   };
 
   const handleCheckout = async () => {
@@ -201,12 +200,6 @@ const OrderProcessingPage = () => {
       >
         Place Order
       </button>
-
-      <BankInstructionsModal
-        bank={selectedBankData}
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      />
     </div>
   );
 };
