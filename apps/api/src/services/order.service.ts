@@ -10,15 +10,22 @@ import {
   Role,
 } from '@prisma/client';
 import { calculateDistance } from '@/utils/distance.utils';
+import {
+  validateCheckoutBody,
+  validateFile,
+  validateOrderId,
+  validateWarehouseId,
+} from '../validations/order.validation';
 
 export const updateStatusOrderResolver = async (
   orderId: string, // Ubah tipe data menjadi string
   status: PaymentStatus,
 ) => {
-  const shippedAtLimit = new Date(Date.now() + 2 * 60 * 1000); // in 2 minutes
+  const validatedOrderId = validateOrderId.parse(parseInt(orderId, 10));
+  const shippedAtLimit = new Date(Date.now() + 2 * 60 * 1000);
   const order = await prisma.order.findFirst({
     where: {
-      id: parseInt(orderId, 10), // Konversi string ke integer
+      id: validatedOrderId,
     },
   });
 
@@ -28,7 +35,7 @@ export const updateStatusOrderResolver = async (
 
   return await prisma.order.update({
     where: {
-      id: parseInt(orderId, 10), // Konversi string ke integer
+      id: validatedOrderId,
     },
     data: {
       paymentStatus: status,
@@ -494,13 +501,15 @@ export const cancelOrder = async (
 
 export const uploadPaymentProof = async (
   userId: number,
-  orderId: string, // Ubah tipe data menjadi string
+  orderId: string,
   file: Express.Multer.File,
 ) => {
-  const shippedAtLimit = new Date(Date.now() + 2 * 60 * 1000); // in 2 minutes
+  const validatedOrderId = validateOrderId.parse(parseInt(orderId, 10));
+  const validatedFile = validateFile(file);
+  const shippedAtLimit = new Date(Date.now() + 2 * 60 * 1000);
   const order = await prisma.order.findFirst({
     where: {
-      id: parseInt(orderId, 10), // Konversi string ke integer
+      id: validatedOrderId,
       cart: {
         userId: userId,
       },
@@ -513,10 +522,10 @@ export const uploadPaymentProof = async (
 
   return await prisma.order.update({
     where: {
-      id: parseInt(orderId, 10), // Konversi string ke integer
+      id: validatedOrderId,
     },
     data: {
-      paymentProof: `/assets/payment/${file.filename}`,
+      paymentProof: `/assets/payment/${validatedFile.filename}`,
       paymentStatus: PaymentStatus.PENDING,
       shippedAt: shippedAtLimit,
     },
@@ -529,10 +538,15 @@ export const checkAndMutateStock = async (
   latitude: number,
   longitude: number,
 ) => {
+  const validatedWarehouseId = validateWarehouseId.parse(warehouseId);
+
   return await prisma.$transaction(async (tx) => {
     for (const product of products) {
       let stockInWarehouse = await tx.productStock.findFirst({
-        where: { productId: product.productId, warehouseId: warehouseId },
+        where: {
+          productId: product.productId,
+          warehouseId: validatedWarehouseId,
+        },
         include: {
           product: true,
           warehouse: true,
