@@ -9,14 +9,21 @@ import { useRouter } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
 
 export default function Header() {
-  const { data } = useSession();
+  const { data, status } = useSession();
   const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
-  const { cartItemCount } = useCart();
+  const { cartItemCount, clearCart } = useCart();
 
   useEffect(() => {
     console.log('Header Cart item count:', cartItemCount);
   }, [cartItemCount]);
+
+  // Efek untuk mendeteksi logout
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      clearCart(); // Kosongkan cart ketika user logout
+    }
+  }, [status, clearCart]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
