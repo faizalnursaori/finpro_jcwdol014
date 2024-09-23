@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { createStock } from '@/api/inventory';
+import { createStock, getProductStock } from '@/api/inventory';
 import { getWarehouses, getWarehouseId } from '@/api/warehouse';
 import { getProducts } from '@/api/products';
 import { useRouter } from 'next/navigation';
@@ -51,8 +51,8 @@ const CreateInventoryPage = () => {
       if (selectedWarehouse) {
         try {
           setLoading(true);
-          const productStock = await getProducts();
-          setProducts(productStock.products);
+          const productStock = await getProductStock();
+          setProducts(productStock);
         } catch (err) {
           setError('Failed to fetch products');
         } finally {

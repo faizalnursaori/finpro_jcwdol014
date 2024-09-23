@@ -7,6 +7,8 @@ import { getWarehouseId } from '@/api/warehouse';
 import { StockTransfer } from '@/types/stockTransfer';
 import StockTransferActions from './StockTransferAction';
 
+const API_URL = process.env.NEXT_PUBLIC_BASE_API_URL;
+
 const TransferStatusBadge = ({ status }: { status: string }) => {
   let badgeColor = 'badge-neutral';
   if (status === 'PENDING') badgeColor = 'badge-warning';
@@ -30,13 +32,11 @@ export default function StockTransferTable() {
         let res;
 
         if (data?.user?.role === 'SUPER_ADMIN') {
-          res = await axios.get('http://localhost:8000/api/stock-transfers');
+          res = await axios.get(`${API_URL}stock-transfers`);
         } else if (data?.user?.role === 'ADMIN') {
           const warehouse = await getWarehouseId(data.user.id);
           if (warehouse) {
-            res = await axios.get(
-              `http://localhost:8000/api/stock-transfers/${warehouse.id}`,
-            );
+            res = await axios.get(`${API_URL}stock-transfers/${warehouse.id}`);
           } else {
             console.error('Warehouse not found for this admin');
             return;
@@ -70,9 +70,6 @@ export default function StockTransferTable() {
     sourceWarehouseId: number,
     stockProcess: number,
   ) => {
-    console.log(
-      `Approved transfer with ID: ${transferId} from warehouse ID: ${sourceWarehouseId} with stock process: ${stockProcess}`,
-    );
     setStockTransfers((prevTransfers) =>
       prevTransfers.map((transfer) =>
         transfer.id === transferId
@@ -83,7 +80,6 @@ export default function StockTransferTable() {
   };
 
   const handleReject = (transferId: number) => {
-    console.log(`Rejected transfer with ID: ${transferId}`);
     setStockTransfers((prevTransfers) =>
       prevTransfers.map((transfer) =>
         transfer.id === transferId
@@ -124,7 +120,7 @@ export default function StockTransferTable() {
             <th>Status</th>
             <th>Created At</th>
             <th>Updated At</th>
-            <th>Action</th>
+            {data?.user?.role === 'SUPER_ADMIN' ? <th>Action</th> : null}
           </tr>
         </thead>
         <tbody>
@@ -143,17 +139,21 @@ export default function StockTransferTable() {
               <td>{new Date(transfer.createdAt).toLocaleString()}</td>
               <td>{new Date(transfer.updatedAt).toLocaleString()}</td>
               <td>
-                <select
-                  className="select select-bordered"
-                  value="Action"
-                  onChange={(e) => handleActionChange(transfer, e.target.value)}
-                >
-                  <option disabled value="Action">
-                    Select Action
-                  </option>
-                  <option value="APPROVE">APPROVE</option>
-                  <option value="REJECT">REJECT</option>
-                </select>
+                {data?.user?.role === 'SUPER_ADMIN' ? (
+                  <select
+                    className="select select-bordered"
+                    value="Action"
+                    onChange={(e) =>
+                      handleActionChange(transfer, e.target.value)
+                    }
+                  >
+                    <option disabled value="Action">
+                      Select Action
+                    </option>
+                    <option value="APPROVE">APPROVE</option>
+                    <option value="REJECT">REJECT</option>
+                  </select>
+                ) : null}
               </td>
             </tr>
           ))}

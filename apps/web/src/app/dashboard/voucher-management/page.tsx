@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import { NewVoucher } from '@/components/Voucher/ButtonAddVoucher';
+import { fetchVouchers, deleteVoucherById } from '@/api/vouchers';
 
 interface Voucher {
   id: number;
@@ -22,20 +22,22 @@ const VoucherList: React.FC = () => {
   const [vouchers, setVouchers] = useState<Voucher[]>([]);
 
   useEffect(() => {
-    const fetchVouchers = async () => {
-      const response = await axios.get('http://localhost:8000/api/vouchers');
-      console.log(response.data);
-
-      setVouchers(response.data);
+    const fetchData = async () => {
+      try {
+        const data = await fetchVouchers();
+        setVouchers(data);
+      } catch (error) {
+        console.error('Error fetching vouchers:', error);
+      }
     };
 
-    fetchVouchers();
+    fetchData();
   }, []);
 
-  const deleteVoucher = async (id: number) => {
+  const handleDeleteVoucher = async (id: number) => {
     try {
-      await axios.delete(`http://localhost:8000/api/vouchers/${id}`);
-      setVouchers(vouchers.filter((voucher: any) => voucher.id !== id));
+      await deleteVoucherById(id);
+      setVouchers(vouchers.filter((voucher) => voucher.id !== id));
       alert('Voucher deleted successfully');
     } catch (error) {
       alert('Error deleting voucher');
@@ -54,7 +56,7 @@ const VoucherList: React.FC = () => {
             <th>Discount Value</th>
             <th>Minimum Purchase</th>
             <th>Maximum Discount</th>
-            <th>Product Id</th>
+            <th>Product Name</th>
             <th>Shipping Voucher?</th>
             <th>Expiry Date</th>
             <th>Actions</th>
@@ -62,7 +64,7 @@ const VoucherList: React.FC = () => {
         </thead>
         <tbody>
           {vouchers.length > 0 ? (
-            vouchers.map((voucher: any) => (
+            vouchers.map((voucher: Voucher) => (
               <tr key={voucher.id} className="hover:bg-gray-100">
                 <td>{voucher.code}</td>
                 <td>{voucher.discountType}</td>
@@ -75,7 +77,7 @@ const VoucherList: React.FC = () => {
                 <td>
                   <button
                     className="btn btn-error btn-sm"
-                    onClick={() => deleteVoucher(voucher.id)}
+                    onClick={() => handleDeleteVoucher(voucher.id)}
                   >
                     Delete
                   </button>
@@ -84,7 +86,7 @@ const VoucherList: React.FC = () => {
             ))
           ) : (
             <tr>
-              <td colSpan={5} className="text-center">
+              <td colSpan={9} className="text-center">
                 No vouchers available.
               </td>
             </tr>

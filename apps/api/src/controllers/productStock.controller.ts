@@ -96,45 +96,104 @@ export const createStock = async (req: Request, res: Response) => {
       where: {
         productId,
         warehouseId,
-        deleted: true,
       },
     });
 
     if (existingStock) {
-      const updatedStock = await prisma.productStock.update({
-        where: { id: existingStock.id },
-        data: {
-          stock,
-          deleted: false,
-        },
-      });
-      return res
-        .status(200)
-        .json({ message: 'Stock restored successfully.', updatedStock });
+      if (existingStock.deleted) {
+        // If the stock is deleted, restore it and update the stock
+        const updatedStock = await prisma.productStock.update({
+          where: { id: existingStock.id },
+          data: {
+            stock: Number(stock), // Restore the stock with the new value
+            deleted: false,
+          },
+        });
+
+        await prisma.stockTransferLog.create({
+          data: {
+            quantity: Number(stock),
+            transactionType: 'IN',
+            description: `Restored and added ${stock} units to warehouse ID ${warehouseId}`,
+            productStockId: updatedStock.id,
+            warehouseId: Number(warehouseId),
+          },
+        });
+
+        return res
+          .status(200)
+          .json({ message: 'Stock restored successfully.', updatedStock });
+      } else {
+        // If the stock is not deleted, add the new stock to the existing stock
+        const updatedStock = await prisma.productStock.update({
+          where: { id: existingStock.id },
+          data: {
+            stock: {
+              increment: Number(stock),
+            },
+          },
+        });
+
+        await prisma.stockTransferLog.create({
+          data: {
+            quantity: Number(stock),
+            transactionType: 'IN',
+            description: `Added ${stock} units to existing stock in warehouse ID ${warehouseId}`,
+            productStockId: updatedStock.id,
+            warehouseId: Number(warehouseId),
+          },
+        });
+
+        return res
+          .status(200)
+          .json({ message: 'Stock updated successfully.', updatedStock });
+      }
     }
 
+    // If no stock exists, create a new entry
     const newStock = await prisma.productStock.create({
       data: {
         productId,
         warehouseId,
-        stock,
+        stock: Number(stock),
+      },
+    });
+
+    await prisma.stockTransferLog.create({
+      data: {
+        quantity: Number(stock),
+        transactionType: 'IN',
+        description: `New stock of ${stock} units added to warehouse ID ${warehouseId}`,
+        productStockId: newStock.id,
+        warehouseId: Number(warehouseId),
       },
     });
 
     res.status(201).json({ message: 'Stock created successfully.', newStock });
   } catch (error) {
-    console.error('Failed to create or restore stock:', error);
-    res.status(500).json({ error: 'Failed to create or restore stock.' });
+    console.error('Failed to create or update stock:', error);
+    res.status(500).json({ error: 'Failed to create or update stock.' });
   }
 };
 
 export const deleteProductStock = async (req: Request, res: Response) => {
   const { id } = req.params;
+  const { warehouseId, productId, stock } = req.query;
   try {
     await prisma.productStock.update({
       where: { id: parseInt(id) },
       data: {
         deleted: true,
+      },
+    });
+
+    await prisma.stockTransferLog.create({
+      data: {
+        quantity: Number(stock),
+        transactionType: 'OUT',
+        description: `Deleted stock of ${stock} units from warehouse ID ${warehouseId}`,
+        productStockId: parseInt(id),
+        warehouseId: Number(warehouseId),
       },
     });
 

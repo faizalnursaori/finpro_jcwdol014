@@ -1,18 +1,22 @@
+-- CreateTable
 CREATE TABLE `User` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `username` VARCHAR(191) NOT NULL,
     `email` VARCHAR(191) NOT NULL,
     `password` VARCHAR(191) NOT NULL,
     `isVerified` BOOLEAN NOT NULL DEFAULT false,
-    `role` ENUM('USER', 'ADMIN') NOT NULL DEFAULT 'USER',
+    `role` ENUM('SUPER_ADMIN', 'ADMIN', 'USER') NOT NULL DEFAULT 'USER',
     `image` VARCHAR(191) NOT NULL DEFAULT '/profile.jpg',
     `provider` VARCHAR(191) NULL,
+    `name` VARCHAR(191) NULL,
+    `gender` VARCHAR(191) NULL,
+    `dob` DATETIME(3) NULL,
+    `mobileNumber` VARCHAR(191) NULL,
     `referralCode` VARCHAR(191) NULL,
     `referredBy` VARCHAR(191) NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
-    UNIQUE INDEX `User_username_key`(`username`),
     UNIQUE INDEX `User_email_key`(`email`),
     UNIQUE INDEX `User_referralCode_key`(`referralCode`),
     PRIMARY KEY (`id`)
@@ -121,7 +125,7 @@ CREATE TABLE `CartItem` (
 CREATE TABLE `Order` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(191) NOT NULL,
-    `paymentStatus` ENUM('PENDING', 'PAID', 'FAILED') NOT NULL,
+    `paymentStatus` ENUM('PENDING', 'PAID', 'FAILED', 'SHIPPED', 'DELIVERED', 'CANCELED') NOT NULL,
     `shippingCost` DOUBLE NOT NULL,
     `total` DOUBLE NOT NULL,
     `paymentMethod` VARCHAR(191) NOT NULL,
@@ -236,7 +240,9 @@ CREATE TABLE `StockTransfer` (
     `stockProcess` INTEGER NOT NULL,
     `note` TEXT NOT NULL,
     `productId` INTEGER NOT NULL,
-    `status` ENUM('PENDING', 'PROCESSING', 'COMPLETED', 'CANCELLED') NOT NULL,
+    `sourceWarehouseId` INTEGER NULL,
+    `destinationWarehouseId` INTEGER NULL,
+    `status` ENUM('PENDING', 'REJECTED', 'COMPLETED') NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
@@ -334,6 +340,12 @@ ALTER TABLE `ProductStock` ADD CONSTRAINT `ProductStock_warehouseId_fkey` FOREIG
 
 -- AddForeignKey
 ALTER TABLE `StockTransfer` ADD CONSTRAINT `StockTransfer_productId_fkey` FOREIGN KEY (`productId`) REFERENCES `Product`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `StockTransfer` ADD CONSTRAINT `StockTransfer_sourceWarehouseId_fkey` FOREIGN KEY (`sourceWarehouseId`) REFERENCES `Warehouse`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `StockTransfer` ADD CONSTRAINT `StockTransfer_destinationWarehouseId_fkey` FOREIGN KEY (`destinationWarehouseId`) REFERENCES `Warehouse`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `StockTransferLog` ADD CONSTRAINT `StockTransferLog_productStockId_fkey` FOREIGN KEY (`productStockId`) REFERENCES `ProductStock`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

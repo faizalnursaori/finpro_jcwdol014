@@ -205,6 +205,9 @@ enum PaymentStatus {
   PENDING
   PAID
   FAILED
+  SHIPPED
+  DELIVERED
+  CANCELED
 }
 
 enum CancellationSource {

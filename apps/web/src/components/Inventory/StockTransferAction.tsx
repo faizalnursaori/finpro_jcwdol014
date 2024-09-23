@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { StockTransfer, Warehouse } from '@/types/stockTransfer';
+import { getWarehouses } from '@/api/warehouse';
+
+const API_URL = process.env.NEXT_PUBLIC_BASE_API_URL;
 
 interface StockTransferActionsProps {
   selectedTransfer: StockTransfer | null;
@@ -32,8 +35,8 @@ const StockTransferActions: React.FC<StockTransferActionsProps> = ({
   useEffect(() => {
     const fetchWarehouses = async () => {
       try {
-        const res = await axios.get('http://localhost:8000/api/warehouses');
-        setWarehouses(res.data.warehouses);
+        const res = await getWarehouses();
+        setWarehouses(res);
       } catch (error) {
         console.error('Error fetching warehouses:', error);
       }
@@ -50,7 +53,7 @@ const StockTransferActions: React.FC<StockTransferActionsProps> = ({
     ) {
       try {
         await axios.post(
-          `http://localhost:8000/api/stock-transfers/approve/${selectedTransfer.id}`,
+          `${API_URL}stock-transfers/approve/${selectedTransfer.id}`,
           {
             sourceWarehouseId: selectedWarehouse,
             stockProcess,
@@ -70,7 +73,7 @@ const StockTransferActions: React.FC<StockTransferActionsProps> = ({
     if (selectedTransfer) {
       try {
         await axios.put(
-          `http://localhost:8000/api/stock-transfers/reject/${selectedTransfer.id}`,
+          `${API_URL}stock-transfers/reject/${selectedTransfer.id}`,
         );
         onReject(selectedTransfer.id);
       } catch (error) {

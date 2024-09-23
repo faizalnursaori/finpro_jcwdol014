@@ -92,7 +92,8 @@ export const approveStockTransfer = async (req: Request, res: Response) => {
       },
     });
 
-    await prisma.productStock.upsert({
+    // Upsert productStock and get its id
+    const productStock = await prisma.productStock.upsert({
       where: {
         productId_warehouseId: {
           productId: stockTransfer.productId,
@@ -111,6 +112,7 @@ export const approveStockTransfer = async (req: Request, res: Response) => {
       },
     });
 
+    // Update the source warehouse stock
     await prisma.productStock.update({
       where: {
         productId_warehouseId: {
@@ -125,14 +127,24 @@ export const approveStockTransfer = async (req: Request, res: Response) => {
       },
     });
 
-    await prisma.stockTransferLog.create({
-      data: {
-        quantity: Number(stockProcess),
-        transactionType: 'IN',
-        description: `Approved transfer of ${stockProcess} units from warehouse ID ${sourceWarehouseId} to warehouse ID ${destinationWarehouseId}`,
-        productStockId: stockTransfer.productId,
-        warehouseId: Number(destinationWarehouseId),
-      },
+    // Create stock transfer logs using productStock.id
+    await prisma.stockTransferLog.createMany({
+      data: [
+        {
+          quantity: Number(stockProcess),
+          transactionType: 'IN',
+          description: `Approved transfer of ${stockProcess} units from warehouse ID ${sourceWarehouseId} to warehouse ID ${destinationWarehouseId}`,
+          productStockId: productStock.id, // Use productStock.id here
+          warehouseId: Number(destinationWarehouseId),
+        },
+        {
+          quantity: Number(stockProcess),
+          transactionType: 'OUT',
+          description: `Transfer out of ${stockProcess} units from warehouse ID ${sourceWarehouseId} to warehouse ID ${destinationWarehouseId}`,
+          productStockId: productStock.id, // Use productStock.id here
+          warehouseId: Number(sourceWarehouseId),
+        },
+      ],
     });
 
     return res.status(200).json(updatedStockTransfer);
@@ -147,7 +159,7 @@ export const rejectStockTransfer = async (req: Request, res: Response) => {
   try {
     const transfer = await prisma.stockTransfer.update({
       where: { id: Number(id) },
-      data: { status: 'CANCELLED' },
+      data: { status: 'REJECTED' },
     });
     res.status(200).json(transfer);
   } catch (error) {

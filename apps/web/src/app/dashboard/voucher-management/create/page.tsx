@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { getProducts } from '@/api/products';
+import { createVoucher } from '@/api/vouchers';
 import { useRouter } from 'next/navigation';
 
 const CreateVoucherForm: React.FC = () => {
@@ -20,17 +21,18 @@ const CreateVoucherForm: React.FC = () => {
   const router = useRouter();
 
   useEffect(() => {
-    // Fetch products when the component mounts
-    const fetchProducts = async () => {
+    const loadProducts = async () => {
       try {
-        const response = await axios.get('http://localhost:8000/api/products');
-        setProducts(response.data.products);
+        const fetchedProducts = await getProducts();
+        console.log(fetchedProducts);
+
+        setProducts(fetchedProducts.products);
       } catch (error) {
-        console.error('Error fetching products:', error);
+        console.error(error.message);
       }
     };
 
-    fetchProducts();
+    loadProducts();
   }, []);
 
   const handleChange = (
@@ -43,7 +45,7 @@ const CreateVoucherForm: React.FC = () => {
         : type === 'checkbox'
           ? checked
           : name === 'applicableProduct'
-            ? parseInt(value, 10) || 0 // Ensure that applicableProduct is a number
+            ? parseInt(value, 10) || 0
             : value;
     setVoucherData({ ...voucherData, [name]: newValue });
   };
@@ -57,18 +59,15 @@ const CreateVoucherForm: React.FC = () => {
       minPurchase: parseFloat(voucherData.minPurchase as unknown as string),
       maxDiscount: parseFloat(voucherData.maxDiscount as unknown as string),
       productId: voucherData.applicableProduct
-        ? parseInt(voucherData.applicableProduct, 10)
+        ? parseInt(voucherData.applicableProduct as unknown as string, 10)
         : null,
     };
 
-    console.log(formattedData);
-
     try {
-      await axios.post('http://localhost:8000/api/vouchers', formattedData);
-      alert('Voucher created successfully');
+      await createVoucher(formattedData);
       router.push('/dashboard/voucher-management');
     } catch (error) {
-      alert('Error creating voucher');
+      alert('Error creating voucher: ' + error.message);
     }
   };
 
