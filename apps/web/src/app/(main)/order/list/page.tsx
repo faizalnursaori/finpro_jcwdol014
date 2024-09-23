@@ -143,6 +143,7 @@ const OrderListPage = () => {
                   Order No{' '}
                   {sortBy === 'id' && (sortOrder === 'asc' ? '▲' : '▼')}
                 </th>
+                <th>Products</th> {/* Moved Products column before Date */}
                 <th onClick={() => handleSort('createdAt')}>
                   Date{' '}
                   {sortBy === 'createdAt' && (sortOrder === 'asc' ? '▲' : '▼')}
@@ -163,7 +164,15 @@ const OrderListPage = () => {
               {orders.map((order) => (
                 <tr key={order.id}>
                   <td>{order.id}</td>
-                  <td>{formatDate(order.createdAt)}</td>
+                  <td>
+                    <ul>
+                      {order.items.map((item) => (
+                        <li key={item.id}>{item.product.name}</li>
+                      ))}
+                    </ul>
+                  </td>
+                  <td>{formatDate(order.createdAt)}</td>{' '}
+                  {/* Date is now after Products */}
                   <td>{getStatusBadge(order.paymentStatus)}</td>
                   <td>{formatRupiah(order.total)}</td>
                   <td>
@@ -173,14 +182,6 @@ const OrderListPage = () => {
                     >
                       View Details
                     </Link>
-                    {order.paymentStatus === 'PENDING' && (
-                      <button
-                        onClick={() => handleCancelOrder(order.id)}
-                        className="btn btn-error btn-sm"
-                      >
-                        Cancel Order
-                      </button>
-                    )}
                   </td>
                 </tr>
               ))}

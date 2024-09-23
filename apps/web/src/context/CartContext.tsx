@@ -22,6 +22,7 @@ interface CartContextType {
     quantity: number,
     availableStock: number,
   ) => Promise<void>;
+  clearCart: () => void; // Tambahkan clearCart ke dalam context type
   cartItemCount: number;
 }
 
@@ -142,6 +143,12 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
     }
   };
 
+  // Fungsi untuk mengosongkan cart
+  const clearCart = () => {
+    setCart(null);
+    setCartItemCount(0);
+  };
+
   return (
     <CartContext.Provider
       value={{
@@ -151,6 +158,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
         updateItemQuantity,
         removeItem,
         addToCart,
+        clearCart, // Pastikan clearCart ada di sini
         cartItemCount,
       }}
     >
@@ -160,7 +168,6 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
 };
 
 export const useCart = () => {
-  // console.log('useCart called');
   const context = useContext(CartContext);
   if (!context) {
     throw new Error('useCart must be used within a CartProvider');
