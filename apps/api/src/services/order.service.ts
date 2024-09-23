@@ -73,11 +73,21 @@ export const getOrderListByRole = async (
     filters.id = parseInt(orderNumber, 10);
   }
 
-  if (role === Role.SUPER_ADMIN || role === Role.ADMIN) {
-    // Super Admin and Admin can see all orders
+  if (role === Role.SUPER_ADMIN) {
+    // Super Admin can see all orders and filter by warehouse
     if (warehouseId) {
       filters.warehouseId = warehouseId;
     }
+  } else if (role === Role.ADMIN) {
+    // Admin can only see orders for their assigned warehouse
+    const admin = await prisma.user.findUnique({
+      where: { id: userId },
+      include: { warehouse: true },
+    });
+    if (!admin || !admin.warehouse) {
+      throw new Error('Admin is not assigned to a warehouse');
+    }
+    filters.warehouseId = admin.warehouse.id;
   } else if (role === Role.USER) {
     // Regular users can only see their own orders
     filters.cart = { userId: userId };
@@ -112,8 +122,14 @@ export const getOrderListByRole = async (
     take: limitNumber,
   });
 
+  const warehouses =
+    role === Role.SUPER_ADMIN
+      ? await prisma.warehouse.findMany({ select: { id: true, name: true } })
+      : [];
+
   return {
     orders,
+    warehouses,
     pagination: {
       currentPage: pageNumber,
       totalPages: Math.ceil(totalCount / limitNumber),

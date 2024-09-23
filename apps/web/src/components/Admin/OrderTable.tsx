@@ -31,9 +31,18 @@ interface Order {
   voucher: any;
 }
 
+interface Warehouse {
+  id: number;
+  name: string;
+}
+
 export const OrderTable = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
+  const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
+  const [selectedWarehouse, setSelectedWarehouse] = useState<number | null>(
+    null,
+  );
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -43,7 +52,11 @@ export const OrderTable = () => {
   const fetchOrders = async (page: number) => {
     setLoading(true);
     try {
-      const res = await getAllOrders(page, limit);
+      const res = await getAllOrders(
+        page,
+        limit,
+        selectedWarehouse || undefined,
+      );
       if (!res.ok) {
         throw new Error(res.message || 'Failed to fetch orders');
       }
@@ -51,6 +64,9 @@ export const OrderTable = () => {
       setOrders(data.orders);
       setFilteredOrders(data.orders);
       setTotalPages(data.pagination.totalPages);
+      if (data.warehouses) {
+        setWarehouses(data.warehouses);
+      }
     } catch (error) {
       setError((error as Error).message);
     } finally {
@@ -60,7 +76,7 @@ export const OrderTable = () => {
 
   useEffect(() => {
     fetchOrders(currentPage);
-  }, [currentPage]);
+  }, [currentPage, selectedWarehouse]);
 
   const handleStatusChange = async (orderId: number, newStatus: string) => {
     try {
@@ -84,7 +100,7 @@ export const OrderTable = () => {
 
   const handleSearch = (query: string) => {
     if (query === '') {
-      setFilteredOrders(orders); // Show all users if search query is empty
+      setFilteredOrders(orders);
     } else {
       const filtered = orders.filter(
         (order) =>
@@ -97,11 +113,18 @@ export const OrderTable = () => {
   };
 
   const handleClearSearch = () => {
-    setFilteredOrders(orders); // Reset to all users when clearing search
+    setFilteredOrders(orders);
   };
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+  };
+
+  const handleWarehouseChange = (warehouseId: string) => {
+    setSelectedWarehouse(
+      warehouseId === 'all' ? null : parseInt(warehouseId, 10),
+    );
+    setCurrentPage(1);
   };
 
   const getAvailableStatuses = (currentStatus: string) => {
@@ -111,7 +134,7 @@ export const OrderTable = () => {
       case 'SHIPPED':
         return ['DELIVERED'];
       case 'DELIVERED':
-        return []; // No changes allowed
+        return [];
       case 'CANCELED':
         return ['PENDING'];
       case 'PENDING':
@@ -123,6 +146,7 @@ export const OrderTable = () => {
 
   if (loading) return <span className="loading loading-bars loading-lg"></span>;
   if (error) return <ErrorAlert message={error} />;
+
   const rupiah = (number: any) => {
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
@@ -137,6 +161,19 @@ export const OrderTable = () => {
       <div className="overflow-x-auto">
         <div className="flex flex-row justify-between my-3 mx-3 gap-10">
           <Search onSearch={handleSearch} onClear={handleClearSearch} />
+          {warehouses.length > 0 && (
+            <select
+              onChange={(e) => handleWarehouseChange(e.target.value)}
+              className="select select-bordered select-sm"
+            >
+              <option value="all">All Warehouses</option>
+              {warehouses.map((warehouse) => (
+                <option key={warehouse.id} value={warehouse.id}>
+                  {warehouse.name}
+                </option>
+              ))}
+            </select>
+          )}
         </div>
         <table className="table w-full">
           <thead>
@@ -162,8 +199,8 @@ export const OrderTable = () => {
                 <td>{order.address.name ?? '-'}</td>
                 <td>{order.address.address ?? '-'}</td>
                 <td>{order.warehouse.name ?? '-'}</td>
-                <td>Rp {rupiah(order.total)}</td>
-                <td>Rp {rupiah(order.shippingCost)}</td>
+                <td>{rupiah(order.total)}</td>
+                <td>{rupiah(order.shippingCost)}</td>
                 <td>{order.paymentMethod}</td>
                 <td>
                   {order.paymentProof ? (
