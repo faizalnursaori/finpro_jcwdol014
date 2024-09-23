@@ -3,6 +3,7 @@ import { useCart } from '@/context/CartContext';
 import { useOrder } from '@/context/OrderContext';
 import { useRouter } from 'next/navigation';
 import { formatRupiah } from '@/utils/currencyUtils';
+import { toast } from 'react-hot-toast';
 
 const CheckoutSummary = () => {
   const { cart } = useCart();
@@ -19,11 +20,10 @@ const CheckoutSummary = () => {
 
   const handleCheckout = async () => {
     try {
-      // Instead of performing the checkout here, we'll navigate to the order processing page
       router.push('/order/checkout');
     } catch (error) {
       console.error('Navigation to checkout failed', error);
-      alert('Failed to proceed to checkout, please try again.');
+      toast.error('Failed to proceed to checkout, please try again.');
     }
   };
 

@@ -7,8 +7,137 @@ import {
   CancellationSource,
   TransactionType,
   TransferStatus,
+  Role,
 } from '@prisma/client';
 import { calculateDistance } from '@/utils/distance.utils';
+import {
+  validateCheckoutBody,
+  validateFile,
+  validateOrderId,
+  validateWarehouseId,
+} from '../validations/order.validation';
+
+export const updateStatusOrderResolver = async (
+  orderId: string, // Ubah tipe data menjadi string
+  status: PaymentStatus,
+) => {
+  const validatedOrderId = validateOrderId.parse(parseInt(orderId, 10));
+  const shippedAtLimit = new Date(Date.now() + 2 * 60 * 1000);
+  const order = await prisma.order.findFirst({
+    where: {
+      id: validatedOrderId,
+    },
+  });
+
+  if (!order) {
+    throw new Error('Order not found');
+  }
+
+  return await prisma.order.update({
+    where: {
+      id: validatedOrderId,
+    },
+    data: {
+      paymentStatus: status,
+    },
+  });
+};
+
+export const getOrderListByRole = async (
+  userId: number,
+  role: Role,
+  warehouseId?: number,
+  page = 1,
+  limit = 10,
+  sortBy = 'createdAt',
+  sortOrder: 'asc' | 'desc' = 'desc',
+  startDate?: string,
+  endDate?: string,
+  orderNumber?: string,
+) => {
+  const pageNumber = Number(page);
+  const limitNumber = Number(limit);
+
+  const filters: any = {};
+
+  // Date range filter
+  if (startDate && endDate) {
+    filters.createdAt = {
+      gte: new Date(startDate),
+      lte: new Date(endDate),
+    };
+  }
+
+  // Order number filter
+  if (orderNumber) {
+    filters.id = parseInt(orderNumber, 10);
+  }
+
+  if (role === Role.SUPER_ADMIN) {
+    // Super Admin can see all orders and filter by warehouse
+    if (warehouseId) {
+      filters.warehouseId = warehouseId;
+    }
+  } else if (role === Role.ADMIN) {
+    // Admin can only see orders for their assigned warehouse
+    const admin = await prisma.user.findUnique({
+      where: { id: userId },
+      include: { warehouse: true },
+    });
+    if (!admin || !admin.warehouse) {
+      throw new Error('Admin is not assigned to a warehouse');
+    }
+    filters.warehouseId = admin.warehouse.id;
+  } else if (role === Role.USER) {
+    // Regular users can only see their own orders
+    filters.cart = { userId: userId };
+  } else {
+    throw new Error('Invalid role');
+  }
+
+  const validSortFields = ['createdAt', 'total', 'paymentStatus'];
+  const sortField = validSortFields.includes(sortBy) ? sortBy : 'createdAt';
+
+  const totalCount = await prisma.order.count({
+    where: filters,
+  });
+
+  const orders = await prisma.order.findMany({
+    where: filters,
+    include: {
+      items: {
+        include: {
+          product: true,
+        },
+      },
+      warehouse: true,
+      cart: true,
+      address: true,
+      voucher: true,
+    },
+    orderBy: {
+      [sortField]: sortOrder,
+    },
+    skip: (pageNumber - 1) * limitNumber,
+    take: limitNumber,
+  });
+
+  const warehouses =
+    role === Role.SUPER_ADMIN
+      ? await prisma.warehouse.findMany({ select: { id: true, name: true } })
+      : [];
+
+  return {
+    orders,
+    warehouses,
+    pagination: {
+      currentPage: pageNumber,
+      totalPages: Math.ceil(totalCount / limitNumber),
+      totalItems: totalCount,
+      itemsPerPage: limitNumber,
+    },
+  };
+};
 
 export const getOrderDetailById = async (userId: number, orderId: number) => {
   return await prisma.order.findFirst({
@@ -176,8 +305,7 @@ export const cancelExpiredOrders = async () => {
       },
     });
 
-    let canceledCount = 0;
-    for (const order of expiredOrders) {
+    const cancelOrderPromises = expiredOrders.map(async (order) => {
       try {
         // Update order status to CANCELED
         await tx.order.update({
@@ -189,7 +317,7 @@ export const cancelExpiredOrders = async () => {
         });
 
         // Return stock to warehouse and create stock transfer logs
-        for (const item of order.items) {
+        const updateStockPromises = order.items.map(async (item) => {
           const productStock = await tx.productStock.update({
             where: {
               productId_warehouseId: {
@@ -207,7 +335,7 @@ export const cancelExpiredOrders = async () => {
             select: { name: true },
           });
 
-          await tx.stockTransferLog.create({
+          return tx.stockTransferLog.create({
             data: {
               quantity: item.quantity,
               transactionType: TransactionType.IN,
@@ -216,7 +344,10 @@ export const cancelExpiredOrders = async () => {
               warehouseId: order.warehouseId,
             },
           });
-        }
+        });
+
+        // Wait for all stock updates to complete
+        await Promise.all(updateStockPromises);
 
         // Create transaction history entry for refund
         await tx.transactionHistory.create({
@@ -231,11 +362,15 @@ export const cancelExpiredOrders = async () => {
         // Create a new cart for the user (same as in cancelOrder)
         await createNewCart(order.cart.user.id);
 
-        canceledCount++;
+        return true;
       } catch (error) {
         console.error(`Failed to cancel order ${order.id}:`, error);
+        return false;
       }
-    }
+    });
+
+    const results = await Promise.all(cancelOrderPromises);
+    const canceledCount = results.filter((result) => result).length;
 
     return canceledCount;
   });
@@ -382,13 +517,15 @@ export const cancelOrder = async (
 
 export const uploadPaymentProof = async (
   userId: number,
-  orderId: string, // Ubah tipe data menjadi string
+  orderId: string,
   file: Express.Multer.File,
 ) => {
-  const shippedAtLimit = new Date(Date.now() + 2 * 60 * 1000); // in 2 minutes
+  const validatedOrderId = validateOrderId.parse(parseInt(orderId, 10));
+  const validatedFile = validateFile(file);
+  const shippedAtLimit = new Date(Date.now() + 2 * 60 * 1000);
   const order = await prisma.order.findFirst({
     where: {
-      id: parseInt(orderId, 10), // Konversi string ke integer
+      id: validatedOrderId,
       cart: {
         userId: userId,
       },
@@ -401,11 +538,11 @@ export const uploadPaymentProof = async (
 
   return await prisma.order.update({
     where: {
-      id: parseInt(orderId, 10), // Konversi string ke integer
+      id: validatedOrderId,
     },
     data: {
-      paymentProof: `/assets/payment/${file.filename}`,
-      paymentStatus: PaymentStatus.PAID,
+      paymentProof: `/assets/payment/${validatedFile.filename}`,
+      paymentStatus: PaymentStatus.PENDING,
       shippedAt: shippedAtLimit,
     },
   });
@@ -417,10 +554,15 @@ export const checkAndMutateStock = async (
   latitude: number,
   longitude: number,
 ) => {
+  const validatedWarehouseId = validateWarehouseId.parse(warehouseId);
+
   return await prisma.$transaction(async (tx) => {
     for (const product of products) {
       let stockInWarehouse = await tx.productStock.findFirst({
-        where: { productId: product.productId, warehouseId: warehouseId },
+        where: {
+          productId: product.productId,
+          warehouseId: validatedWarehouseId,
+        },
         include: {
           product: true,
           warehouse: true,
@@ -543,9 +685,11 @@ export const checkAndMutateStock = async (
 
 export const autoReceiveOrders = async () => {
   const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
   return await prisma.$transaction(async (tx) => {
-    const ordersToAutoReceive = await tx.order.findMany({
+    // Proses untuk Order Confirmation (2 hari)
+    const ordersToAutoConfirm = await tx.order.findMany({
       where: {
         paymentStatus: PaymentStatus.SHIPPED,
         shippedAt: {
@@ -554,24 +698,44 @@ export const autoReceiveOrders = async () => {
       },
     });
 
-    let autoReceivedCount = 0;
+    let autoConfirmedCount = 0;
 
-    for (const order of ordersToAutoReceive) {
+    for (const order of ordersToAutoConfirm) {
       try {
         await tx.order.update({
-          where: {
-            id: order.id,
-          },
-          data: {
-            paymentStatus: PaymentStatus.DELIVERED,
-          },
+          where: { id: order.id },
+          data: { paymentStatus: PaymentStatus.DELIVERED },
         });
-        autoReceivedCount++;
+        autoConfirmedCount++;
       } catch (error) {
-        console.error(`Failed to auto-receive order ${order.id}:`, error);
+        console.error(`Failed to auto-confirm order ${order.id}:`, error);
       }
     }
 
-    return autoReceivedCount;
+    // Proses untuk Send User Orders (7 hari)
+    const ordersToAutoComplete = await tx.order.findMany({
+      where: {
+        paymentStatus: PaymentStatus.SHIPPED,
+        shippedAt: {
+          lt: sevenDaysAgo,
+        },
+      },
+    });
+
+    let autoCompletedCount = 0;
+
+    for (const order of ordersToAutoComplete) {
+      try {
+        await tx.order.update({
+          where: { id: order.id },
+          data: { paymentStatus: PaymentStatus.DELIVERED },
+        });
+        autoCompletedCount++;
+      } catch (error) {
+        console.error(`Failed to auto-complete order ${order.id}:`, error);
+      }
+    }
+
+    return { autoConfirmedCount, autoCompletedCount };
   });
 };

@@ -9,10 +9,29 @@ import {
   checkAndMutateStock,
   getOrderDetailById,
   autoReceiveOrders,
+  updateStatusOrderResolver,
+  getOrderListByRole,
 } from '../services/order.service';
-import { CancellationSource } from '@prisma/client';
 import { AuthenticatedRequest } from '@/middleware/auth.middleware';
-import prisma from '@/prisma';
+import { Role } from '@prisma/client';
+export const updateStatusOrder = async (
+  req: AuthenticatedRequest,
+  res: Response,
+) => {
+  try {
+    const { orderId, status } = req.body;
+    if (!orderId) {
+      return res.status(400).json({ error: 'Order ID is required' });
+    }
+
+    // File is already uploaded by the middleware, so we proceed with logic
+    const updatedOrder = await updateStatusOrderResolver(orderId, status);
+    res.status(200).json(updatedOrder);
+  } catch (error) {
+    console.error('Error updating status order: ', error);
+    res.status(500).json({ message: 'Failed to update status order' });
+  }
+};
 
 export const getOrderDetail = async (
   req: AuthenticatedRequest,
@@ -49,85 +68,40 @@ export const getOrderList = async (
 ) => {
   try {
     const userId = req.user?.userId;
-    if (!userId || typeof userId !== 'number') {
-      return res.status(400).json({ error: 'Valid userId is required' });
+    const role = req.user?.role;
+    if (!userId || typeof userId !== 'number' || !role) {
+      return res
+        .status(400)
+        .json({ error: 'Valid userId and role are required' });
     }
 
     const {
-      startDate,
-      endDate,
-      orderNumber,
+      warehouseId,
       page = '1',
       limit = '10',
       sortBy = 'createdAt',
       sortOrder = 'desc',
+      startDate,
+      endDate,
+      orderNumber,
     } = req.query;
 
-    const pageNumber = parseInt(page as string);
-    const limitNumber = parseInt(limit as string);
-
-    const filters: any = {};
-
-    if (startDate && endDate) {
-      filters.createdAt = {
-        gte: new Date(startDate as string),
-        lte: new Date(endDate as string),
-      };
-    }
-
-    if (orderNumber) {
-      filters.id = parseInt(orderNumber as string);
-    }
-
-    const validSortFields = ['createdAt', 'total', 'paymentStatus'];
-    const sortField = validSortFields.includes(sortBy as string)
-      ? sortBy
-      : 'createdAt';
-    const order = sortOrder === 'asc' ? 'asc' : 'desc';
-
-    const totalCount = await prisma.order.count({
-      where: {
-        ...filters,
-        cart: {
-          userId: userId,
-        },
-      },
-    });
-
-    const orders = await prisma.order.findMany({
-      where: {
-        ...filters,
-        cart: {
-          userId: userId,
-        },
-      },
-      include: {
-        items: {
-          include: {
-            product: true,
-          },
-        },
-        warehouse: true,
-        cart: true,
-        address: true,
-        voucher: true,
-      },
-      orderBy: {
-        [sortField as string]: order,
-      },
-      skip: (pageNumber - 1) * limitNumber,
-      take: limitNumber,
-    });
+    const result = await getOrderListByRole(
+      userId,
+      role as Role,
+      warehouseId ? Number(warehouseId) : undefined,
+      Number(page),
+      Number(limit),
+      sortBy as string,
+      sortOrder as 'asc' | 'desc',
+      startDate as string,
+      endDate as string,
+      orderNumber as string,
+    );
 
     res.status(200).json({
       success: true,
-      orders,
-      pagination: {
-        currentPage: pageNumber,
-        totalPages: Math.ceil(totalCount / limitNumber),
-        totalItems: totalCount,
-        itemsPerPage: limitNumber,
-      },
+      ...result,
     });
   } catch (error) {
     console.error('Error fetching orders:', error);
@@ -271,8 +245,9 @@ export const checkStock = async (req: Request, res: Response) => {
 
 export const runAutoReceiveOrders = async (req: Request, res: Response) => {
   try {
-    const autoReceivedCount = await autoReceiveOrders();
-    res.status(200).json({ autoReceivedCount });
+    const { autoConfirmedCount, autoCompletedCount } =
+      await autoReceiveOrders();
+    res.status(200).json({ autoConfirmedCount, autoCompletedCount });
   } catch (error) {
     console.error('Error auto-receiving orders:', error);
     res.status(500).json({ message: 'Failed to auto-receive orders' });

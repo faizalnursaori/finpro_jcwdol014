@@ -9,6 +9,7 @@ import {
   PackageSearch,
   Blocks,
   UsersRound,
+  ClipboardList,
 } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 import { useSession } from 'next-auth/react';
@@ -70,6 +71,12 @@ export default function DashboardMenu() {
             <Link href="/dashboard/inventory-management">
               <Blocks />
               Inventory Management
+            </Link>
+          </li>
+          <li>
+            <Link href="/dashboard/order-management">
+              <ClipboardList />
+              Order Management
             </Link>
           </li>
           <li>
