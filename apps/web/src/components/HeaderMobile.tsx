@@ -34,7 +34,6 @@ export default function HeaderMobile() {
     }
   };
 
-  // Effect to handle clicks outside of the search input
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -51,7 +50,6 @@ export default function HeaderMobile() {
       document.removeEventListener('mousedown', handleClickOutside);
     }
 
-    // Cleanup listener on component unmount
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };

@@ -51,9 +51,10 @@ export default function Sidebar() {
               <li>
                 <Link href="/profile">My Profile</Link>
               </li>
-              {data?.user?.role == 'SUPER_ADMIN' ? (
+              {data?.user?.role == 'SUPER_ADMIN' ||
+              data?.user?.role == 'ADMIN' ? (
                 <li>
-                  <Link href="/dashboard/product-management">Dashboard</Link>
+                  <Link href="/dashboard">Dashboard</Link>
                 </li>
               ) : (
                 ''
