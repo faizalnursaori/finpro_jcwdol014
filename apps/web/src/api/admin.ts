@@ -37,7 +37,11 @@ export const getAllOrders = async (
     });
     return {
       ok: true,
-      data: res.data,
+      data: {
+        ...res.data,
+        userRole: res.data.userRole,
+        warehouses: res.data.warehouses,
+      },
     };
   } catch (error: any) {
     const errorMessage =

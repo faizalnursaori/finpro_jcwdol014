@@ -36,6 +36,8 @@ interface Warehouse {
   name: string;
 }
 
+type UserRole = 'SUPER_ADMIN' | 'ADMIN' | 'USER';
+
 export const OrderTable = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
@@ -48,6 +50,7 @@ export const OrderTable = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [limit] = useState<number>(100);
+  const [userRole, setUserRole] = useState<UserRole>('USER');
 
   const fetchOrders = async (page: number) => {
     setLoading(true);
@@ -62,10 +65,13 @@ export const OrderTable = () => {
       }
       const data = res.data;
       setOrders(data.orders);
-      setFilteredOrders(data.orders);
+      setFilteredOrders(data.orders); // Mengatur filteredOrders
       setTotalPages(data.pagination.totalPages);
       if (data.warehouses) {
         setWarehouses(data.warehouses);
+      }
+      if (data.userRole) {
+        setUserRole(data.userRole);
       }
     } catch (error) {
       setError((error as Error).message);
@@ -161,10 +167,11 @@ export const OrderTable = () => {
       <div className="overflow-x-auto">
         <div className="flex flex-row justify-between my-3 mx-3 gap-10">
           <Search onSearch={handleSearch} onClear={handleClearSearch} />
-          {warehouses.length > 0 && (
+          {userRole === 'SUPER_ADMIN' && warehouses.length > 0 && (
             <select
               onChange={(e) => handleWarehouseChange(e.target.value)}
               className="select select-bordered select-sm"
+              value={selectedWarehouse || 'all'}
             >
               <option value="all">All Warehouses</option>
               {warehouses.map((warehouse) => (
