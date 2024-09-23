@@ -34,17 +34,13 @@ router.get('/stock-summary', async (req, res) => {
   }
 });
 
-// Stock details endpoint
 router.get('/stock-details', async (req, res) => {
   const { warehouseId, month, year } = req.query;
 
-  // Validate input
   if (!warehouseId || !month || !year) {
-    return res
-      .status(400)
-      .json({
-        message: 'Missing required parameters: warehouseId, month, year',
-      });
+    return res.status(400).json({
+      message: 'Missing required parameters: warehouseId, month, year',
+    });
   }
 
   try {

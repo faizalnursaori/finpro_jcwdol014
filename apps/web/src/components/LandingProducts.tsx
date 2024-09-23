@@ -20,12 +20,23 @@ interface ProductStock {
   warehouse: Warehouse;
 }
 
+interface Category {
+  name: string;
+}
+
+interface ProductImage {
+  url: string;
+}
+
 interface Product {
   id: number;
   name: string;
   description: string;
   price: number;
   productStocks: ProductStock[];
+  category: Category;
+  slug: string;
+  productImages: ProductImage[];
 }
 
 type Props = {

@@ -24,6 +24,7 @@ export default function Edit() {
   const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setImage(e.target.files[0]);
+      console.log(e.target.files[0]);
     }
   };
 
