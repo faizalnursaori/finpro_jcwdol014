@@ -23,3 +23,15 @@ export const getClosestWarehouse = async () => {
 
   return wareId;
 };
+
+export const getWarehouseByUserId = async (userId: number) => {
+  try {
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_BASE_API_URL}/warehouses/user/${userId}`,
+    );
+    return response.data.warehouse;
+  } catch (error) {
+    console.error('Error fetching warehouse by user ID:', error);
+    throw error;
+  }
+};
