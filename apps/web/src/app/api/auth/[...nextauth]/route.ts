@@ -4,7 +4,7 @@ import GoogleProvider from 'next-auth/providers/google';
 import GithubProvider from 'next-auth/providers/github';
 import { loginUser } from '@/lib/ApiClient';
 import { getUserByEmail, createUser } from '@/api/user';
-import { getWarehouseByUserId } from '@/api/warehouse'; // pastikan diimport
+// import { getWarehouseByUserId } from '@/api/warehouse';
 
 const handler = NextAuth({
   session: {
@@ -72,8 +72,12 @@ const handler = NextAuth({
         token.mobileNumber = user.mobileNumber;
 
         // Tambahkan warehouse ke token jika user ada
-        const warehouse = await getWarehouseByUserId(user.id);
-        token.warehouse = warehouse; // Tambahkan warehouse
+        // if (user.role === 'ADMIN') {
+        //   const warehouse = await getWarehouseByUserId(user.id);
+        //   token.warehouse = warehouse; // Tambahkan warehouse
+        // } else {
+        //   token.warehouse = null; // Tidak memiliki akses ke warehouse
+        // }
       }
       if (trigger === 'update' && session.username) {
         const updateUser = await getUserByEmail(session.email);
@@ -101,7 +105,7 @@ const handler = NextAuth({
         session.user.mobileNumber = token.mobileNumber;
 
         // Tambahkan warehouse ke session user
-        session.user.warehouse = token.warehouse;
+        // session.user.warehouse = token.warehouse;
       }
       return session;
     },
