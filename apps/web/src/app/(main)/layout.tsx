@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { CartProvider } from '@/context/CartContext';
 import '../globals.css';
-
+import { OrderProvider } from '@/context/OrderContext';
 
 export const metadata: Metadata = {
   title: 'Hemart',
@@ -14,12 +14,8 @@ export default function MainLayout({
   children: React.ReactNode;
 }) {
   return (
-    <>
-      <CartProvider>
-          <main className="flex-grow container mx-auto px-4 py-8">
-            {children}
-          </main>
-      </CartProvider>
-    </>
+    <CartProvider>
+      <OrderProvider>{children}</OrderProvider>
+    </CartProvider>
   );
 }

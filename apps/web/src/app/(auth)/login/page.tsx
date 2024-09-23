@@ -2,23 +2,45 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { FaGoogle, FaGithub } from "react-icons/fa";
+import { FaGoogle, FaGithub } from 'react-icons/fa';
 import { signIn } from 'next-auth/react';
+
+import Cookies from 'js-cookie';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
     try {
-      const data = await signIn('credentials', {callbackUrl: '/', email, password})
-      
+      // console.log(data);
+
+      const res = await fetch('http://localhost:8000/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        Cookies.set('token', data.token, { expires: 7 }); // Set token in cookie, expires in 7 days
+
+        const dataLog = await signIn('credentials', {
+          callbackUrl: '/',
+          email,
+          password,
+        });
+      } else {
+        setError(data.message || 'An unexpected error occurred');
+      }
     } catch (err) {
       console.error('Login error:', err); // Log the full error
       setError(
@@ -67,30 +89,43 @@ export default function Login() {
               className="label pointer-events-none absolute left-3 top-1 select-none px-1 transition-all duration-300 peer-focus:-translate-y-[21px] peer-focus:text-xs peer-[:not(:placeholder-shown)]:-translate-y-[21px] peer-[:not(:placeholder-shown)]:text-xs"
             >
               <span className="bg-base-100 px-1">Password</span>
-              
-            </label> 
+            </label>
             <label className="label">
-              <span className="label-text-alt hover:underline hover:text-success"><Link href='/login/forget-password'>Forget your password?</Link></span>
+              <span className="label-text-alt hover:underline hover:text-success">
+                <Link href="/login/forget-password">Forget your password?</Link>
+              </span>
             </label>
           </div>
           <div className="form-control mt-6">
-            <button className="btn btn-success mb-4 text-base-100" disabled={isLoading}>
-              {isLoading ? "Logging in..." : "Login"}
+            <button
+              className="btn btn-success mb-4 text-base-100"
+              disabled={isLoading}
+            >
+              {isLoading ? 'Logging in...' : 'Login'}
             </button>
             <p className="text-center">
-              Dont have an account?{" "}
+              Dont have an account?{' '}
               <Link
-                href={"/register"}
+                href={'/register'}
                 className="font-semibold text-indigo-500 hover:underline"
               >
                 Sign Up
               </Link>
             </p>
             <div className="divider">Login with Socials</div>
-            <div className='flex gap-5 items-center justify-center my-2'>
-              <button type='button' onClick={() => signIn("google", {callbackUrl: '/'})}><FaGoogle size={25}/></button>
-              <button type='button' onClick={() => signIn("github", {callbackUrl: '/'})}><FaGithub size={25}/></button>
-              
+            <div className="flex gap-5 items-center justify-center my-2">
+              <button
+                type="button"
+                onClick={() => signIn('google', { callbackUrl: '/' })}
+              >
+                <FaGoogle size={25} />
+              </button>
+              <button
+                type="button"
+                onClick={() => signIn('github', { callbackUrl: '/' })}
+              >
+                <FaGithub size={25} />
+              </button>
             </div>
             <div className="mt-4 flex w-80 flex-col items-center justify-center gap-8">
               <Link

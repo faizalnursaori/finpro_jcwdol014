@@ -8,16 +8,16 @@ import {
 } from '@/controllers/category.controller';
 import {
   AdminGuard,
-  authenticateToken,
+  authenticateToken2,
   SuperAdminGuard,
 } from '@/middleware/auth.middleware';
 
 const router = express.Router();
 
-router.post('/', authenticateToken, SuperAdminGuard, createCategory);
-router.get('/', authenticateToken, AdminGuard, getCategories);
-router.get('/:id', authenticateToken, AdminGuard, getCategoryById);
-router.put('/:id', authenticateToken, SuperAdminGuard, updateCategory);
-router.delete('/:id', authenticateToken, SuperAdminGuard, deleteCategory);
+router.post('/', authenticateToken2, SuperAdminGuard, createCategory);
+router.get('/', authenticateToken2, AdminGuard, getCategories);
+router.get('/:id', authenticateToken2, AdminGuard, getCategoryById);
+router.put('/:id', authenticateToken2, SuperAdminGuard, updateCategory);
+router.delete('/:id', authenticateToken2, SuperAdminGuard, deleteCategory);
 
 export const categoryRouter = router;

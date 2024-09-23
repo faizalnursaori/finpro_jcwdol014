@@ -1,7 +1,8 @@
 'use client';
+
 import Image from 'next/image';
 import { ShoppingCart, Search } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Sidebar from './Sidebar';
 import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
@@ -14,6 +15,7 @@ export default function HeaderMobile() {
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const router = useRouter();
+  const searchRef = useRef<HTMLDivElement>(null);
 
   const handleSearchToggle = () => {
     setIsSearchActive(!isSearchActive);
@@ -32,6 +34,29 @@ export default function HeaderMobile() {
     }
   };
 
+  // Effect to handle clicks outside of the search input
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        searchRef.current &&
+        !searchRef.current.contains(event.target as Node)
+      ) {
+        setIsSearchActive(false);
+      }
+    };
+
+    if (isSearchActive) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+
+    // Cleanup listener on component unmount
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isSearchActive]);
+
   return (
     <header className="flex lg:hidden items-center justify-between">
       <nav className="navbar p-3">
@@ -47,7 +72,7 @@ export default function HeaderMobile() {
             height={150}
           />
         </Link>
-        <div className="navbar-end gap-3">
+        <div className="navbar-end gap-3" ref={searchRef}>
           {!isSearchActive ? (
             <button onClick={handleSearchToggle} className="btn btn-ghost">
               <Search />
@@ -58,7 +83,7 @@ export default function HeaderMobile() {
                 type="text"
                 value={searchTerm}
                 onChange={handleSearchChange}
-                className="input input-bordered"
+                className="input input-bordered w-32"
                 placeholder="Search..."
               />
               <button type="submit" className="btn btn-ghost">

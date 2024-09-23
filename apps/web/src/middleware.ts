@@ -4,12 +4,6 @@ export const config = {
   matcher: [
     '/profile/:path*/:path*',
     '/cart/:path*/:path*',
-    '/admin-management/:path*',
-    '/enduser-management',
-    '/products-management/:path*',
-    '/cat-management',
+    '/dashboard/:path*/:path*/:path*',
   ],
 };
-
-
-

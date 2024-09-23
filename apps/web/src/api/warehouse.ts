@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { haversineDistance } from '@/utils/getClosestStore';
 import { getUserCurrentLocation } from '@/utils/getUserCurrentLocation';
-import 'dotenv/config';
 
 export const getClosestWarehouse = async () => {
   const res = await axios.get(
