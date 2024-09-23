@@ -1,15 +1,15 @@
-import { Facebook, Instagram, Twitter } from "lucide-react";
-import Link from "next/link";
+import { Facebook, Instagram, Twitter } from 'lucide-react';
+import Link from 'next/link';
 
 export default function FooterMobile() {
   const categories = [
-    "Rice & Flour",
-    "Fruits & Vegetables",
-    "Instan Food",
-    "Beverages",
-    "Snacks & Biscuits",
-    "Frozen",
-    "Dairy",
+    'Rice & Flour',
+    'Fruits & Vegetables',
+    'Instan Food',
+    'Beverages',
+    'Snacks & Biscuits',
+    'Frozen',
+    'Dairy',
   ];
   return (
     <div className="flex md:hidden flex-col">
@@ -56,7 +56,7 @@ export default function FooterMobile() {
       <div className="collapse collapse-arrow">
         <input type="checkbox" name="my-accordion-2" />
         <div className="collapse-title font-medium">SUPPORT HOTLINE</div>
-        <div className="collapse-content flex flex-col gap-2 ml-2 gap-2">
+        <div className="collapse-content flex flex-col ml-2 gap-2">
           <div>
             <p className="font-bold text-sm">Hotline:</p>
             <p>Monday - Friday 9:00am - 5:00pm</p>

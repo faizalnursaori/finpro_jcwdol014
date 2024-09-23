@@ -34,6 +34,7 @@ export const authenticateToken = async (
     const decoded = jwt.verify(token, secret);
 
     // Save the decoded token in req.user for use in next middleware/routes
+    console.log('Decoded token', decoded);
     req.user = decoded;
 
     // Proceed to the next middleware
