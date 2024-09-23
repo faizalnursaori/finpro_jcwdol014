@@ -17,6 +17,7 @@ interface Warehouse {
 }
 
 interface ProductStock {
+  productId: number;
   id: number;
   stock: number;
   warehouse: Warehouse;
@@ -39,7 +40,12 @@ export default function InventoryTable() {
 
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [stockToDelete, setStockToDelete] = useState<number | null>(null);
+  const [stockToDelete, setStockToDelete] = useState<{
+    stockId: number;
+    warehouseId: number;
+    productId: number;
+    stock: number;
+  } | null>(null);
 
   const isSuperAdmin = data?.user?.role === 'SUPER_ADMIN';
 
@@ -51,8 +57,6 @@ export default function InventoryTable() {
           getWarehouses(),
         ]);
         setProducts(fetchedProducts);
-        console.log(fetchedProducts);
-
         setWarehouses(fetchedWarehouses);
       } catch (error) {
         console.error(error.message);
@@ -95,17 +99,24 @@ export default function InventoryTable() {
     fetchWarehouseId();
   }, [warehouses, isSuperAdmin, data]);
 
-  const handleDelete = (stockId: number) => {
-    setStockToDelete(stockId);
-    setIsModalOpen(true); // Open the modal
+  const handleDelete = (
+    stockId: number,
+    warehouseId: number,
+    productId: number,
+    stock: number,
+  ) => {
+    setStockToDelete({ stockId, warehouseId, productId, stock });
+    setIsModalOpen(true);
   };
 
   const confirmDelete = async () => {
     if (stockToDelete !== null) {
       try {
-        await deleteProductStock(stockToDelete);
+        const { stockId, warehouseId, productId, stock } = stockToDelete;
+        await deleteProductStock(stockId, warehouseId, productId, stock);
+
         setSortedProducts((prevStocks) =>
-          prevStocks.filter((stock) => stock.id !== stockToDelete),
+          prevStocks.filter((stock) => stock.id !== stockId),
         );
         setIsModalOpen(false);
         setStockToDelete(null);
@@ -170,7 +181,14 @@ export default function InventoryTable() {
                 <td>{stock.stock}</td>
                 <td>
                   <button
-                    onClick={() => handleDelete(stock.id)}
+                    onClick={() =>
+                      handleDelete(
+                        stock.id,
+                        stock.warehouse.id,
+                        stock.productId,
+                        stock.stock,
+                      )
+                    }
                     className="bg-red-500 text-white px-4 py-2 rounded"
                   >
                     Delete

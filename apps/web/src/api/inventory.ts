@@ -39,9 +39,20 @@ export const createStock = async (
   }
 };
 
-export const deleteProductStock = async (stockId: number) => {
+export const deleteProductStock = async (
+  stockId: number,
+  warehouseId: number,
+  productId: number,
+  stock: number,
+) => {
   try {
-    await axios.delete(`${API_URL}/${stockId}`);
+    await axios.delete(`${API_URL}/${stockId}`, {
+      params: {
+        warehouseId,
+        productId,
+        stock,
+      },
+    });
   } catch (error) {
     throw new Error('Failed to delete product stock');
   }

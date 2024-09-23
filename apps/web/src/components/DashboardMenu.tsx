@@ -12,6 +12,7 @@ import {
   TicketPercent,
   Layers,
   ClipboardList,
+  ChartColumnBig,
 } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 import { useSession } from 'next-auth/react';
@@ -86,6 +87,12 @@ export default function DashboardMenu() {
                   <Link href="/dashboard/inventory-management/request-management">
                     <ClipboardList />
                     Request Inventory Management
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/dashboard/inventory-management/inventory-report">
+                    <ChartColumnBig />
+                    Stock Report
                   </Link>
                 </li>
               </ul>

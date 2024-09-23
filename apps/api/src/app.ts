@@ -19,6 +19,7 @@ import { stockRouter } from './routers/productStock.router';
 import { stockTransferRouter } from './routers/stockTransfer.router';
 import { stockTransferLogRouter } from './routers/stockTransferLog.router';
 import { voucherRouter } from './routers/voucher.router';
+import { reportRouter } from './routers/report.router';
 
 export default class App {
   private app: Express;
@@ -75,6 +76,7 @@ export default class App {
     this.app.use('/api/stock-transfers', stockTransferRouter);
     this.app.use('/api/logs', stockTransferLogRouter);
     this.app.use('/api/vouchers', voucherRouter);
+    this.app.use('/api/reports', reportRouter);
   }
 
   public start(): void {
