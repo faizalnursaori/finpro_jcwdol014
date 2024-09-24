@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Bar } from 'react-chartjs-2';
 import 'chart.js/auto';
 import { useSession } from 'next-auth/react';
-import { getWarehouseByUserId, getWarehouses } from '@/api/warehouse';
+import { getWarehouseId, getWarehouses } from '@/api/warehouse';
 import {
   fetchSalesData,
   fetchTopProducts,
@@ -41,7 +41,7 @@ export default function MonthlySalesReport() {
     const loadWarehouseId = async () => {
       if (data?.user?.role === 'ADMIN') {
         try {
-          const warehouse = await getWarehouseByUserId(data.user.id);
+          const warehouse = await getWarehouseId(data.user.id);
           if (warehouse) {
             setWarehouseId(warehouse.id);
           }

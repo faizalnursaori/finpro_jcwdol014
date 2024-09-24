@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
-import { getWarehouseByUserId } from '@/api/warehouse';
+import { getWarehouseId } from '@/api/warehouse';
 import { StockTransfer } from '@/types/stockTransfer';
 import StockTransferActions from './StockTransferAction';
 
@@ -34,7 +34,7 @@ export default function StockTransferTable() {
         if (data?.user?.role === 'SUPER_ADMIN') {
           res = await axios.get(`${API_URL}stock-transfers`);
         } else if (data?.user?.role === 'ADMIN') {
-          const warehouse = await getWarehouseByUserId(data.user.id);
+          const warehouse = await getWarehouseId(data.user.id);
           if (warehouse) {
             res = await axios.get(`${API_URL}stock-transfers/${warehouse.id}`);
           } else {

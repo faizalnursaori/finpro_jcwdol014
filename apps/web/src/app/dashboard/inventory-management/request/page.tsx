@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { getProductStockByWarehouseId } from '@/api/inventory';
-import { getWarehouseByUserId } from '@/api/warehouse';
+import { getWarehouseId } from '@/api/warehouse';
 import { createStockRequest } from '@/api/stockTransfer';
 
 export default function CreateStockRequest() {
@@ -23,7 +23,7 @@ export default function CreateStockRequest() {
     const fetchWarehouseAndProducts = async () => {
       if (data?.user?.id) {
         try {
-          const warehouse = await getWarehouseByUserId(data.user.id);
+          const warehouse = await getWarehouseId(data.user.id);
           setWarehouseId(warehouse.id);
           setWarehouseName(warehouse.name);
 
