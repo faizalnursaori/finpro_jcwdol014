@@ -4,7 +4,7 @@ import { getUserCurrentLocation } from '@/utils/getUserCurrentLocation';
 
 export const getClosestWarehouse = async () => {
   const res = await axios.get(
-    `${process.env.NEXT_PUBLIC_BASE_API_URL}warehouses/`,
+    `${process.env.NEXT_PUBLIC_BASE_API_URL}/warehouses/`,
   );
   const data = res.data.warehouses;
   const userLoc = getUserCurrentLocation();
@@ -50,7 +50,7 @@ export const getWarehouseByUserId = async (userId: number) => {
 export const getWarehouseId = async (userId: string): Promise<number> => {
   try {
     const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_BASE_API_URL}warehouses/user/${userId}`,
+      `${process.env.NEXT_PUBLIC_BASE_API_URL}/warehouses/user/${userId}`,
     );
     console.log(response.data.warehouse);
 
