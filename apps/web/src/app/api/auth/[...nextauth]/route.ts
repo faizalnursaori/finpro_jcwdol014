@@ -64,7 +64,6 @@ const handler = NextAuth({
     callbacks: {
         async jwt({token, user, trigger, session}) {
             if(user) {
-                
                 token.username = user.username
                 token.isVerified = user.isVerified
                 token.id = user.id

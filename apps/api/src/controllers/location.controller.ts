@@ -4,7 +4,9 @@ import axios from 'axios';
 
 export const getProvince = async (req: Request, res: Response) => {
   try {
-    const { data } = await axios.get(
+    console.log('nyoba nge fetch');
+    
+    const  {data}  = await axios.get(
       'https://api.rajaongkir.com/starter/province',
       {
         headers: {
@@ -13,10 +15,12 @@ export const getProvince = async (req: Request, res: Response) => {
         },
       },
     );
-
+    console.log('hasil fetch province ', data);
+    
+    
     res.status(200).json({ data });
   } catch (error) {
-    res.status(500).json({ message: 'Internal server error.', error });
+      res.status(500).json({ message: 'Error getting province.', error });
   }
 };
 
@@ -91,5 +95,34 @@ export const createCity = async (req: Request, res: Response) => {
     res.status(201).json({city})
   } catch (error) {
     res.status(500).json({message: "Internal server error", error})
+  }
+};
+
+export const getShipping = async (req: Request, res: Response) => {
+  try {
+    const reqData= req.body;
+    const nyoba = {
+      origin: 1,
+      destination: 3,
+      weight: 1500,
+      courier: "jne"
+    }
+    
+    const response = await axios.post(
+      `https://api.rajaongkir.com/starter/cost`,{...reqData},
+      {
+        headers: {
+          key: '52f9fdf3233f8e61a6883ad3d87abdff',
+          'Content-Type': 'application/json',
+        },
+      },
+    );
+    console.log(response.data.rajaongkir.results);
+    
+    const hasil = response.data.rajaongkir.results
+    
+    res.status(200).json({ hasil });
+  } catch (error) {
+    res.status(500).json({ message: 'Internal server error.', error });
   }
 };

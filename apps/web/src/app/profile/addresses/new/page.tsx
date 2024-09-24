@@ -28,12 +28,14 @@ export default function New() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setAddress({ ...address, [e.target.name]: e.target.value });
   };
+  const handleCheck = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setAddress({ ...address, [e.target.name]: e.target.checked });
+  };
 
   const handleChangeSelectProvince = (
     e: React.ChangeEvent<HTMLSelectElement>,
   ) => {
     setProvinceId(e.target.selectedIndex);
-    console.log(e.target.selectedIndex);
     setAddress({ ...address, provinceId: e.target.selectedIndex });
   };
   const handleChangeSelectCity = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -44,7 +46,26 @@ export default function New() {
     e.preventDefault();
     setIsLoading(true)
     try {
-      await createAddress({ ...address, userId: data?.user?.id });
+      if( !address.name||address.name.length < 3 ){
+        toast.error('Names must be 3 or more characters.')
+        return
+      }
+      if(!address.address || address.address.length < 5) {
+        toast.error('Please enter a correct Address.')
+        return
+      }
+      if( !address.postalCode||address.postalCode.length < 5){
+        toast.error('Please enter a correct Postal Code.')
+        return
+      }
+
+      const getData = await createAddress({ ...address, userId: data?.user?.id });
+      console.log(getData?.success);
+      
+      if(getData?.success == false){
+        toast.error('Please enter a correct input')
+        return
+      }
       toast.success('New Address Added!');
       router.push('/profile/addresses');
     } catch (error) {
@@ -160,6 +181,22 @@ export default function New() {
                 className="label pointer-events-none absolute left-3 top-1 select-none px-1 transition-all duration-300 peer-focus:-translate-y-[21px] peer-focus:text-xs peer-[:not(:placeholder-shown)]:-translate-y-[21px] peer-[:not(:placeholder-shown)]:text-xs"
               >
                 <span className="bg-base-100 px-1">Postal Code</span>
+              </label>
+            </div>
+            <div className="form-control flex flex-row items-center focus-within:border-white">
+              <input
+                onChange={handleCheck}
+                type="checkbox"
+                name="isPrimary"
+                id="isPrimary"
+                className=" checkbox "
+                value={"true"}
+              />
+              <label
+                htmlFor="isPrimary"
+                className="label"
+              >
+                <span className="bg-base-100 px-1">Default Address</span>
               </label>
             </div>
 

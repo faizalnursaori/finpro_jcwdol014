@@ -9,7 +9,7 @@ export const createAddress = async (data: any) => {
     return { ok: false, message: 'Unauthenticated' };
   }
   try {
-    await axios.post(
+    const res = await axios.post(
       `${process.env.NEXT_PUBLIC_BASE_API_URL}/addresses/new`,
       data,{
         headers: {
@@ -17,7 +17,7 @@ export const createAddress = async (data: any) => {
           }
       }
     );
-    console.log('success creating new address');
+    return res.data
   } catch (error) {
     console.log(error);
   }
@@ -78,6 +78,25 @@ export const deleteUserAddresses = async (id: any) => {
     );
     console.log('success deleting address.');
     
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const getUserAddressesById = async (id: string) => {
+  const token = cookies().get('next-auth.session-token')?.value;
+  if (!token) {
+    return { ok: false, message: 'Unauthenticated' };
+  }
+  try {
+    const res = await axios.get(
+      `${process.env.NEXT_PUBLIC_BASE_API_URL}/addresses/single/${id}`,{
+        headers: {
+            Authorization: `Bearer ${token}`,
+          }
+      }
+    );
+   return res.data
   } catch (error) {
     console.log(error);
   }

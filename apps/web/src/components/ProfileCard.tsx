@@ -36,7 +36,7 @@ export default function ProfileCard() {
         formData.append(key, value);
       });
 
-      await editUser(data?.user?.id, formData);
+      await editUser(data?.user?.id as string, formData);
       update({
         username: Userdata.username,
         email: Userdata.email,
@@ -58,13 +58,13 @@ export default function ProfileCard() {
   };
 
   return (
-    <div className="card card-compact bg-base-100 shadow-xl w-[40vw] p-5 h-fit">
+    <div className="card card-compact bg-base-100 shadow-xl sm:w-[40vw] w-[100vw] p-5 h-fit">
       <div className="flex justify-between">
         <div className="flex items-center gap-4">
           <div className="avatar">
             <div className="w-24 rounded-full">
               <Image
-                src={data?.user?.image}
+                src={`${data?.user?.image}`}
                 width={150}
                 height={150}
                 alt="user avatar"
@@ -123,7 +123,6 @@ export default function ProfileCard() {
               <dialog id="my_modal_3" className="modal">
                 <div className="modal-box">
                   <form method="dialog">
-                    {/* if there is a button in form, it will close the modal */}
                     <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
                       ✕
                     </button>

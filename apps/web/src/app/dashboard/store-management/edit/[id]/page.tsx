@@ -4,12 +4,13 @@ import toast, { Toaster } from 'react-hot-toast';
 import { useRouter, useParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { getProvince, getCity } from '@/utils/getLocation';
-import { editWarehouse } from '@/api/warehouse';
+import { editWarehouse, getWarehouse } from '@/api/warehouse';
 import { getAdminOnly } from '@/utils/getAdminOnly';
 
 export default function New() {
   const { data } = useSession();
   const [warehouse, setWarehouse] = useState<any>();
+  const [prevWarehouse, setPrevWarehouse] = useState<any>();
   const [province, setProvince] = useState([]);
   const [provinceId, setProvinceId] = useState<number>(0);
   const [city, setCity] = useState([]);
@@ -19,20 +20,35 @@ export default function New() {
   const {id} = useParams()
 
   const getProv = async () => {
-    const { data } = await getProvince();
+    try {
+      const { data } = await getProvince();
     setProvince(data.rajaongkir.results);
+    } catch (error) {
+      console.log(error);
+      
+    }
   };
 
   const getCit = async (provinceId: number) => {
-    const { data } = await getCity(provinceId);
+    try {
+      const { data } = await getCity(provinceId);
     setCity(data?.rajaongkir?.results);
+    } catch (error) {
+      console.log(error);
+      
+    }
   };
 
   const getAdmin = async () =>{
       const data = await getAdminOnly()
       setAdmins(data.data.user);
-      console.log(data.data.user);
       
+  }
+
+  const getPrevWarehouse = async () =>{
+    const data = await getWarehouse(id as string)
+    setPrevWarehouse(data.warehouse);
+    
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -62,8 +78,32 @@ export default function New() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsLoading(true);
+    if(!warehouse.name || warehouse.name.length < 3){
+      toast.error('Store Name must be at least 3-20 characters')
+      return
+    }
+    if(!warehouse.address || warehouse.address.length < 3){
+      toast.error('Store Address must be at least 3-20 characters')
+      return
+    }
+    if(!warehouse.postalCode || warehouse.postalCode.length < 5 || !Number(warehouse.postalCode)){
+      toast.error('Store Postal Code must be 5 Numbers')
+      return
+    }
+    if(!warehouse.latitude || warehouse.latitude.length < 2 ){
+      toast.error('Latitude must be at least 2 Numbers')
+      return
+    }
+    if(!warehouse.longitude || warehouse.longitude.length < 2){
+      toast.error('Longitude must be at least 2 Numbers')
+      return
+    }
+    if(!warehouse.storeRadius || warehouse.storeRadius.length < 2){
+      toast.error('Store Radius must be at least 2 Numbers')
+      return
+    }
     try {
+      setIsLoading(true);
       await editWarehouse({ ...warehouse }, id as string);
       toast.success('Store data updated!');
       router.push('/dashboard/store-management');
@@ -75,10 +115,16 @@ export default function New() {
   };
 
   useEffect(() => {
+    getPrevWarehouse()
     getProv();
     getCit(provinceId);
     getAdmin()
+    
   }, [provinceId]);
+
+  useEffect(() => {
+    setWarehouse({name: prevWarehouse?.name, address: prevWarehouse?.address, latitude: prevWarehouse?.latitude, longitude: prevWarehouse?.longitude, storeRadius: prevWarehouse?.storeRadius, postalCode: prevWarehouse?.postalCode, })
+  }, [prevWarehouse])
 
   return (
     <>
@@ -97,12 +143,12 @@ export default function New() {
                   type="text"
                   name="name"
                   id="name"
-                  placeholder=""
+                  value={warehouse?.name}
                   className="peer input input-bordered relative z-0 w-full focus:outline-none"
                 />
                 <label
                   htmlFor="name"
-                  className="label pointer-events-none absolute left-3 top-1 select-none px-1 transition-all duration-300 peer-focus:-translate-y-[21px] peer-focus:text-xs peer-[:not(:placeholder-shown)]:-translate-y-[21px] peer-[:not(:placeholder-shown)]:text-xs"
+                  className="label pointer-events-none absolute left-3 top-1 select-none px-1 transition-all duration-300 -translate-y-[21px] text-xs peer-[:not(:placeholder-shown)]:-translate-y-[21px] peer-[:not(:placeholder-shown)]:text-xs"
                 >
                   <span className="bg-base-100 px-1">Name</span>
                 </label>
@@ -113,12 +159,12 @@ export default function New() {
                   type="text"
                   name="address"
                   id="address"
-                  placeholder=""
+                  value={warehouse?.address}
                   className="peer input input-bordered relative z-0 w-full focus:outline-none"
                 />
                 <label
                   htmlFor="name"
-                  className="label pointer-events-none absolute left-3 top-1 select-none px-1 transition-all duration-300 peer-focus:-translate-y-[21px] peer-focus:text-xs peer-[:not(:placeholder-shown)]:-translate-y-[21px] peer-[:not(:placeholder-shown)]:text-xs"
+                  className="label pointer-events-none absolute left-3 top-1 select-none px-1 transition-all duration-300 -translate-y-[21px] text-xs peer-[:not(:placeholder-shown)]:-translate-y-[21px] peer-[:not(:placeholder-shown)]:text-xs"
                 >
                   <span className="bg-base-100 px-1">Address</span>
                 </label>
@@ -178,12 +224,12 @@ export default function New() {
                   type="text"
                   name="postalCode"
                   id="postalCode"
-                  placeholder=" "
+                  value={warehouse?.postalCode}
                   className="peer input input-bordered relative z-0 w-full focus:outline-none"
                 />
                 <label
                   htmlFor="postalCode"
-                  className="label pointer-events-none absolute left-3 top-1 select-none px-1 transition-all duration-300 peer-focus:-translate-y-[21px] peer-focus:text-xs peer-[:not(:placeholder-shown)]:-translate-y-[21px] peer-[:not(:placeholder-shown)]:text-xs"
+                  className="label pointer-events-none absolute left-3 top-1 select-none px-1 transition-all duration-300 -translate-y-[21px] text-xs peer-[:not(:placeholder-shown)]:-translate-y-[21px] peer-[:not(:placeholder-shown)]:text-xs"
                 >
                   <span className="bg-base-100 px-1">Postal Code</span>
                 </label>
@@ -194,12 +240,12 @@ export default function New() {
                   type="text"
                   name="latitude"
                   id="latitude"
-                  placeholder=" "
+                  value={warehouse?.latitude}
                   className="peer input input-bordered relative z-0 w-full focus:outline-none"
                 />
                 <label
                   htmlFor="latitude"
-                  className="label pointer-events-none absolute left-3 top-1 select-none px-1 transition-all duration-300 peer-focus:-translate-y-[21px] peer-focus:text-xs peer-[:not(:placeholder-shown)]:-translate-y-[21px] peer-[:not(:placeholder-shown)]:text-xs"
+                  className="label pointer-events-none absolute left-3 top-1 select-none px-1 transition-all duration-300 -translate-y-[21px] text-xs peer-[:not(:placeholder-shown)]:-translate-y-[21px] peer-[:not(:placeholder-shown)]:text-xs"
                 >
                   <span className="bg-base-100 px-1">Latitude</span>
                 </label>
@@ -210,12 +256,12 @@ export default function New() {
                   type="text"
                   name="longitude"
                   id="longitude"
-                  placeholder=" "
+                  value={warehouse?.longitude}
                   className="peer input input-bordered relative z-0 w-full focus:outline-none"
                 />
                 <label
                   htmlFor="longitude"
-                  className="label pointer-events-none absolute left-3 top-1 select-none px-1 transition-all duration-300 peer-focus:-translate-y-[21px] peer-focus:text-xs peer-[:not(:placeholder-shown)]:-translate-y-[21px] peer-[:not(:placeholder-shown)]:text-xs"
+                  className="label pointer-events-none absolute left-3 top-1 select-none px-1 transition-all duration-300 -translate-y-[21px] text-xs peer-[:not(:placeholder-shown)]:-translate-y-[21px] peer-[:not(:placeholder-shown)]:text-xs"
                 >
                   <span className="bg-base-100 px-1">Longitude</span>
                 </label>
@@ -226,12 +272,12 @@ export default function New() {
                   type="text"
                   name="storeRadius"
                   id="storeRadius"
-                  placeholder=" "
+                  value={warehouse?.storeRadius}
                   className="peer input input-bordered relative z-0 w-full focus:outline-none"
                 />
                 <label
                   htmlFor="storeRadius"
-                  className="label pointer-events-none absolute left-3 top-1 select-none px-1 transition-all duration-300 peer-focus:-translate-y-[21px] peer-focus:text-xs peer-[:not(:placeholder-shown)]:-translate-y-[21px] peer-[:not(:placeholder-shown)]:text-xs"
+                  className="label pointer-events-none absolute left-3 top-1 select-none px-1 transition-all duration-300 -translate-y-[21px] text-xs peer-[:not(:placeholder-shown)]:-translate-y-[21px] peer-[:not(:placeholder-shown)]:text-xs"
                 >
                   <span className="bg-base-100 px-1">Store Radius</span>
                 </label>
@@ -243,7 +289,7 @@ export default function New() {
                   id="user"
                   onChange={handleChangeSelectAdmin}
                 >
-                  <option disabled>Admin</option>
+                  <option disabled selected>Admin</option>
                   {admins?.map((admin: {id: number, name: string, warehouse: {} | null}) => {
                     if(admin.warehouse === null){
                       return (

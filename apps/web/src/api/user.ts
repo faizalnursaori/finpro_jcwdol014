@@ -5,38 +5,39 @@ import { cookies } from 'next/headers';
 const base_api = process.env.BASE_API_USER;
 
 export const editUser = async (id: string, data: {}) => {
-  const res = await axios.put(`${base_api}/${id}`, data, {
-    headers: { 'Content-Type': 'multipart/form-data' },
+  const token = cookies().get('next-auth.session-token')?.value;
+  const res = await axios.put(`${process.env.NEXT_PUBLIC_BASE_API_URL}/users/${id}`, data, {
+    headers: { 'Content-Type': 'multipart/form-data', Authorization: `Bearer ${token}` },
   });
 };
 
 export const editUserByToken = async (idToken: any, data: {}) => {
-  const res = await axios.put(`${base_api}/register/${idToken}`, data);
+  const res = await axios.put(`${process.env.NEXT_PUBLIC_BASE_API_URL}/users/register/${idToken}`, data);
 };
 
 export const editUserPassword = async (id: string, data: {}) => {
-  const token = localStorage.getItem('token');
-  const res = await axios.put(`${base_api}/password/${id}`, data, {
+  const token = cookies().get('next-auth.session-token')?.value;
+  const res = await axios.put(`${process.env.NEXT_PUBLIC_BASE_API_URL}/users/password/${id}`, data, {
     headers: { Authorization: `Bearer ${token}` },
   });
 };
 
 export const resetUserPassword = async (id: any, data: {}) => {
-  const res = await axios.put(`${base_api}/reset-password/${id}`, data);
+  const res = await axios.put(`${process.env.NEXT_PUBLIC_BASE_API_URL}/users/reset-password/${id}`, data);
 };
 
 export const getUserByEmail = async (email: string) => {
-  const res = await axios.get(`${base_api}/${email}`);
+  const res = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/users/${email}`);
   return res.data;
 };
 
 export const createUser = async (data: any) => {
-  const res = await axios.post(`${base_api}/`, data);
+  const res = await axios.post(`${process.env.NEXT_PUBLIC_BASE_API_URL}users/`, data);
   return res.data;
 };
 
 export const verifyUser = async (data: { email: any }) => {
-  const res = await axios.post(`${base_api}/verify`, data);
+  const res = await axios.post(`${process.env.NEXT_PUBLIC_BASE_API_URL}/users/verify`, data);
   return res.data;
 };
 

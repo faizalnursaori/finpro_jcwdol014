@@ -6,6 +6,7 @@ import {
   removeCartItem,
   updateCartItem,
   handleInvalidCart,
+  getCartById
 } from '@/controllers/cart.controller';
 import { authenticateToken } from '@/middleware/auth.middleware';
 
@@ -18,6 +19,7 @@ router.use(authenticateToken);
 
 // Get or create a cart for the user
 router.get('/', getCart);
+router.get('/:id', getCartById);
 
 // Handle invalid cart
 router.post('/invalidate', handleInvalidCart);

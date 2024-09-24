@@ -9,7 +9,7 @@ import { getAdminOnly } from '@/utils/getAdminOnly';
 
 export default function New() {
   const { data } = useSession();
-  const [warehouse, setWarehouse] = useState<any>();
+  const [warehouse, setWarehouse] = useState<{name: string, address: string, provinceId: number, cityId: string, latitude: string|number, longitude: string | number, postalCode: string, storeRadius: string, userId: number}>({name: '', address: '', cityId:'', provinceId: 0, latitude: 0, longitude: 0, storeRadius: '', postalCode: '', userId: 0});
   const [province, setProvince] = useState([]);
   const [provinceId, setProvinceId] = useState<number>(0);
   const [city, setCity] = useState([]);
@@ -18,13 +18,23 @@ export default function New() {
   const router = useRouter();
 
   const getProv = async () => {
-    const { data } = await getProvince();
+    try {
+      const { data } = await getProvince();
     setProvince(data.rajaongkir.results);
+    } catch (error) {
+      console.log(error);
+      
+    }
   };
 
   const getCit = async (provinceId: number) => {
-    const { data } = await getCity(provinceId);
+    try {
+      const { data } = await getCity(provinceId);
     setCity(data?.rajaongkir?.results);
+    } catch (error) {
+      console.log(error);
+      
+    }
   };
 
   const getAdmin = async () =>{
@@ -61,12 +71,41 @@ export default function New() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if(!warehouse.name || warehouse.name.length < 3){
+      toast.error('Store Name must be at least 3-20 characters')
+      return
+    }
+    if(!warehouse.address || warehouse.address.length < 3){
+      toast.error('Store Address must be at least 3-20 characters')
+      return
+    }
+    if(!warehouse.postalCode || warehouse.postalCode.length < 5 || !Number(warehouse.postalCode)){
+      toast.error('Store Postal Code must be 5 Numbers')
+      return
+    }
+    if(!warehouse.latitude || warehouse.latitude.length < 2 ){
+      toast.error('Latitude must be at least 2 Numbers')
+      return
+    }
+    if(!warehouse.longitude || warehouse.longitude.length < 2){
+      toast.error('Longitude must be at least 2 Numbers')
+      return
+    }
+    if(!warehouse.storeRadius || warehouse.storeRadius.length < 2){
+      toast.error('Store Radius must be at least 2 Numbers')
+      return
+    }
+    if(!warehouse.userId){
+      toast.error('Please select an admin')
+      return
+    }
     setIsLoading(true);
     try {
       await createWarehouse({ ...warehouse });
-      toast.success('New Warehouse Added!');
+      toast.success('New Store Added!');
       router.push('/dashboard/store-management');
     } catch (error) {
+      toast.error('Failed Creating New Store')
       console.log(error);
     } finally {
       setIsLoading(false);

@@ -36,23 +36,7 @@ export default function FooterMobile() {
           <Link className="hover:underline" href=""></Link>
         </div>
       </div>
-      <div className="collapse collapse-arrow ">
-        <input type="checkbox" name="my-accordion-2" />
-        <div className="collapse-title font-medium">CATEGORIES</div>
-        <div className="collapse-content flex flex-col ml-2 gap-2">
-          {categories.map((category, index) => {
-            return (
-              <Link
-                className="hover:underline"
-                href={`/category/${category}`}
-                key={index}
-              >
-                {category}
-              </Link>
-            );
-          })}
-        </div>
-      </div>
+      
       <div className="collapse collapse-arrow">
         <input type="checkbox" name="my-accordion-2" />
         <div className="collapse-title font-medium">SUPPORT HOTLINE</div>

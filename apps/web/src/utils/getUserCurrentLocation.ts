@@ -1,6 +1,7 @@
 
-export const getUserCurrentLocation = () =>{
-    const userLoc = {
+export const getUserCurrentLocation = async () =>{ 
+    try {
+      const userLoc = {
         lon: 0,
         lat: 0
     } 
@@ -14,9 +15,11 @@ export const getUserCurrentLocation = () =>{
       };
 
 
-    navigator.geolocation.getCurrentPosition(success, fail)
-    
-    console.log(userLoc);
+     navigator?.geolocation.getCurrentPosition(success, fail)
     
     return userLoc;
+    } catch (error) {
+      console.log(error);
+      
+    }
 }

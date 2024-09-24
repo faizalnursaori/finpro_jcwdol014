@@ -21,13 +21,8 @@ export default function Header() {
     }
   };
 
-  const categories = [
-    'Rice & Flour',
-    'Fruits & Vegetables',
-    'Instan Food',
-    'Beverages',
-    'Snacks & Biscuits',
-    'Frozen',
+  const categories: [] = [
+    
   ];
 
   return (

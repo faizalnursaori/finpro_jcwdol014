@@ -19,7 +19,7 @@ export const authenticateToken = async (
   next: NextFunction,
 ) => {
   const authToken = await getToken({ req });
-  if (authToken == null) return res.sendStatus(401);
+  if (authToken == null) return res.sendStatus(401).json({Message: 'Unauthorized'});
   req.user = authToken;
   next();
 };

@@ -71,9 +71,7 @@ export const StoreTable = () => {
     if (selectedWarehouse) {
       try {
         const res = await deleteWarehouse(selectedWarehouse.id);
-        if (!res.ok) {
-          toast.error('Failed to delete Warehouse');
-        }
+        toast.success('Store deleted!')
         setWarehouses(
           warehouses.filter((warehouse) => warehouse.id !== selectedWarehouse.id),
         );
@@ -115,12 +113,12 @@ export const StoreTable = () => {
   return (
     <>
       <Toaster />
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto w-[65vw]">
         <div className="flex flex-row justify-between my-3 mx-3 gap-10">
           <Search onSearch={handleSearch} onClear={handleClearSearch} />
           {data?.user?.role === 'SUPER_ADMIN' ? <AddStoreButton /> : ''}
         </div>
-        <table className="table w-full">
+        <table className="table w-[100%]">
           <thead>
             <tr>
               <th>Id</th>

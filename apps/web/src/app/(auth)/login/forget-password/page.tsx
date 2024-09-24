@@ -14,6 +14,10 @@ export default function Register() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
+    if(!email || email.length < 5){
+      toast.error('Invalid Email')
+      return
+    }
     try {
       const res = await axios.post(`${base_api}/api/auth/user/reset-password`, {
         email,

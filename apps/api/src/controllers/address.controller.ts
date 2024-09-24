@@ -5,6 +5,14 @@ export const createAddress = async (req: Request, res: Response) => {
   try {
     const data = req.body;
 
+    if(data?.isPrimary == true) {
+      await prisma.address.updateMany({
+        data:{
+          isPrimary: false
+        }
+      })
+  }
+
     const address = await prisma.address.create({
       data: {
         ...data,
@@ -16,7 +24,7 @@ export const createAddress = async (req: Request, res: Response) => {
         city: true,
       },
     });
-    res.status(201).json({ message: 'Address created.' });
+    res.status(201).json({ message: 'Address created.', address });
   } catch (error) {
     res.status(500).json({ message: 'Internal server error..' });
   }
@@ -70,6 +78,14 @@ export const editAddress = async (req: Request, res: Response) => {
         data.cityId = Number(data.cityId)
     }
 
+    if(data?.isPrimary == true) {
+        await prisma.address.updateMany({
+          data:{
+            isPrimary: false
+          }
+        })
+    }
+
     const address = await prisma.address.update({
       where: {
         id: Number(id),
@@ -89,3 +105,19 @@ export const editAddress = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Internal server error...', error });
   }
 };
+
+export const getUserAddressById = async (req: Request, res: Response) => {
+  try {
+    const {id} = req.params
+
+  const address = await prisma.address.findUnique({
+    where:{
+      id: Number(id)
+    }
+  })
+
+  res.status(200).json({address})
+  } catch (error) {
+    res.status(500).json({message: 'Error getting the address', error})
+  }
+}

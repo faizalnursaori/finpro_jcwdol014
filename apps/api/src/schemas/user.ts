@@ -1,4 +1,4 @@
-import Email from 'next-auth/providers/email'
+
 import {z} from 'zod'
 
 
@@ -10,9 +10,13 @@ export const setUserDataSchema = z.object({
 
 
 export const editUserDataSchema = z.object({
-    username: z.string().min(3).optional(),
-    name: z.string().min(3).optional(),
-    email : z.string().email().min(5).optional(),
+    username: z.string().min(3),
+    name: z.string().min(3),
+    email : z.string().email().min(5),
     gender: z.string(),
-    mobileNumber: z.number().min(10).optional()
+    mobileNumber: z.number().min(10)
+})
+
+export const changePasswordSchema = z.object({
+    password: z.string().min(3)
 })

@@ -66,15 +66,6 @@ export default function Sidebar() {
           ) : (
             <div></div>
           )}
-          <h2 className="text-xl font-medium mb-2">Categories</h2>
-          {categories.map((category, index) => {
-            return (
-              <li key={index}>
-                <Link href={`/categories/${category}`}>{category}</Link>
-              </li>
-            );
-          })}
-          <div className="divider"></div>
           <li>
             <Link href="/about">About us</Link>
           </li>

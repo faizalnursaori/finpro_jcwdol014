@@ -6,7 +6,7 @@ import { editUserByToken } from '@/api/user';
 import toast from 'react-hot-toast';
 
 export default function SetUserData() {
-  const [data, setData] = useState({});
+  const [data, setData] = useState<any>({});
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [idToken, setIdToken] = useState('')
@@ -25,7 +25,22 @@ export default function SetUserData() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setIsLoading(!isLoading)
+
+    if(!data.name || data.name.length < 3){
+      toast.error('Name must be at least 3 characters')
+      return
+    }
+
+    if(!data.username || data.username.length < 3){
+      toast.error('Username must be at least 3 characters')
+      return
+    }
+
+    if(!data.password || data.password.length < 3){
+      toast.error('Password must be at least 3 characters')
+      return
+    }
+    
    
     if(password !== confirmPassword){
         toast.error('Password Unmatched!')
@@ -34,13 +49,14 @@ export default function SetUserData() {
     }
 
     try {
+      setIsLoading(true)
       await editUserByToken(params.token, data);
-      setIsLoading(!isLoading)
+      setIsLoading(false)
       toast.success('Regristation Success! Welcome to Hemart.')
       router.push('/login');
     } catch (err) {
       setError('Registration failed. Please try again.');
-      setIsLoading(!isLoading)
+      setIsLoading(false)
     }
   };
 

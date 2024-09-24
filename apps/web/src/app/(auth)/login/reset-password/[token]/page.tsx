@@ -15,6 +15,10 @@ export default function ChangePasswordCard() {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) =>{
       e.preventDefault()
       setIsLoading(true)
+
+      if(!password || password.length < 3){
+        toast.error('Password must be at least 3 characters')
+      }
       
       if(password !== confirmPassword) {
         toast.error('Password unmatched!')

@@ -14,13 +14,13 @@ export const warehouseSchema = z.object({
 })
 
 export const editWarehouseSchema = z.object({
-    name: z.string().min(3).optional(),
-    address: z.string().optional(),
+    name: z.string().min(3),
+    address: z.string(),
     provinceId: z.number().optional(),
     cityId: z.string().optional(),
-    postalCode: z.string().min(3).optional(),
-    latitude: z.string().optional(),
-    longitude: z.string().optional(),
-    storeRadius: z.string().optional(),
+    postalCode: z.string().min(3),
+    latitude: z.string(),
+    longitude: z.string(),
+    storeRadius: z.string(),
     userId: z.number().optional()
 })

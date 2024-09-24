@@ -37,23 +37,7 @@ export default function Footer() {
               <Link className="hover:underline" href=""></Link>
             </div>
           </div>
-          <div className="flex flex-col gap-4">
-            <p className="font-bold text-xs">CATEGORIES</p>
-            <div className="flex flex-col gap-2 text-sm">
-              <p></p>
-              {categories.map((category, index) => {
-                return (
-                  <Link
-                    className="hover:underline"
-                    href={`/category/${category}`}
-                    key={index}
-                  >
-                    {category}
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
+          
           <div className="flex flex-col gap-6">
             <p className="font-bold text-xs">SUPPORT HOTLINE</p>
             <div>

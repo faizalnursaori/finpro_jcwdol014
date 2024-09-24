@@ -4,30 +4,53 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { FaGoogle, FaGithub } from "react-icons/fa";
 import { signIn } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import toast, {Toaster} from 'react-hot-toast';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter()
   
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    if(!email){
+      toast.error('Invalid email/username or password')
+      return
+    }
 
+    if(!password || password.length < 3){
+      toast.error('Invalid email/username or password')
+      return
+    }
     try {
-      const data = await signIn('credentials', {callbackUrl: '/', email, password})
-      
+      setIsLoading(true)
+      const data = await signIn('credentials', {redirect: false, email, password})
+      console.log(data);
+      if(data?.ok == false){
+        toast.error(data?.error)
+        setIsLoading(false)
+        return
+      }
+      setIsLoading(false)
+      router.push('/')
     } catch (err) {
       console.error('Login error:', err); // Log the full error
+      toast.error('Login error')
       setError(
         err instanceof Error ? err.message : 'An unexpected error occurred',
       );
+      setIsLoading(false)
     }
   };
 
   return (
+    <>
+    <Toaster/>
     <div className="bg-base-100 flex flex-col justify-center items-center gap-6">
       <h2 className="font-bold text-2xl">ACCOUNT LOGIN</h2>
       <p className="font-medium text-center">
@@ -119,5 +142,6 @@ export default function Login() {
         </form>
       </div>
     </div>
+    </>
   );
 }

@@ -22,23 +22,35 @@ export default function ChangePasswordCard() {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) =>{
       e.preventDefault()
-      
+      if(!password || password.length < 3){
+        toast.error('Passwrod must be at least 3 characters.')
+        return
+      }
+      try {
+        setIsLoading(true)
       if(password !== confirmPassword) {
         toast.error('Password unmatched!')
+        setIsLoading(false)
         return
       }
 
-      await editUserPassword(data?.user?.id, newData)
+      await editUserPassword(data?.user?.id as string, newData)
+      setIsLoading(false)
       toast.success('Password changed')
       router.push('/profile')
-
-      
+      } catch (error) {
+        console.log(error);
+        toast.error('Failed Updating Password.')
+        setIsLoading(false)
+        
+      }
+ 
     }
 
   return (
     <>
     <Toaster/>
-    <div className="card card-compact bg-base-100 shadow-xl h-fit w-[40vw] p-5">
+    <div className="card card-compact bg-base-100 shadow-xl h-fit sm:w-[40vw] w-[100vw] p-5">
       <div>
         <form className="form-control gap-4" onSubmit={handleSubmit}>
           <div className="form-control relative focus-within:border-white">

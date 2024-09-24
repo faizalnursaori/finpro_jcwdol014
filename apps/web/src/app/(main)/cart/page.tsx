@@ -1,5 +1,4 @@
 'use client';
-
 import { useState, useEffect } from 'react';
 import { useCart } from '../../../context/CartContext';
 import Link from 'next/link';
@@ -9,20 +8,31 @@ import CheckoutSummary from '@/components/CheckOutSummary';
 import { formatRupiah } from '@/utils/currencyUtils';
 import { ConfirmationDeleteCart } from '@/components/ConfirmationDeleteCart';
 import CartTable from '@/components/CartTable';
+import { getCart } from '@/api/cart';
+import { useSession } from 'next-auth/react';
 
 const CartPage = () => {
+  const {data} = useSession()
   const { cart, fetchCart, updateItemQuantity, removeItem } = useCart();
+  const[keranjang, setKeranjang] = useState<any>()
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<number | null>(null);
 
+  const getCartData = async () =>{
+    const res = await getCart(data?.user?.id as string)
+    setKeranjang(res.cart)
+    
+  }
+
   useEffect(() => {
     setIsLoading(true);
+    getCartData()
     fetchCart()
       .catch((err) => setError(err.message))
       .finally(() => setIsLoading(false));
-  }, []);
+  }, [data?.user]);
 
   const handleUpdateQuantity = async (itemId: number, newQuantity: number) => {
     try {
@@ -51,12 +61,12 @@ const CartPage = () => {
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
-  if (!cart || cart.items.length === 0) return <EmptyCart />;
+  if (!keranjang || keranjang.items.length === 0) return <EmptyCart />;
 
-  const totalPrice = cart.items.reduce(
-    (total, item) => total + item.product.price * item.quantity,
-    0,
-  );
+  // const totalPrice = keranjang.items.reduce(
+  //   (total: any, item: any) => total + item.product.price * item.quantity,
+  //   0,
+  // );
 
   return (
     <div className="container mx-6 p-4">
@@ -73,7 +83,7 @@ const CartPage = () => {
         </div>
       </div>
       <CartTable
-        items={cart.items}
+        items={keranjang.items}
         onUpdateQuantity={handleUpdateQuantity}
         onRemoveItem={handleRemoveItem}
       />

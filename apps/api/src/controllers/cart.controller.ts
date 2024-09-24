@@ -8,6 +8,7 @@ import {
   removeItem,
   deactivateCart,
 } from '../services/cart.services';
+import prisma from '@/prisma';
 
 interface AuthenticatedRequest extends Request {
   user?: {
@@ -40,6 +41,26 @@ export const getCart = async (req: AuthenticatedRequest, res: Response) => {
     }
 
     const cart = await getOrCreateCart(userId);
+
+    res.status(200).json({ message: 'Get cart success', cart: cart });
+  } catch (error) {
+    console.error('Error in getCart controller:', error);
+    res.status(500).json({ error: 'Failed to get cart' });
+  }
+};
+
+export const getCartById = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const {id} = req.params
+
+    const cart = await prisma.cart.findUnique({
+      where: {id: Number(id)},
+      include: {items: {
+        include: {
+          product: true
+        }
+      }}
+    });
 
     res.status(200).json({ message: 'Get cart success', cart: cart });
   } catch (error) {
