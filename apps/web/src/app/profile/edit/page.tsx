@@ -9,13 +9,15 @@ import { User } from '@/types/user';
 export default function Edit() {
   const { data, update } = useSession();
   const [image, setImage] = useState<File | null>(null);
-  const [Userdata, setData] = useState<User>({username: data?.user?.username,
+  const [Userdata, setData] = useState<User>({
+    username: data?.user?.username,
     email: data?.user?.email,
     isVerified: data?.user?.isVerified,
     image: data?.user?.image,
     name: data?.user?.name,
     mobileNumber: data?.user?.mobileNumber,
-    gender: data?.user?.gender});
+    gender: data?.user?.gender,
+  });
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
@@ -23,7 +25,6 @@ export default function Edit() {
     if (e.target.files && e.target.files[0]) {
       setImage(e.target.files[0]);
       console.log(e.target.files[0]);
-      
     }
   };
 
@@ -37,7 +38,8 @@ export default function Edit() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (Userdata.email != '' && Userdata.email != data?.user?.email) Userdata.isVerified = "false";
+    if (Userdata.email != '' && Userdata.email != data?.user?.email)
+      Userdata.isVerified = 'false';
 
     try {
       const formData = new FormData();
@@ -47,9 +49,9 @@ export default function Edit() {
       });
 
       if (image) {
-        formData.append("image", image);
+        formData.append('image', image);
       }
-            
+
       await editUser(data?.user?.id, formData);
       update({
         username: Userdata.username,
@@ -57,7 +59,7 @@ export default function Edit() {
         isVerified: Userdata.isVerified,
         name: Userdata.name,
         mobileNumber: Userdata.mobileNumber,
-        gender: Userdata.gender
+        gender: Userdata.gender,
       });
 
       toast.success('Profile Updated!');
@@ -94,7 +96,6 @@ export default function Edit() {
                 name="username"
                 id="username"
                 placeholder=""
-
                 className="peer input input-bordered relative z-0 w-full focus:outline-none"
               />
               <label
@@ -143,10 +144,10 @@ export default function Edit() {
                 id="gender"
                 onChange={handleChangeSelect}
               >
-                <option className='text-md' disabled selected>
+                <option className="text-md" disabled selected>
                   Gender
                 </option>
-                <option className='text-md'>Male</option>
+                <option className="text-md">Male</option>
                 <option>Female</option>
               </select>
               <label

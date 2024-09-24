@@ -105,7 +105,7 @@ export default function LandingProducts({ catHeader, products }: Props) {
           {filteredProducts?.map((product, index) => (
             <div key={index} className="card card-compact max-w-[200px]">
               <div className="card-body">
-                {/* <figure className="bg-base-200 rounded-md max-w-[150px] max-h-[150px]">
+                <figure className="bg-base-200 rounded-md max-w-[150px] max-h-[150px]">
                   <Image
                     src={`${product.productImages[0].url}`}
                     alt={product.name}
@@ -113,7 +113,7 @@ export default function LandingProducts({ catHeader, products }: Props) {
                     height={150}
                     className="max-w-[150px] max-h-[150px]"
                   />
-                </figure> */}
+                </figure>
                 <Link
                   href={`/products/${product.slug}`}
                   className="card-title hover:underline hover:text-success duration-500"

@@ -19,7 +19,6 @@ export interface Category {
   id: number;
   name: string;
   slug: string;
-  createdAt: Date;
 }
 
 export const CategoryTable = () => {
