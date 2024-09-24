@@ -9,11 +9,11 @@ export default function Sidebar() {
   const { data } = useSession();
 
   const categories = [
-    'Rice & Flour',
-    'Fruits & Vegetables',
-    'Instan Food',
+    'Rice and Flour',
+    'Fruits and Vegetables',
+    'Instant Food',
     'Beverages',
-    'Snacks & Biscuits',
+    'Snacks and Biscuits',
     'Frozen',
   ];
   return (
@@ -51,9 +51,10 @@ export default function Sidebar() {
               <li>
                 <Link href="/profile">My Profile</Link>
               </li>
-              {data?.user?.role == 'SUPER_ADMIN' ? (
+              {data?.user?.role == 'SUPER_ADMIN' ||
+              data?.user?.role == 'ADMIN' ? (
                 <li>
-                  <Link href="/dashboard/product-management">Dashboard</Link>
+                  <Link href="/dashboard">Dashboard</Link>
                 </li>
               ) : (
                 ''
@@ -70,7 +71,7 @@ export default function Sidebar() {
           {categories.map((category, index) => {
             return (
               <li key={index}>
-                <Link href={`/categories/${category}`}>{category}</Link>
+                <Link href={`/search?query=${category}`}>{category}</Link>
               </li>
             );
           })}
