@@ -95,7 +95,7 @@ export default function Header() {
                 {(data?.user?.role === 'SUPER_ADMIN' ||
                   data?.user?.role === 'ADMIN') && (
                   <li>
-                    <Link href="/dashboard/product-management">Dashboard</Link>
+                    <Link href="/dashboard">Dashboard</Link>
                   </li>
                 )}
                 <li>

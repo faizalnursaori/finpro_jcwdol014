@@ -22,12 +22,8 @@ export default function Home() {
 
   const getProducts = async (id: number | undefined) => {
     const res = await axios.get(
-      `${process.env.NEXT_PUBLIC_BASE_API_URL}/products/`,
+      `${process.env.NEXT_PUBLIC_BASE_API_URL}products/`,
     );
-
-    // const filteredProducts = res.data.filter((item: ProductType) =>
-    //   `${process.env.NEXT_PUBLIC_BASE_API_URL}products/`,
-    // );
 
     const filteredProducts = res.data.products.filter((item: ProductType) =>
       item.productStocks.some((stock) => stock.warehouse.id === id),

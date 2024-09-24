@@ -2,8 +2,7 @@
 import express from 'express';
 import { ProductController } from '../controllers/product.controller';
 import {
-  AdminGuard,
-  authenticateToken,
+  authenticateToken2,
   SuperAdminGuard,
 } from '@/middleware/auth.middleware';
 import { uploadMiddleware } from '@/middleware/uploaderProduct';
@@ -16,21 +15,21 @@ router.get('/:id', productController.getProductById);
 router.get('/slug/:slug', productController.getProductBySlug);
 router.post(
   '/',
-  authenticateToken,
+  authenticateToken2,
   SuperAdminGuard,
   uploadMiddleware,
   productController.createProduct,
 );
 router.put(
   '/:id',
-  authenticateToken,
+  authenticateToken2,
   SuperAdminGuard,
   uploadMiddleware,
   productController.updateProduct,
 );
 router.delete(
   '/:id',
-  authenticateToken,
+  authenticateToken2,
   SuperAdminGuard,
   productController.deleteProduct,
 );
