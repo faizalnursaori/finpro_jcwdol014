@@ -27,7 +27,7 @@ export const getClosestWarehouse = async () => {
 export const getWarehouses = async () => {
   try {
     const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_BASE_API_URL}warehouses`,
+      `${process.env.NEXT_PUBLIC_BASE_API_URL}/warehouses`,
     );
     return response.data.warehouses;
   } catch (error) {
@@ -52,8 +52,6 @@ export const getWarehouseId = async (userId: string): Promise<number> => {
     const response = await axios.get(
       `${process.env.NEXT_PUBLIC_BASE_API_URL}/warehouses/user/${userId}`,
     );
-    console.log(response.data.warehouse);
-
     return response.data.warehouse;
   } catch (error) {
     console.error('Error fetching warehouseId:', error);

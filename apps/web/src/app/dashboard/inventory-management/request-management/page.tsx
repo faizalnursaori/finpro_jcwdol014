@@ -11,7 +11,7 @@ export default function RequestManagement() {
     <div className="flex flex-col">
       {data?.user?.role === 'SUPER_ADMIN' || data?.user?.role === 'ADMIN' ? (
         <>
-          <div className="flex flex-row justify-between">
+          <div className="flex flex-row justify-between min-w-full">
             <h2 className="text-xl my-4">Request Inventory Management</h2>
           </div>
           <RequestStock />

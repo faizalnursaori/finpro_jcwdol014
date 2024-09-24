@@ -24,8 +24,6 @@ const CreateVoucherForm: React.FC = () => {
     const loadProducts = async () => {
       try {
         const fetchedProducts = await getProducts();
-        console.log(fetchedProducts);
-
         setProducts(fetchedProducts.products);
       } catch (error) {
         console.error(error.message);

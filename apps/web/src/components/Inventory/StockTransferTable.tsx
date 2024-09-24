@@ -32,11 +32,11 @@ export default function StockTransferTable() {
         let res;
 
         if (data?.user?.role === 'SUPER_ADMIN') {
-          res = await axios.get(`${API_URL}stock-transfers`);
+          res = await axios.get(`${API_URL}/stock-transfers`);
         } else if (data?.user?.role === 'ADMIN') {
           const warehouse = await getWarehouseId(data.user.id);
           if (warehouse) {
-            res = await axios.get(`${API_URL}stock-transfers/${warehouse.id}`);
+            res = await axios.get(`${API_URL}/stock-transfers/${warehouse.id}`);
           } else {
             console.error('Warehouse not found for this admin');
             return;
