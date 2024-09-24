@@ -59,7 +59,6 @@ export const OrderProvider: React.FC<{ children: ReactNode }> = ({
           headers: getHeaders(),
         });
       }
-      console.log('Checkout successful', response.data);
       setCurrentOrder(response.data);
 
       // Reset the cart after successful checkout
@@ -79,7 +78,6 @@ export const OrderProvider: React.FC<{ children: ReactNode }> = ({
         { orderId },
         { headers: getHeaders() },
       );
-      console.log('Order payment confirmed', response.data);
       setCurrentOrder(response.data);
     } catch (error) {
       console.error('Order payment confirmation failed', error);
@@ -94,7 +92,6 @@ export const OrderProvider: React.FC<{ children: ReactNode }> = ({
         { orderId },
         { headers: getHeaders() },
       );
-      console.log('Order received confirmed', response.data);
       setCurrentOrder(response.data);
     } catch (error) {
       console.error('Order received confirmation failed', error);
@@ -109,7 +106,6 @@ export const OrderProvider: React.FC<{ children: ReactNode }> = ({
         { orderId, source },
         { headers: getHeaders() },
       );
-      console.log('Order canceled', response.data);
       setCurrentOrder(null);
     } catch (error) {
       console.error('Order cancellation failed', error);
@@ -133,7 +129,6 @@ export const OrderProvider: React.FC<{ children: ReactNode }> = ({
           },
         },
       );
-      console.log('Proof uploaded', response.data);
       await fetchOrder(orderId);
     } catch (error) {
       console.error('Proof upload failed', error);
@@ -144,7 +139,6 @@ export const OrderProvider: React.FC<{ children: ReactNode }> = ({
   const checkStock = async (data: any) => {
     try {
       const response = await axios.post(`${baseApi}/orders/check-stock`, data);
-      console.log('Stock checked', response.data);
       return response.data;
     } catch (error) {
       console.error('Stock check failed', error);

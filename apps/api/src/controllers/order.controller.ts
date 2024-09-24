@@ -173,12 +173,22 @@ export const confirmOrderPayment = async (
       return res.status(400).json({ error: 'Valid userId is required' });
     }
 
-    const { orderId } = req.body;
+    const { orderId, isPaymentAccepted } = req.body;
     if (!orderId || typeof orderId !== 'number') {
       return res.status(400).json({ error: 'Valid orderId is required' });
     }
 
-    const confirmedPayment = await confirmPayment(userId, orderId);
+    if (typeof isPaymentAccepted !== 'boolean') {
+      return res
+        .status(400)
+        .json({ error: 'Valid isPaymentAccepted is required' });
+    }
+
+    const confirmedPayment = await confirmPayment(
+      userId,
+      orderId,
+      isPaymentAccepted,
+    );
     res.status(200).json({ success: true, order: confirmedPayment });
   } catch (error) {
     console.error('Error confirming payment:', error);
