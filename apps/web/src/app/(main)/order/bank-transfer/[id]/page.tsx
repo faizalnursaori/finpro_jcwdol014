@@ -7,11 +7,13 @@ import { useOrder } from '@/context/OrderContext';
 import { formatRupiah } from '@/utils/currencyUtils';
 import Countdown from 'react-countdown';
 import Cookies from 'js-cookie';
+import { toast } from 'react-hot-toast';
 
 const OrderDetail = () => {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedBank, setSelectedBank] = useState<any>(null); // For storing bank data
   const { id } = useParams();
   const router = useRouter();
   const { cancelOrder } = useOrder();
@@ -26,6 +28,12 @@ const OrderDetail = () => {
   const baseApiUrl = process.env.NEXT_PUBLIC_BASE_API_URL;
 
   useEffect(() => {
+    // Retrieve the selected bank from localStorage
+    const bank = localStorage.getItem('selectedBank');
+    if (bank) {
+      setSelectedBank(JSON.parse(bank));
+    }
+
     const fetchOrderDetail = async () => {
       try {
         const response = await fetch(`${baseApiUrl}/orders/${id}`, {
@@ -56,14 +64,14 @@ const OrderDetail = () => {
     if (!order) return;
     try {
       await cancelOrder(order.id, 'USER');
-      alert('Order cancelled successfully');
+      toast.success('Order cancelled successfully');
       setOrder({ ...order, paymentStatus: 'CANCELED' as PaymentStatus });
       if (countdownRef.current) {
         countdownRef.current.stop();
       }
     } catch (error) {
       console.error('Order cancellation failed', error);
-      alert('Failed to cancel order.');
+      toast.error('Failed to cancel order.');
     }
   };
 
@@ -170,17 +178,12 @@ const OrderDetail = () => {
           <div className="mt-6">
             <h3 className="text-xl font-semibold mb-2">Order Items</h3>
             <ul className="list-disc pl-5">
-              {order.items.map((item) => {
-                //Console log each item
-                // console.log('Rendering item:', item);
-
-                return (
-                  <li key={item.id}>
-                    {item.product.name} - Quantity: {item.quantity} - Price:{' '}
-                    {formatRupiah(item.price * item.quantity)}
-                  </li>
-                );
-              })}
+              {order.items.map((item) => (
+                <li key={item.id}>
+                  {item.product.name} - Quantity: {item.quantity} - Price:{' '}
+                  {formatRupiah(item.price * item.quantity)}
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -198,6 +201,26 @@ const OrderDetail = () => {
               </p>
             </div>
           )}
+
+          <div className="mt-6">
+            {selectedBank && (
+              <div className="collapse collapse-arrow bg-base-200">
+                <input type="checkbox" />
+                <div className="collapse-title text-xl font-medium">
+                  {selectedBank.name} Instructions
+                </div>
+                <div className="collapse-content">
+                  <ul className="list-disc pl-5">
+                    {selectedBank.instructions.map(
+                      (instruction: string, index: number) => (
+                        <li key={index}>{instruction}</li>
+                      ),
+                    )}
+                  </ul>
+                </div>
+              </div>
+            )}
+          </div>
 
           <div className="card-actions justify-end mt-6">
             {isPending && (
