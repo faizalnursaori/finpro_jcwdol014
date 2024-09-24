@@ -403,7 +403,11 @@ export const confirmOrder = async (userId: number, orderId: number) => {
   });
 };
 
-export const confirmPayment = async (userId: number, orderId: number) => {
+export const confirmPayment = async (
+  userId: number,
+  orderId: number,
+  isPaymentAccepted: boolean,
+) => {
   return await prisma.$transaction(async (tx) => {
     const order = await tx.order.findFirst({
       where: {
@@ -422,24 +426,35 @@ export const confirmPayment = async (userId: number, orderId: number) => {
       throw new Error('Order not found or cannot confirm payment');
     }
 
-    const updatedOrder = await tx.order.update({
-      where: { id: orderId },
-      data: {
-        paymentStatus: PaymentStatus.PAID,
-      },
-    });
+    if (isPaymentAccepted) {
+      const updatedOrder = await tx.order.update({
+        where: { id: orderId },
+        data: {
+          paymentStatus: PaymentStatus.PAID,
+        },
+      });
 
-    // Create a transaction history entry
-    await tx.transactionHistory.create({
-      data: {
-        userId: userId,
-        orderId: orderId,
-        amount: order.total,
-        type: TransactionType.PURCHASE,
-      },
-    });
+      await tx.transactionHistory.create({
+        data: {
+          userId: userId,
+          orderId: orderId,
+          amount: order.total,
+          type: TransactionType.PURCHASE,
+        },
+      });
 
-    return updatedOrder;
+      return updatedOrder;
+    } else {
+      const updatedOrder = await tx.order.update({
+        where: { id: orderId },
+        data: {
+          paymentStatus: PaymentStatus.PENDING,
+          paymentProof: null,
+        },
+      });
+
+      return updatedOrder;
+    }
   });
 };
 

@@ -14,9 +14,7 @@ export default function Header() {
   const router = useRouter();
   const { cartItemCount, clearCart } = useCart();
 
-  useEffect(() => {
-    console.log('Header Cart item count:', cartItemCount);
-  }, [cartItemCount]);
+  useEffect(() => {}, [cartItemCount]);
 
   // Efek untuk mendeteksi logout
   useEffect(() => {

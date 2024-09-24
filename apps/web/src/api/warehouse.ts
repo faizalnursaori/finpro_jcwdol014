@@ -3,25 +3,33 @@ import { haversineDistance } from '@/utils/getClosestStore';
 import { getUserCurrentLocation } from '@/utils/getUserCurrentLocation';
 
 export const getClosestWarehouse = async () => {
-  const res = await axios.get(
-    `${process.env.NEXT_PUBLIC_BASE_API_URL}/warehouses/`,
-  );
-  const data = res.data.warehouses;
-  const userLoc = getUserCurrentLocation();
-  let distance = 0;
-  let wareId = 1; //default store
-  data?.forEach((warehouse: any) => {
-    const result = haversineDistance(
-      [userLoc.lon, userLoc.lat],
-      [warehouse.longitude, warehouse.latitude],
+  try {
+    const res = await axios.get(
+      `${process.env.NEXT_PUBLIC_BASE_API_URL}/warehouses/`,
     );
-    if (distance < result) {
-      distance = result;
-      wareId = warehouse.id;
-    }
-  });
+    const data = res.data.warehouses;
+    const userLoc = await getUserCurrentLocation();
 
-  return wareId;
+    let closestDistance = Infinity; // Atur jarak default ke yang sangat besar
+    let closestWarehouseId = null; // Default warehouse null sampai ditemukan yang terdekat
+
+    data?.forEach((warehouse: any) => {
+      const distance = haversineDistance(
+        [userLoc?.lon as number, userLoc?.lat as number],
+        [warehouse.longitude, warehouse.latitude],
+      );
+
+      // Simpan gudang yang memiliki jarak terdekat
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestWarehouseId = warehouse.id;
+      }
+    });
+
+    return closestWarehouseId; // Mengembalikan ID gudang terdekat
+  } catch (error) {
+    console.error('Error getting closest warehouse:', error);
+  }
 };
 
 export const getWarehouseByUserId = async (userId: number) => {

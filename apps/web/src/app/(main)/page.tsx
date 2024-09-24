@@ -11,13 +11,19 @@ import 'dotenv/config';
 
 export default function Home() {
   const [userLoc, setUserLoc] = useState<{ lon: number; lat: number }>();
-  const [closestWarehouseId, setClosestWarehouseId] = useState<number>(1);
+  const [closestWarehouseId, setClosestWarehouseId] = useState<
+    number | undefined
+  >(1);
   const [products, setProducts] = useState<ProductType[]>([]);
   const { addToCart, fetchCart, cart } = useCart();
 
   const getWarehouseId = async () => {
     const data = await getClosestWarehouse();
-    setClosestWarehouseId(data);
+    if (data !== null) {
+      setClosestWarehouseId(data);
+    } else {
+      setClosestWarehouseId(1);
+    }
   };
 
   const getProducts = async (id: number | undefined) => {
