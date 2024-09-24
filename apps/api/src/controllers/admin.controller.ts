@@ -208,6 +208,7 @@ export const createAdmin = async (req: Request, res: Response) => {
         isVerified,
         image,
         password: hashedPassword,
+        updatedAt: ''
       },
     });
 

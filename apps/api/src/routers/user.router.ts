@@ -3,12 +3,12 @@ import { updateUser, getUserByEmail, updateUserPassword, updateUserByToken, rese
 import upload from '@/middleware/uploader';
 import { validate } from '@/middleware/validate';
 import { setUserDataSchema, changePasswordSchema } from '@/schemas/user';
-import { authenticateToken } from '@/middleware/auth.middleware';
+import { authenticateToken2 } from '@/middleware/auth.middleware';
 const router = express.Router();
 
 router.post('/', createUser)
-router.put('/:id',upload.single("image"),authenticateToken,updateUser)
-router.put('/password/:id',authenticateToken,validate(changePasswordSchema), updateUserPassword)
+router.put('/:id',upload.single("image"),authenticateToken2,updateUser)
+router.put('/password/:id',authenticateToken2,validate(changePasswordSchema), updateUserPassword)
 router.put('/register/:token',validate(setUserDataSchema) ,updateUserByToken)
 router.put('/reset-password/:token',validate(changePasswordSchema) ,resetUserPassword)
 router.get('/:email', getUserByEmail)

@@ -9,7 +9,8 @@ import { User } from '@/types/user';
 export default function Edit() {
   const { data, update } = useSession();
   const [image, setImage] = useState<File | null>(null);
-  const [Userdata, setData] = useState<User>({username: data?.user?.username,
+  const [Userdata, setData] = useState<User>({
+    username: data?.user?.username,
     email: data?.user?.email,
     isVerified: data?.user?.isVerified,
     image: data?.user?.image,
@@ -26,7 +27,6 @@ export default function Edit() {
         return
       }
       setImage(e.target.files[0]);
-      console.log(e.target.files[0].size);
       
     }
   };
@@ -72,9 +72,9 @@ export default function Edit() {
       });
 
       if (image) {
-        formData.append("image", image);
+        formData.append('image', image);
       }
-            
+
       await editUser(data?.user?.id, formData);
       update({
         username: Userdata.username,
@@ -82,7 +82,7 @@ export default function Edit() {
         isVerified: Userdata.isVerified,
         name: Userdata.name,
         mobileNumber: Userdata.mobileNumber,
-        gender: Userdata.gender
+        gender: Userdata.gender,
       });
       setIsLoading(false)
       toast.success('Profile Updated!');
@@ -178,10 +178,10 @@ export default function Edit() {
                 id="gender"
                 onChange={handleChangeSelect}
               >
-                <option className='text-md' disabled selected>
+                <option className="text-md" disabled selected>
                   Gender
                 </option>
-                <option className='text-md'>Male</option>
+                <option className="text-md">Male</option>
                 <option>Female</option>
               </select>
               <label

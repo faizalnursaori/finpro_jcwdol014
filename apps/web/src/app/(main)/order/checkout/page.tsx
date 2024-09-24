@@ -9,14 +9,13 @@ import OrderDetails from '@/components/OrderDetail';
 import Image from 'next/image';
 import { paymentMethods } from '@/utils/paymentList';
 import BankInstructionsModal from '@/components/BankInstructionModal';
-//=================================================
 import { useSession } from 'next-auth/react';
 import { getCart } from '@/api/cart';
+import { Toaster, toast } from 'react-hot-toast';
 
 const OrderProcessingPage = () => {
   const {data} = useSession()
   const[keranjang, setKeranjang] = useState<any>()
-  //=============================================
   const { cart } = useCart();
   const { checkout, checkStock } = useOrder();
   const [closestWarehouseId, setClosestWarehouseId] = useState<number | null>(
@@ -26,7 +25,6 @@ const OrderProcessingPage = () => {
   const [orderId, setOrderId] = useState<number | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<string>('');
   const [selectedBank, setSelectedBank] = useState<string>('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedBankData, setSelectedBankData] = useState<
     (typeof paymentMethods)[0] | null
   >(null);
@@ -65,6 +63,7 @@ const OrderProcessingPage = () => {
         } catch (error) {
           console.error('Stock check failed', error);
           setIsStockAvailable(false);
+          toast.error('Some items in your order are out of stock.');
         }
       }
     };
@@ -75,17 +74,18 @@ const OrderProcessingPage = () => {
   const handleBankSelection = (bank: (typeof paymentMethods)[0]) => {
     setSelectedBank(bank.name);
     setSelectedBankData(bank);
-    setIsModalOpen(true);
+
+    localStorage.setItem('selectedBank', JSON.stringify(bank));
   };
 
   const handleCheckout = async () => {
     if (!isStockAvailable) {
-      alert('Sorry, some items in your order are out of stock.');
+      toast.error('Sorry, some items in your order are out of stock.');
       return;
     }
 
-    if (!keranjang || !closestWarehouseId) {
-      alert('Unable to process order. Please try again.');
+    if (!cart || !closestWarehouseId) {
+      toast.error('Unable to process order. Please try again.');
       return;
     }
 
@@ -122,6 +122,8 @@ const OrderProcessingPage = () => {
       const response = await checkout(orderData);
       setOrderId(response.orderId);
 
+      toast.success('Order placed successfully!');
+
       if (paymentMethod === 'PAYMENT_GATEWAY') {
         router.push(`/order/payment-gateway/${response.orderId}`);
       } else if (paymentMethod === 'BANK_TRANSFER') {
@@ -131,12 +133,13 @@ const OrderProcessingPage = () => {
       }
     } catch (error) {
       console.error('Checkout failed', error);
-      alert('Failed to process your order. Please try again.');
+      toast.error('Failed to process your order. Please try again.');
     }
   };
 
   return (
     <div className="container mx-auto p-4">
+      <Toaster position="top-center" reverseOrder={false} />
       <h1 className="text-2xl font-bold mb-4">Order Processing</h1>
       {keranjang && <OrderDetails cart={keranjang} warehouseId={closestWarehouseId} />}
       <div className="mb-4">
@@ -208,12 +211,6 @@ const OrderProcessingPage = () => {
       >
         Place Order
       </button>
-
-      <BankInstructionsModal
-        bank={selectedBankData}
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      />
     </div>
   );
 };

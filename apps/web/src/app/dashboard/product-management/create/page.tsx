@@ -103,7 +103,6 @@ const CreateProductPage: React.FC = () => {
 
     formData.images.forEach((image) => {
       formPayload.append('images', image);
-      console.log(formPayload);
     });
 
     try {

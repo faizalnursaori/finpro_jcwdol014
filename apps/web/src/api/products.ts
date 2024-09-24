@@ -4,7 +4,6 @@ import axios from 'axios';
 import { cookies } from 'next/headers';
 import { FormData } from '@/app/dashboard/product-management/create/page';
 
-const base_api = process.env.BASE_API_PRODUCT;
 const API_URL = process.env.BASE_API_PRODUCT;
 
 export interface FormDataUpdate {
@@ -17,7 +16,7 @@ export interface FormDataUpdate {
 
 export const getProducts = async () => {
   try {
-    const res = await axios.get(`${base_api}/products/`);
+    const res = await axios.get(`${API_URL}`);
     return res.data;
   } catch (error) {
     console.log(error);

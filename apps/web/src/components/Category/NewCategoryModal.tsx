@@ -25,7 +25,6 @@ export const NewCategoryModal: React.FC<NewCategoryModalProps> = ({
     const newCategory = {
       name,
       slug,
-      createdAt: new Date(),
     };
 
     try {
@@ -33,10 +32,8 @@ export const NewCategoryModal: React.FC<NewCategoryModalProps> = ({
       if (!res.ok) {
         throw new Error(res.message || 'Failed to update category');
       }
-
-      onAdd(res.data as Category);
+      onAdd(res.data.data as Category);
       setSuccess('Category added successfully!');
-
       setTimeout(() => {
         onClose();
         setName('');
