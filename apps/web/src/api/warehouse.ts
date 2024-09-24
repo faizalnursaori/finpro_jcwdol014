@@ -9,8 +9,15 @@ const token = cookies().get('next-auth.session-token')?.value;
 
 export const getClosestWarehouse = async () => {
   try {
-    const res = await axios.get(
-      `${process.env.NEXT_PUBLIC_BASE_API_URL}/warehouses/`,
+  const res = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/warehouses/`);
+  const data = res.data.warehouses;
+  const userLoc = getUserCurrentLocation();
+  let distance = 0;
+  let wareId = 1; //default store
+  data?.forEach(async (warehouse: any) => {
+    const result = haversineDistance(
+      [userLoc.lon, userLoc.lat],
+      [warehouse.longitude, warehouse.latitude],
     );
     const data = res.data.warehouses;
     const userLoc = await getUserCurrentLocation();
@@ -28,7 +35,7 @@ export const getClosestWarehouse = async () => {
     });
 
     return wareId;
-  } catch (error) {
+  })} catch (error) {
     console.log(error);
   }
 };
@@ -177,5 +184,42 @@ export const searchWarehouse = async (query: string) => {
     return { ok: true, data: res.data };
   } catch (error) {
     return { ok: false, message: 'Warehouse not found.' };
+  }
+};
+
+export const getWarehouses = async () => {
+  try {
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_BASE_API_URL}warehouses`,
+    );
+    return response.data.warehouses;
+  } catch (error) {
+    throw new Error('Failed to fetch stores');
+  }
+};
+
+export const getWarehouseByUserId = async (userId: number) => {
+  try {
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_BASE_API_URL}/warehouses/user/${userId}`,
+    );
+    return response.data.warehouse;
+  } catch (error) {
+    console.error('Error fetching warehouse by user ID:', error);
+    throw error;
+  }
+};
+
+export const getWarehouseId = async (userId: string): Promise<number> => {
+  try {
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_BASE_API_URL}warehouses/user/${userId}`,
+    );
+    console.log(response.data.warehouse);
+
+    return response.data.warehouse;
+  } catch (error) {
+    console.error('Error fetching warehouseId:', error);
+    throw new Error('Failed to fetch warehouseId');
   }
 };

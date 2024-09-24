@@ -7,74 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id                 Int                  @id @default(autoincrement())
-  username           String              
-  email              String               @unique
-  password           String
-  isVerified         Boolean              @default(false)
-  role               Role                 @default(USER)
-  image              String               @default("/profile.jpg")
-  provider           String?
-  name               String?
-  gender             String?
-  dob                DateTime?
-  mobileNumber       String?
-  referralCode       String?              @unique
-  referredBy         String?
-  createdAt          DateTime             @default(now())
-  updatedAt          DateTime             @updatedAt
-  addresses          Address[]
-  carts              Cart[]
-  warehouse          Warehouse?
-  userVouchers       UserVoucher[]
-  transactionHistory TransactionHistory[]
-}
-
-enum Role {
-  SUPER_ADMIN
-  ADMIN
-  USER
-}
-
-model Category {
-  id        Int       @id @default(autoincrement())
-  slug      String    @unique
-  name      String    @unique
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  products  Product[]
-}
-
-model Product {
-  id             Int             @id @default(autoincrement())
-  slug           String          @unique
-  name           String          @unique
-  description    String          @db.Text
-  price          Float
-  categoryId     Int
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
-  category       Category        @relation(fields: [categoryId], references: [id])
-  productImages  ProductImage[]
-  cartItems      CartItem[]
-  orderItems     OrderItem[]
-  productStocks  ProductStock[]
-  stockTransfers StockTransfer[]
-  vouchers       Voucher[]
-}
-
-model ProductImage {
-  id        Int      @id @default(autoincrement())
-  name      String
-  url       String
-  productId Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  product   Product  @relation(fields: [productId], references: [id])
-}
-
-model Address {
+model address {
   id         Int      @id @default(autoincrement())
   name       String
   address    String   @db.Text
@@ -86,123 +19,294 @@ model Address {
   latitude   Float?
   longitude  Float?
   createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  user       User     @relation(fields: [userId], references: [id])
-  province   Province @relation(fields: [provinceId], references: [id])
-  city       City     @relation(fields: [cityId], references: [id])
-  orders     Order[]
+  updatedAt  DateTime
+  city       city     @relation(fields: [cityId], references: [id], map: "Address_cityId_fkey")
+  province   province @relation(fields: [provinceId], references: [id], map: "Address_provinceId_fkey")
+  user       user     @relation(fields: [userId], references: [id], map: "Address_userId_fkey")
+  order      order[]
+
+  @@index([cityId], map: "Address_cityId_fkey")
+  @@index([provinceId], map: "Address_provinceId_fkey")
+  @@index([userId], map: "Address_userId_fkey")
 }
 
-model Province {
-  id         Int         @id
-  name       String
-  cities     City[]
-  addresses  Address[]
-  warehouses Warehouse[]
-}
-
-model City {
-  id         Int         @id @default(autoincrement())
-  name       String
-  provinceId Int
-  province   Province    @relation(fields: [provinceId], references: [id])
-  addresses  Address[]
-  warehouses Warehouse[]
-}
-
-model Cart {
+model cart {
   id        Int        @id @default(autoincrement())
   isActive  Boolean    @default(true)
   userId    Int
   createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  updatedAt DateTime
   deletedAt DateTime?
-  user      User       @relation(fields: [userId], references: [id])
-  items     CartItem[]
-  order     Order?
+  user      user       @relation(fields: [userId], references: [id], map: "Cart_userId_fkey")
+  cartitem  cartitem[]
+  order     order?
+
+  @@index([userId], map: "Cart_userId_fkey")
 }
 
-model CartItem {
+model cartitem {
   id        Int      @id @default(autoincrement())
   quantity  Int
   productId Int
   cartId    Int
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  product   Product  @relation(fields: [productId], references: [id])
-  cart      Cart     @relation(fields: [cartId], references: [id])
+  updatedAt DateTime
+  cart      cart     @relation(fields: [cartId], references: [id], map: "CartItem_cartId_fkey")
+  product   product  @relation(fields: [productId], references: [id], map: "CartItem_productId_fkey")
+
+  @@index([cartId], map: "CartItem_cartId_fkey")
+  @@index([productId], map: "CartItem_productId_fkey")
 }
 
-model Order {
-  id                 Int                  @id @default(autoincrement())
+model category {
+  id        Int       @id @default(autoincrement())
+  slug      String    @unique(map: "Category_slug_key")
+  name      String    @unique(map: "Category_name_key")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime
+  product   product[]
+}
+
+model city {
+  id         Int         @id @default(autoincrement())
+  name       String
+  provinceId Int
+  address    address[]
+  province   province    @relation(fields: [provinceId], references: [id], map: "City_provinceId_fkey")
+  warehouse  warehouse[]
+
+  @@index([provinceId], map: "City_provinceId_fkey")
+}
+
+model order {
+  id                 Int                       @id @default(autoincrement())
   name               String
-  paymentStatus      PaymentStatus
+  paymentStatus      order_paymentStatus
   shippingCost       Float
   total              Float
   paymentMethod      String
   paymentProof       String?
   expirePayment      DateTime
   warehouseId        Int
-  cartId             Int                  @unique
+  cartId             Int                       @unique(map: "Order_cartId_key")
   addressId          Int
   voucherId          Int?
   shippedAt          DateTime?
-  cancellationSource CancellationSource?
+  cancellationSource order_cancellationSource?
+  createdAt          DateTime                  @default(now())
+  updatedAt          DateTime
+  address            address                   @relation(fields: [addressId], references: [id], map: "Order_addressId_fkey")
+  cart               cart                      @relation(fields: [cartId], references: [id], map: "Order_cartId_fkey")
+  voucher            voucher?                  @relation(fields: [voucherId], references: [id], map: "Order_voucherId_fkey")
+  warehouse          warehouse                 @relation(fields: [warehouseId], references: [id], map: "Order_warehouseId_fkey")
+  orderitem          orderitem[]
+  transactionhistory transactionhistory[]
+
+  @@index([addressId], map: "Order_addressId_fkey")
+  @@index([voucherId], map: "Order_voucherId_fkey")
+  @@index([warehouseId], map: "Order_warehouseId_fkey")
+}
+
+model orderitem {
+  id        Int      @id @default(autoincrement())
+  quantity  Int
+  price     Float
+  total     Float
+  orderId   Int
+  productId Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+  order     order    @relation(fields: [orderId], references: [id], map: "OrderItem_orderId_fkey")
+  product   product  @relation(fields: [productId], references: [id], map: "OrderItem_productId_fkey")
+
+  @@index([orderId], map: "OrderItem_orderId_fkey")
+  @@index([productId], map: "OrderItem_productId_fkey")
+}
+
+model product {
+  id            Int             @id @default(autoincrement())
+  slug          String          @unique(map: "Product_slug_key")
+  name          String          @unique(map: "Product_name_key")
+  description   String          @db.Text
+  price         Float
+  categoryId    Int
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime
+  cartitem      cartitem[]
+  orderitem     orderitem[]
+  category      category        @relation(fields: [categoryId], references: [id], map: "Product_categoryId_fkey")
+  productimage  productimage[]
+  productstock  productstock[]
+  stocktransfer stocktransfer[]
+  voucher       voucher[]
+
+  @@index([categoryId], map: "Product_categoryId_fkey")
+}
+
+model productimage {
+  id        Int      @id @default(autoincrement())
+  name      String
+  url       String
+  productId Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+  product   product  @relation(fields: [productId], references: [id], map: "ProductImage_productId_fkey")
+
+  @@index([productId], map: "ProductImage_productId_fkey")
+}
+
+model productstock {
+  id               Int                @id @default(autoincrement())
+  stock            Int
+  productId        Int
+  warehouseId      Int
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime
+  deleted          Boolean            @default(false)
+  product          product            @relation(fields: [productId], references: [id], map: "ProductStock_productId_fkey")
+  warehouse        warehouse          @relation(fields: [warehouseId], references: [id], onDelete: Cascade, map: "ProductStock_warehouseId_fkey")
+  stocktransferlog stocktransferlog[]
+
+  @@unique([productId, warehouseId], map: "ProductStock_productId_warehouseId_key")
+  @@index([warehouseId], map: "ProductStock_warehouseId_fkey")
+}
+
+model province {
+  id        Int         @id
+  name      String
+  address   address[]
+  city      city[]
+  warehouse warehouse[]
+}
+
+model stocktransfer {
+  id           Int                  @id @default(autoincrement())
+  stockRequest Int
+  stockProcess Int
+  note         String               @db.Text
+  productId    Int
+  status       stocktransfer_status
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime
+  product      product              @relation(fields: [productId], references: [id], map: "StockTransfer_productId_fkey")
+
+  @@index([productId], map: "StockTransfer_productId_fkey")
+}
+
+model stocktransferlog {
+  id              Int                              @id @default(autoincrement())
+  quantity        Int
+  transactionType stocktransferlog_transactionType
+  description     String                           @db.Text
+  productStockId  Int
+  warehouseId     Int
+  createdAt       DateTime                         @default(now())
+  updatedAt       DateTime
+  productstock    productstock                     @relation(fields: [productStockId], references: [id], map: "StockTransferLog_productStockId_fkey")
+  warehouse       warehouse                        @relation(fields: [warehouseId], references: [id], map: "StockTransferLog_warehouseId_fkey")
+
+  @@index([productStockId], map: "StockTransferLog_productStockId_fkey")
+  @@index([warehouseId], map: "StockTransferLog_warehouseId_fkey")
+}
+
+model transactionhistory {
+  id        Int                     @id @default(autoincrement())
+  userId    Int
+  orderId   Int
+  amount    Float
+  type      transactionhistory_type
+  createdAt DateTime                @default(now())
+  order     order                   @relation(fields: [orderId], references: [id], map: "TransactionHistory_orderId_fkey")
+  user      user                    @relation(fields: [userId], references: [id], map: "TransactionHistory_userId_fkey")
+
+  @@index([orderId], map: "TransactionHistory_orderId_fkey")
+  @@index([userId], map: "TransactionHistory_userId_fkey")
+}
+
+model user {
+  id                 Int                  @id @default(autoincrement())
+  username           String
+  email              String               @unique(map: "User_email_key")
+  password           String
+  isVerified         Boolean              @default(false)
+  role               user_role            @default(USER)
+  image              String               @default("/profile.jpg")
+  provider           String?
+  referralCode       String?              @unique(map: "User_referralCode_key")
+  referredBy         String?
   createdAt          DateTime             @default(now())
-  updatedAt          DateTime             @updatedAt
-  warehouse          Warehouse            @relation(fields: [warehouseId], references: [id])
-  cart               Cart                 @relation(fields: [cartId], references: [id])
-  address            Address              @relation(fields: [addressId], references: [id])
-  voucher            Voucher?             @relation(fields: [voucherId], references: [id])
-  items              OrderItem[]
-  transactionHistory TransactionHistory[]
+  updatedAt          DateTime
+  dob                DateTime?
+  gender             String?
+  mobileNumber       String?
+  name               String?
+  address            address[]
+  cart               cart[]
+  transactionhistory transactionhistory[]
+  uservoucher        uservoucher[]
+  warehouse          warehouse?
 }
 
-model Voucher {
-  id                Int           @id @default(autoincrement())
-  code              String        @unique
-  discountType      DiscountType
-  discountValue     Float
-  minPurchase       Float?
-  maxDiscount       Float?
-  productId         Int?
-  isShippingVoucher Boolean       @default(false)
-  expiryDate        DateTime
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
-  product           Product?      @relation(fields: [productId], references: [id])
-  userVouchers      UserVoucher[]
-  orders            Order[]
-}
-
-enum DiscountType {
-  PERCENTAGE
-  FIXED
-}
-
-model UserVoucher {
+model uservoucher {
   id        Int      @id @default(autoincrement())
   userId    Int
   voucherId Int
   isUsed    Boolean  @default(false)
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [userId], references: [id])
-  voucher   Voucher  @relation(fields: [voucherId], references: [id])
+  updatedAt DateTime
+  user      user     @relation(fields: [userId], references: [id], map: "UserVoucher_userId_fkey")
+  voucher   voucher  @relation(fields: [voucherId], references: [id], map: "UserVoucher_voucherId_fkey")
+
+  @@index([userId], map: "UserVoucher_userId_fkey")
+  @@index([voucherId], map: "UserVoucher_voucherId_fkey")
 }
 
-model TransactionHistory {
-  id        Int             @id @default(autoincrement())
-  userId    Int
-  orderId   Int
-  amount    Float
-  type      TransactionType
-  createdAt DateTime        @default(now())
-  user      User            @relation(fields: [userId], references: [id])
-  order     Order           @relation(fields: [orderId], references: [id])
+model voucher {
+  id                Int                  @id @default(autoincrement())
+  code              String               @unique(map: "Voucher_code_key")
+  discountType      voucher_discountType
+  discountValue     Float
+  minPurchase       Float?
+  maxDiscount       Float?
+  productId         Int?
+  isShippingVoucher Boolean              @default(false)
+  expiryDate        DateTime
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime
+  order             order[]
+  uservoucher       uservoucher[]
+  product           product?             @relation(fields: [productId], references: [id], map: "Voucher_productId_fkey")
+
+  @@index([productId], map: "Voucher_productId_fkey")
 }
 
-enum PaymentStatus {
+model warehouse {
+  id               Int                @id @default(autoincrement())
+  name             String
+  address          String             @db.Text
+  provinceId       Int
+  cityId           Int
+  postalCode       String
+  latitude         Float?
+  longitude        Float?
+  storeRadius      Float
+  userId           Int                @unique(map: "Warehouse_userId_key")
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime
+  order            order[]
+  productstock     productstock[]
+  stocktransferlog stocktransferlog[]
+  city             city               @relation(fields: [cityId], references: [id], onDelete: NoAction, map: "Warehouse_cityId_fkey")
+  province         province           @relation(fields: [provinceId], references: [id], onDelete: NoAction, map: "Warehouse_provinceId_fkey")
+  user             user               @relation(fields: [userId], references: [id], onDelete: NoAction, map: "Warehouse_userId_fkey")
+
+  @@index([cityId], map: "Warehouse_cityId_fkey")
+  @@index([provinceId], map: "Warehouse_provinceId_fkey")
+}
+
+
+
+enum order_paymentStatus {
   PENDING
   PAID
   FAILED
@@ -211,95 +315,39 @@ enum PaymentStatus {
   CANCELED
 }
 
-enum CancellationSource {
-  USER
-  SYSTEM
+enum stocktransferlog_transactionType {
+  IN
+  OUT
+  PURCHASE
+  REFUND
 }
 
-model OrderItem {
-  id        Int      @id @default(autoincrement())
-  quantity  Int
-  price     Float
-  total     Float
-  orderId   Int
-  productId Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  order     Order    @relation(fields: [orderId], references: [id])
-  product   Product  @relation(fields: [productId], references: [id])
+enum voucher_discountType {
+  PERCENTAGE
+  FIXED
 }
 
-model Warehouse {
-  id                Int                @id @default(autoincrement())
-  name              String
-  address           String             @db.Text
-  provinceId        Int
-  cityId            Int
-  postalCode        String
-  latitude          Float?
-  longitude         Float?
-  storeRadius       Float
-  userId            Int                @unique
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
-  user              User               @relation(fields: [userId], references: [id], onDelete:NoAction)
-  province          Province           @relation(fields: [provinceId], references: [id], onDelete:NoAction)
-  city              City               @relation(fields: [cityId], references: [id], onDelete:NoAction)
-  productStocks     ProductStock[] 
-  orders            Order[]
-  stockTransferLogs StockTransferLog[]
+enum transactionhistory_type {
+  IN
+  OUT
+  PURCHASE
+  REFUND
 }
 
-model ProductStock {
-  id           Int                @id @default(autoincrement())
-  stock        Int
-  productId    Int
-  warehouseId  Int
-  createdAt    DateTime           @default(now())
-  updatedAt    DateTime           @updatedAt
-  deleted      Boolean            @default(false)
-  product      Product            @relation(fields: [productId], references: [id])
-  warehouse    Warehouse          @relation(fields: [warehouseId], references: [id], onDelete:Cascade)
-  transferLogs StockTransferLog[]
-
-  @@unique([productId, warehouseId])
-}
-
-model StockTransfer {
-  id           Int            @id @default(autoincrement())
-  stockRequest Int
-  stockProcess Int
-  note         String         @db.Text
-  productId    Int
-  status       TransferStatus
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  product      Product        @relation(fields: [productId], references: [id])
-}
-
-enum TransferStatus {
+enum stocktransfer_status {
   PENDING
   PROCESSING
   COMPLETED
   CANCELLED
 }
 
-model StockTransferLog {
-  id              Int             @id @default(autoincrement())
-  quantity        Int
-  transactionType TransactionType
-  description     String          @db.Text
-  productStockId  Int
-  warehouseId     Int
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
-  productStock    ProductStock    @relation(fields: [productStockId], references: [id])
-  warehouse       Warehouse       @relation(fields: [warehouseId], references: [id])
+enum user_role {
+  SUPER_ADMIN
+  ADMIN
+  USER
 }
 
-enum TransactionType {
-  IN
-  OUT
-  PURCHASE
-  REFUND
+enum order_cancellationSource {
+  USER
+  SYSTEM
 }

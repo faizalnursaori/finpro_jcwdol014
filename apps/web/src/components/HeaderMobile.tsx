@@ -1,7 +1,8 @@
 'use client';
+
 import Image from 'next/image';
 import { ShoppingCart, Search } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Sidebar from './Sidebar';
 import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
@@ -14,6 +15,7 @@ export default function HeaderMobile() {
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const router = useRouter();
+  const searchRef = useRef<HTMLDivElement>(null);
 
   const handleSearchToggle = () => {
     setIsSearchActive(!isSearchActive);
@@ -32,6 +34,27 @@ export default function HeaderMobile() {
     }
   };
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        searchRef.current &&
+        !searchRef.current.contains(event.target as Node)
+      ) {
+        setIsSearchActive(false);
+      }
+    };
+
+    if (isSearchActive) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isSearchActive]);
+
   return (
     <header className="flex lg:hidden items-center justify-between">
       <nav className="navbar p-3">
@@ -47,7 +70,7 @@ export default function HeaderMobile() {
             height={150}
           />
         </Link>
-        <div className="navbar-end gap-3">
+        <div className="navbar-end gap-3" ref={searchRef}>
           {!isSearchActive ? (
             <button onClick={handleSearchToggle} className="btn btn-ghost">
               <Search />
@@ -58,7 +81,7 @@ export default function HeaderMobile() {
                 type="text"
                 value={searchTerm}
                 onChange={handleSearchChange}
-                className="input input-bordered"
+                className="input input-bordered w-32"
                 placeholder="Search..."
               />
               <button type="submit" className="btn btn-ghost">
@@ -72,7 +95,7 @@ export default function HeaderMobile() {
           >
             <ShoppingCart />
             {cartItemCount > 0 && (
-              <span className="absolute -top-1 left-7 bg-red-500 text-white rounded-full px-2 py-1 text-xs">
+              <span className="absolute top-2 right-4 bg-red-500 text-white rounded-full px-2 py-1 text-xs">
                 {cartItemCount}
               </span>
             )}

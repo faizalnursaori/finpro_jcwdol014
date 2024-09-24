@@ -9,6 +9,7 @@ import {
   getOrderDetail,
   confirmOrderReceived,
   confirmOrderPayment,
+  updateStatusOrder,
 } from '../controllers/order.controller';
 import {
   authenticateToken,
@@ -37,7 +38,7 @@ router.get('/:id', authenticateToken, wrapAuthHandler(getOrderDetail));
 router.post('/checkout', authenticateToken, wrapAuthHandler(checkout));
 
 // Route for canceling expired orders
-router.post('/cancel-expired', cancelExpired);
+router.post('/cancel-expired', authenticateToken, cancelExpired);
 
 // Route for confirming order receipt
 router.post(
@@ -55,6 +56,12 @@ router.post(
 
 // Route for canceling an order
 router.post('/cancel', authenticateToken, wrapAuthHandler(cancel));
+
+router.post(
+  '/update_status',
+  authenticateToken,
+  wrapAuthHandler(updateStatusOrder),
+);
 
 // Route for uploading payment proof
 router.post(

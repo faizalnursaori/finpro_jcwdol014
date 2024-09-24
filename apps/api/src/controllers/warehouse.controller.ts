@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import * as warehouseService from '@/services/warehouse.service';
 import prisma from '@/prisma';
 
 export const getWarehouses = async (req: Request, res: Response) => {
@@ -153,3 +154,32 @@ export const getWarehousesByPage = async (req: Request, res: Response) =>{
         res.status(500).json({ message: 'Internal Server Error' });
       }
 }
+
+export const findNearestWarehouse = async (req: Request, res: Response) => {
+  try {
+    const nearestWarehouse = await warehouseService.findNearestWarehouse(
+      req.body,
+    );
+    res.status(200).json({
+      message: 'Nearest warehouse found',
+      warehouse: nearestWarehouse,
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Internal server error', error });
+  }
+};
+
+export const getWarehouseByUserId = async (req: Request, res: Response) => {
+  try {
+    const id = Number(req.params.userId);
+    const warehouse = await warehouseService.findWarehouseByUserId(id);
+    if (!warehouse) {
+      return res
+        .status(404)
+        .json({ message: 'Warehouse not found for this user' });
+    }
+    res.status(200).json({ message: 'Success Getting Warehouse', warehouse });
+  } catch (error) {
+    res.status(500).json({ message: 'Internal server error', error });
+  }
+};

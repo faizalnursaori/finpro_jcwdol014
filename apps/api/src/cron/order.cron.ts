@@ -23,13 +23,14 @@ export function startOrderCronJobs() {
   // Auto-receive orders every hour
   cron.schedule('0 * * * *', async () => {
     try {
-      const receivedCount = await autoReceiveOrders();
+      const { autoConfirmedCount, autoCompletedCount } =
+        await autoReceiveOrders();
       console.log(
-        `[${new Date().toISOString()}] Auto-received ${receivedCount} orders`,
+        `[${new Date().toISOString()}] Auto-confirmed ${autoConfirmedCount} orders and auto-completed ${autoCompletedCount} orders`,
       );
     } catch (error) {
       console.error(
-        `[${new Date().toISOString()}] Error auto-receiving orders:`,
+        `[${new Date().toISOString()}] Error processing orders:`,
         error,
       );
     }

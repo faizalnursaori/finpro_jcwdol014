@@ -56,13 +56,10 @@ const ProductDetail = () => {
             (stock: ProductStock) => stock.warehouse.id === closestWarehouseId,
           );
 
-          console.log(filteredProductStock);
-
           setProduct({
             ...res.data.product,
             productStocks: [filteredProductStock],
           });
-          console.log(product);
         } catch (error) {
           setError((error as Error).message);
         } finally {
