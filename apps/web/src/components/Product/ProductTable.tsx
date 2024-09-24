@@ -145,7 +145,7 @@ export const ProductTable = () => {
                     <div className="avatar">
                       <div className="mask mask-squircle h-12 w-12">
                         <Image
-                          src={product.productImages[0].url}
+                          src={product.productImages[0]?.url}
                           alt="Product Picture"
                           width={100}
                           height={100}

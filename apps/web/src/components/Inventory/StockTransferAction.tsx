@@ -53,7 +53,7 @@ const StockTransferActions: React.FC<StockTransferActionsProps> = ({
     ) {
       try {
         await axios.post(
-          `${API_URL}stock-transfers/approve/${selectedTransfer.id}`,
+          `${API_URL}/stock-transfers/approve/${selectedTransfer.id}`,
           {
             sourceWarehouseId: selectedWarehouse,
             stockProcess,
@@ -73,7 +73,7 @@ const StockTransferActions: React.FC<StockTransferActionsProps> = ({
     if (selectedTransfer) {
       try {
         await axios.put(
-          `${API_URL}stock-transfers/reject/${selectedTransfer.id}`,
+          `${API_URL}/stock-transfers/reject/${selectedTransfer.id}`,
         );
         onReject(selectedTransfer.id);
       } catch (error) {

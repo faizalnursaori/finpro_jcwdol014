@@ -33,11 +33,11 @@ export default function Header() {
   };
 
   const categories = [
-    'Rice & Flour',
-    'Fruits & Vegetables',
-    'Instan Food',
+    'Rice and Flour',
+    'Fruits and Vegetables',
+    'Instant Food',
     'Beverages',
-    'Snacks & Biscuits',
+    'Snacks and Biscuits',
     'Frozen',
   ];
 
@@ -122,7 +122,7 @@ export default function Header() {
           {categories.map((category, index) => (
             <Link
               className="btn btn-ghost hover:btn-link"
-              href={`/category/${category}`}
+              href={`/search?query=${category}`}
               key={index}
             >
               {category}

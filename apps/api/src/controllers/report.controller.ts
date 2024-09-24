@@ -176,7 +176,6 @@ export async function getStockSummaryByMonth(
   const startDate = new Date(`${year}-${month}-01`);
   const endDate = new Date(`${year}-${month + 1}-01`);
 
-  // Fetch stock transfer logs directly
   const transferLogs = await prisma.stockTransferLog.findMany({
     where: {
       warehouseId,
@@ -197,20 +196,19 @@ export async function getStockSummaryByMonth(
             },
           },
           stock: true,
-          deleted: true, // Include deleted field
+          deleted: true,
         },
       },
     },
   });
 
-  // Summarize stock data
   const summary = transferLogs.reduce(
     (acc, log) => {
       const productId = log.productStock.product.id;
       const productName = log.productStock.product.name;
       const currentStock = log.productStock.deleted
         ? 0
-        : log.productStock.stock; // Set to 0 if deleted
+        : log.productStock.stock;
 
       if (!acc[productId]) {
         acc[productId] = {
@@ -218,17 +216,18 @@ export async function getStockSummaryByMonth(
           productName,
           totalIn: 0,
           totalOut: 0,
-          finalStock: currentStock, // Initialize finalStock with current stock or 0
+          finalStock: currentStock,
         };
       }
 
-      if (log.transactionType === 'IN') {
+      if (log.transactionType === 'IN' || log.transactionType === 'REFUND') {
         acc[productId].totalIn += log.quantity;
-      } else if (log.transactionType === 'OUT') {
+      } else if (
+        log.transactionType === 'OUT' ||
+        log.transactionType === 'PURCHASE'
+      ) {
         acc[productId].totalOut += log.quantity;
       }
-
-      // Do not update final stock calculation here
 
       return acc;
     },
@@ -244,7 +243,6 @@ export async function getStockSummaryByMonth(
     >,
   );
 
-  // Convert the summary object to an array
   return Object.values(summary);
 }
 
@@ -273,7 +271,6 @@ export async function getStockDetailsByMonth(
             select: {
               id: true,
               name: true,
-              // Add any other product fields you want to include
             },
           },
         },
