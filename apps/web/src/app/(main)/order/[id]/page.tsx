@@ -6,6 +6,7 @@ import { Order, PaymentStatus } from '@/types/order';
 import { useOrder } from '@/context/OrderContext';
 import { formatRupiah } from '@/utils/currencyUtils';
 import Cookies from 'js-cookie';
+import { toast } from 'react-hot-toast';
 
 const OrderDetail = () => {
   const [order, setOrder] = useState<Order | null>(null);
@@ -49,11 +50,11 @@ const OrderDetail = () => {
     if (!order) return;
     try {
       await cancelOrder(order.id, 'USER');
-      alert('Order cancelled successfully');
+      toast.success('Order cancelled successfully');
       setOrder({ ...order, paymentStatus: 'CANCELED' as PaymentStatus });
     } catch (error) {
       console.error('Order cancellation failed', error);
-      alert('Failed to cancel order.');
+      toast.error('Failed to cancel order.');
     }
   };
 
@@ -61,11 +62,11 @@ const OrderDetail = () => {
     if (!order) return;
     try {
       await confirmOrderReceived(order.id);
-      alert('Order received confirmed successfully');
+      toast.success('Order received confirmed successfully');
       setOrder({ ...order, paymentStatus: 'DELIVERED' as PaymentStatus });
     } catch (error) {
       console.error('Order received confirmation failed', error);
-      alert('Failed to confirm order received. Please try again.');
+      toast.error('Failed to confirm order received. Please try again.');
     }
   };
 
@@ -92,6 +93,8 @@ const OrderDetail = () => {
   const isPending = order.paymentStatus === 'PENDING';
   const isDelivered = order.paymentStatus === 'DELIVERED';
   const isShipped = order.paymentStatus === 'SHIPPED';
+  const isPaymentProofUploaded =
+    order.paymentProof !== null && order.paymentStatus === 'PENDING';
 
   return (
     <div className="container mx-auto p-4">
@@ -133,10 +136,12 @@ const OrderDetail = () => {
                   <button className="btn btn-link btn-xs">View Proof</button>
                 </p>
               )}
-              <p>
-                <strong>Expires:</strong>{' '}
-                {new Date(order.expirePayment).toLocaleString()}
-              </p>
+              {!isPaymentProofUploaded && (
+                <p>
+                  <strong>Expires:</strong>{' '}
+                  {new Date(order.expirePayment).toLocaleString()}
+                </p>
+              )}
             </div>
           </div>
 
@@ -168,7 +173,7 @@ const OrderDetail = () => {
           )}
 
           <div className="card-actions justify-end mt-6">
-            {isPending && (
+            {isPending && !isPaymentProofUploaded && (
               <button
                 className="btn btn-primary"
                 onClick={handleUploadPaymentProof}
@@ -184,16 +189,22 @@ const OrderDetail = () => {
                 Confirm Received
               </button>
             )}
-            {['PENDING', 'PAID'].includes(order.paymentStatus) && (
-              <button className="btn btn-error" onClick={handleCancelOrder}>
-                Cancel Order
-              </button>
-            )}
+            {['PENDING'].includes(order.paymentStatus) &&
+              !isPaymentProofUploaded && (
+                <button className="btn btn-error" onClick={handleCancelOrder}>
+                  Cancel Order
+                </button>
+              )}
           </div>
 
-          {isPending && (
+          {isPending && !isPaymentProofUploaded && (
             <div className="alert alert-info mt-4">
               Please upload your payment proof to confirm your order.
+            </div>
+          )}
+          {isPaymentProofUploaded && (
+            <div className="alert alert-info mt-4">
+              Your Payment proof is under review by admin.
             </div>
           )}
           {isShipped && (
@@ -203,8 +214,7 @@ const OrderDetail = () => {
           )}
           {isDelivered && (
             <div className="alert alert-success mt-4">
-              Your order has been delivered. Please confirm if you have received
-              it.
+              Your order has been delivered.
             </div>
           )}
         </div>

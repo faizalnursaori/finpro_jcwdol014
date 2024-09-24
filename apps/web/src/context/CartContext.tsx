@@ -9,6 +9,8 @@ import React, {
 } from 'react';
 import { Cart } from '@/types/cart';
 import { useCartOperations } from '../hooks/useCartOperations';
+import { toast } from 'react-hot-toast';
+
 interface CartContextType {
   cart: Cart | null;
   setCart: (cart: Cart | null) => void;
@@ -20,6 +22,7 @@ interface CartContextType {
     quantity: number,
     availableStock: number,
   ) => Promise<void>;
+  clearCart: () => void; // Tambahkan clearCart ke dalam context type
   cartItemCount: number;
 }
 
@@ -119,23 +122,31 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
       if (existingItem) {
         const newQuantity = existingItem.quantity + quantity;
         if (newQuantity > availableStock) {
-          console.error('Not enough stock available');
+          toast.error('Not enough stock available');
           return;
         }
         await updateItemQuantity(existingItem.id, newQuantity);
       } else {
         if (quantity > availableStock) {
-          console.error('Not enough stock available');
+          toast.error('Not enough stock available');
           return;
         }
         await addItemToCart(currentCart.id, productId, quantity);
       }
 
       await fetchCart();
+      toast.success('Item added to cart');
     } catch (err) {
       console.error('Failed to add item to cart:', err);
+      toast.error('Failed to add item to cart');
       throw err;
     }
+  };
+
+  // Fungsi untuk mengosongkan cart
+  const clearCart = () => {
+    setCart(null);
+    setCartItemCount(0);
   };
 
   return (
@@ -147,6 +158,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
         updateItemQuantity,
         removeItem,
         addToCart,
+        clearCart, // Pastikan clearCart ada di sini
         cartItemCount,
       }}
     >
@@ -156,7 +168,6 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
 };
 
 export const useCart = () => {
-  // console.log('useCart called');
   const context = useContext(CartContext);
   if (!context) {
     throw new Error('useCart must be used within a CartProvider');

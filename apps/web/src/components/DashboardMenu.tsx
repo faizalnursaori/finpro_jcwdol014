@@ -105,6 +105,12 @@ export default function DashboardMenu() {
             </Link>
           </li>
           <li>
+            <Link href="/dashboard/order-management">
+              <ClipboardList />
+              Order Management
+            </Link>
+          </li>
+          <li>
             <button
               className=""
               onClick={() => signOut({ callbackUrl: '/login' })}
