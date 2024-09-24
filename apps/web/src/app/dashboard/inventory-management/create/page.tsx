@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { createStock, getProductStock } from '@/api/inventory';
-import { getWarehouses, getWarehouseId } from '@/api/warehouse';
-import { getProducts } from '@/api/products';
+import { getWarehouses } from '@/api/warehouse';
 import { useRouter } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
 import { useSession } from 'next-auth/react';
