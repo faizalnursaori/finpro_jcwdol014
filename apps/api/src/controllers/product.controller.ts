@@ -20,6 +20,7 @@ export class ProductController {
             { name: { contains: search } },
             { slug: { contains: search } },
             { description: { contains: search } },
+            { category: { name: { contains: search } } },
           ],
         },
         select: {
@@ -57,6 +58,7 @@ export class ProductController {
             { name: { contains: search } },
             { slug: { contains: search } },
             { description: { contains: search } },
+            { category: { name: { contains: search } } },
           ],
         },
       });
@@ -195,10 +197,31 @@ export class ProductController {
   async deleteProduct(req: Request, res: Response) {
     const { id } = req.params;
     try {
+      await prisma.stockTransferLog.deleteMany({
+        where: { productStock: { productId: parseInt(id) } },
+      });
+
+      await prisma.productStock.deleteMany({
+        where: { productId: parseInt(id) },
+      });
+
+      await prisma.cartItem.deleteMany({
+        where: { productId: parseInt(id) },
+      });
+
+      await prisma.orderItem.deleteMany({
+        where: { productId: parseInt(id) },
+      });
+
+      await prisma.productImage.deleteMany({
+        where: { productId: parseInt(id) },
+      });
+
       await prisma.product.delete({
         where: { id: parseInt(id) },
       });
-      res.status(204).send();
+
+      res.status(200).json({ message: 'Product deleted successfully.' });
     } catch (error) {
       res.status(500).json({ error: 'Error deleting product' });
     }

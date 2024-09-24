@@ -111,7 +111,7 @@ const EditProductPage: React.FC = () => {
   };
 
   return (
-    <div className="content-wrapper">
+    <div className="content-wrapper min-w-full md:min-w-fit">
       {data?.user?.role == 'SUPER_ADMIN' ? (
         <>
           <Toaster />
@@ -238,7 +238,7 @@ const EditProductPage: React.FC = () => {
                         />
                         <div className="label">
                           <span className="label-text-alt">
-                            Max 1 MB with types of .jpg, .jpeg, .png dan .gif
+                            Max 1 MB with types of .jpg, .jpeg, .png and .gif
                             Only
                           </span>
                         </div>

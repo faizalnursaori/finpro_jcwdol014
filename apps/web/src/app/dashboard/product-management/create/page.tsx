@@ -117,12 +117,12 @@ const CreateProductPage: React.FC = () => {
   };
 
   return (
-    <div className="content-wrapper">
+    <div className="content-wrapper min-w-full md:min-w-fit">
       {data?.user?.role == 'SUPER_ADMIN' ? (
         <>
           <div>
             <Toaster />
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between overflow-x-auto">
               <h3 className="text-lg font-medium">Create Product</h3>
               <div
                 aria-label="Breadcrumbs"
@@ -249,7 +249,7 @@ const CreateProductPage: React.FC = () => {
                         />
                         <div className="label">
                           <span className="label-text-alt">
-                            Max 1 MB with types of .jpg, .jpeg, .png dan .gif
+                            Max 1 MB with types of .jpg, .jpeg, .png and .gif
                             Only
                           </span>
                         </div>

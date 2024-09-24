@@ -9,11 +9,11 @@ export default function Sidebar() {
   const { data } = useSession();
 
   const categories = [
-    'Rice & Flour',
-    'Fruits & Vegetables',
-    'Instan Food',
+    'Rice and Flour',
+    'Fruits and Vegetables',
+    'Instant Food',
     'Beverages',
-    'Snacks & Biscuits',
+    'Snacks and Biscuits',
     'Frozen',
   ];
   return (
@@ -71,7 +71,7 @@ export default function Sidebar() {
           {categories.map((category, index) => {
             return (
               <li key={index}>
-                <Link href={`/categories/${category}`}>{category}</Link>
+                <Link href={`/search?query=${category}`}>{category}</Link>
               </li>
             );
           })}
