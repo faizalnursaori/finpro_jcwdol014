@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Bar } from 'react-chartjs-2';
 import 'chart.js/auto';
 import { useSession } from 'next-auth/react';
-import { getWarehouseId, getWarehouses } from '@/api/warehouse';
+import { getWarehouseByUserId, getWarehouses } from '@/api/warehouse';
 import {
   fetchSalesData,
   fetchTopProducts,
@@ -13,7 +13,7 @@ import {
 import Link from 'next/link';
 
 export default function MonthlySalesReport() {
-  const { data: session } = useSession();
+  const { data } = useSession();
   const [month, setMonth] = useState('');
   const [warehouseId, setWarehouseId] = useState('');
   const [warehouses, setWarehouses] = useState([]);
@@ -39,9 +39,9 @@ export default function MonthlySalesReport() {
 
   useEffect(() => {
     const loadWarehouseId = async () => {
-      if (session?.user?.role === 'ADMIN') {
+      if (data?.user?.role === 'ADMIN') {
         try {
-          const warehouse = await getWarehouseId(session.user.id);
+          const warehouse = await getWarehouseByUserId(data.user.id);
           if (warehouse) {
             setWarehouseId(warehouse.id);
           }
@@ -52,7 +52,7 @@ export default function MonthlySalesReport() {
     };
 
     loadWarehouseId();
-  }, [session]);
+  }, [data]);
 
   useEffect(() => {
     if (month && warehouseId) {
@@ -113,8 +113,7 @@ export default function MonthlySalesReport() {
 
   return (
     <>
-      {session?.user?.role == 'SUPER_ADMIN' ||
-      session?.user?.role == 'ADMIN' ? (
+      {data?.user?.role == 'SUPER_ADMIN' || data?.user?.role == 'ADMIN' ? (
         <>
           <div className="p-5 mx-auto min-w-full md:w-1/2 md:min-w-fit">
             <h1 className="text-2xl font-bold mb-5">Monthly Sales Report</h1>
@@ -127,7 +126,7 @@ export default function MonthlySalesReport() {
                 className="input input-bordered mb-4"
               />
 
-              {session?.user?.role === 'SUPER_ADMIN' ? (
+              {data?.user?.role === 'SUPER_ADMIN' ? (
                 <select
                   value={warehouseId}
                   onChange={(e) => setWarehouseId(e.target.value)}
