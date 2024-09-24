@@ -4,6 +4,8 @@ import { cookies } from 'next/headers';
 
 const BASE_API = process.env.NEXT_PUBLIC_BASE_API_URL;
 
+const BASE_API = process.env.NEXT_PUBLIC_BASE_API_URL;
+
 const axiosInstance = axios.create({
   baseURL: BASE_API,
   headers: {
