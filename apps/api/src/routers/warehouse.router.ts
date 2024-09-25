@@ -7,9 +7,19 @@ import {
   deleteWarehouse,
   findNearestWarehouse,
   getWarehouseByUserId,
-} from '@/controllers/warehouse.controller';
+  getWarehousesByPage,
+  getWarehouse
 
+} from '@/controllers/warehouse.controller';
+import { authenticateToken2, SuperAdminGuard } from '@/middleware/auth.middleware';
 const router = Router();
+
+router.get('/', getWarehouses)
+router.get('/page',authenticateToken2, SuperAdminGuard, getWarehousesByPage)
+router.get('/:id', authenticateToken2,SuperAdminGuard, getWarehouse)
+router.post('/create', authenticateToken2,SuperAdminGuard, createWarehouse)
+router.put('/update/:id', authenticateToken2,SuperAdminGuard, updateWarehouse)
+router.delete('/delete/:id', authenticateToken2,SuperAdminGuard, deleteWarehouse)
 
 // Create Warehouse
 router.post('/', createWarehouse);

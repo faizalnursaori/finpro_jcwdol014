@@ -19,7 +19,7 @@ export default function Login() {
 
     try {
       // console.log(data);
-
+      setIsLoading(true)
       const res = await fetch('http://localhost:8000/api/auth/login', {
         method: 'POST',
         headers: {
@@ -38,10 +38,13 @@ export default function Login() {
           email,
           password,
         });
+        setIsLoading(false)
       } else {
         setError(data.message || 'An unexpected error occurred');
+        setIsLoading(false)
       }
     } catch (err) {
+      setIsLoading(false)
       console.error('Login error:', err); // Log the full error
       setError(
         err instanceof Error ? err.message : 'An unexpected error occurred',

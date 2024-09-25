@@ -10,6 +10,7 @@ import WithAuth from '@/components/WithAuth';
 import Image from 'next/image';
 import { paymentMethods } from '@/utils/paymentList';
 import { Toaster, toast } from 'react-hot-toast';
+import { applyVoucher } from '@/api/vouchers';
 
 const OrderProcessingPage = () => {
   const { cart } = useCart();
@@ -24,8 +25,16 @@ const OrderProcessingPage = () => {
   const [selectedBankData, setSelectedBankData] = useState<
     (typeof paymentMethods)[0] | null
   >(null);
+  const [voucherCode, setVoucherCode] = useState<string>(''); // State for the voucher code
+  const [discount, setDiscount] = useState<number>(0); // State for discount amount
+  const [finalTotal, setFinalTotal] = useState<number>(0); // State for final total
+  const [shippingCost, setShippingCost] = useState<any>(0)
 
   const router = useRouter();
+
+  const getShippingCost = async (data:any) => {
+    setShippingCost(data)
+  }
 
   useEffect(() => {
     const fetchClosestWarehouse = async () => {
@@ -67,6 +76,23 @@ const OrderProcessingPage = () => {
     localStorage.setItem('selectedBank', JSON.stringify(bank));
   };
 
+  const handleVoucherApply = async () => {
+    if (!voucherCode) {
+      toast.error('Please enter a voucher code.');
+      return;
+    }
+
+    try {
+      const response = await applyVoucher(voucherCode, cart?.id as number);
+      setDiscount(response.discount);
+      setFinalTotal(response.finalTotal);
+      toast.success(response.message);
+    } catch (error: any) {
+      console.error('Failed to apply voucher', error);
+      toast.error(error.message);
+    }
+  };
+
   const handleCheckout = async () => {
     if (!isStockAvailable) {
       toast.error('Sorry, some items in your order are out of stock.');
@@ -79,7 +105,6 @@ const OrderProcessingPage = () => {
     }
 
     try {
-      const shippingCost = 15000;
       const total =
         cart.items.reduce(
           (sum, item) => sum + item.product.price * item.quantity,
@@ -130,7 +155,25 @@ const OrderProcessingPage = () => {
     <div className="container mx-auto p-4">
       <Toaster position="top-center" reverseOrder={false} />
       <h1 className="text-2xl font-bold mb-4">Order Processing</h1>
-      {cart && <OrderDetails cart={cart} />}
+      {cart && <OrderDetails cart={cart} warehouseId={closestWarehouseId} discount={discount} GetShippingCost={getShippingCost}/>}
+      {/* Voucher Code Input */}
+      <div className="mb-4">
+        <label className="label">
+          <span className="label-text font-semibold">Voucher Code:</span>
+        </label>
+        <div className="flex">
+          <input
+            type="text"
+            value={voucherCode}
+            onChange={(e) => setVoucherCode(e.target.value)}
+            placeholder="Enter your voucher code"
+            className="input input-bordered flex-1 mr-2"
+          />
+          <button onClick={handleVoucherApply} className="btn btn-primary">
+            Apply
+          </button>
+        </div>
+      </div>
       <div className="mb-4">
         <label className="label">
           <span className="label-text font-semibold">Payment Method:</span>

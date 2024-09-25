@@ -96,6 +96,7 @@ export const getAdmins = async (req: Request, res: Response) => {
         role: true,
         isVerified: true,
         image: true,
+        warehouse: true
       },
       skip: skip,
       take: limit,
