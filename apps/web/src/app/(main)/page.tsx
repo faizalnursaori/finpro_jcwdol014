@@ -1,7 +1,7 @@
 'use client';
 import axios from 'axios';
-import { getUserCurrentLocation } from '@/utils/getUserCurrentLocation';
-import { getClosestWarehouse } from '@/api/warehouse';
+// import { getUserCurrentLocation } from '@/utils/getUserCurrentLocation';
+import { getClosestWarehouse } from '@/api/closestWarehouse';
 import ListCategories from '@/components/ListCategories';
 import LandingProducts from '@/components/LandingProducts';
 import { useState, useEffect } from 'react';
@@ -28,7 +28,7 @@ export default function Home() {
 
   const getProducts = async (id: number | undefined) => {
     const res = await axios.get(
-      `${process.env.NEXT_PUBLIC_BASE_API_URL}/products/`,
+      `${process.env.NEXT_PUBLIC_BASE_API_URL}products/`,
     );
 
     const filteredProducts = res.data.products.filter((item: ProductType) =>
@@ -37,8 +37,21 @@ export default function Home() {
     setProducts(filteredProducts);
   };
 
+  const success = (res: any) => {
+    
+    setUserLoc({lon:res.coords.longitude, lat:res.coords.latitude })
+  };
+
+  const fail = (res: any) => {
+    console.log(res);
+  };
+
+
+  // navigator.geolocation.getCurrentPosition(success, fail)
+
   useEffect(() => {
-    setUserLoc(getUserCurrentLocation());
+    // setUserLoc(getUserCurrentLocation());
+    navigator.geolocation.getCurrentPosition(success, fail)
     getWarehouseId();
     getProducts(closestWarehouseId);
     fetchCart();

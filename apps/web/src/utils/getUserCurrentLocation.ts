@@ -1,4 +1,3 @@
-
 export const getUserCurrentLocation = () =>{
     const userLoc = {
         lon: 0,
@@ -16,7 +15,7 @@ export const getUserCurrentLocation = () =>{
 
     navigator.geolocation.getCurrentPosition(success, fail)
     
-    console.log(userLoc);
+    console.log('ini user location',userLoc);
     
     return userLoc;
 }
