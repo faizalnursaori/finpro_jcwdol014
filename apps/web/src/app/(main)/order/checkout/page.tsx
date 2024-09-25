@@ -30,7 +30,7 @@ const OrderProcessingPage = () => {
   useEffect(() => {
     const fetchClosestWarehouse = async () => {
       const warehouseId = await getClosestWarehouse();
-      setClosestWarehouseId(warehouseId);
+      setClosestWarehouseId(warehouseId ?? null);
     };
 
     fetchClosestWarehouse();

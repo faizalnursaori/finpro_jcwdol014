@@ -8,6 +8,7 @@ import { formatRupiah } from '@/utils/currencyUtils';
 import Countdown from 'react-countdown';
 import Cookies from 'js-cookie';
 import { toast } from 'react-hot-toast';
+import StatusBadge from '@/components/StatusBadge'; // Import StatusBadge
 
 const OrderDetail = () => {
   const [order, setOrder] = useState<Order | null>(null);
@@ -102,23 +103,6 @@ const OrderDetail = () => {
   };
 
   const expirationTime = order && calculateExpirationTime(order.createdAt);
-
-  const getStatusBadge = (status: PaymentStatus) => {
-    if (status === 'PENDING') {
-      return <span className="badge badge-warning">{status}</span>;
-    } else if (
-      status === 'PAID' ||
-      status === 'SHIPPED' ||
-      status === 'DELIVERED'
-    ) {
-      return <span className="badge badge-success">{status}</span>;
-    } else if (status === 'FAILED' || status === 'CANCELED') {
-      return <span className="badge badge-error">{status}</span>;
-    } else {
-      return <span className="badge">{status}</span>;
-    }
-  };
-
   const isPending = order.paymentStatus === 'PENDING';
 
   return (
@@ -150,7 +134,9 @@ const OrderDetail = () => {
                 Payment Information
               </h3>
               <p>
-                <strong>Status:</strong> {getStatusBadge(order.paymentStatus)}
+                <strong>Status:</strong>{' '}
+                <StatusBadge status={order.paymentStatus} />{' '}
+                {/* Menggunakan StatusBadge */}
               </p>
               <p>
                 <strong>Method:</strong> {order.paymentMethod}
