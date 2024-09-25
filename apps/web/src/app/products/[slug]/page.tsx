@@ -8,7 +8,7 @@ import Image from 'next/image';
 import toast, { Toaster } from 'react-hot-toast';
 import { ProductType } from '@/types/product';
 import { useSession } from 'next-auth/react';
-import { getClosestWarehouse } from '@/api/warehouse';
+import { getClosestWarehouse } from '@/api/closestWarehouse';
 import { getUserCurrentLocation } from '@/utils/getUserCurrentLocation';
 
 interface Warehouse {

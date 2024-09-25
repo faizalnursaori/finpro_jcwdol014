@@ -4,9 +4,12 @@ import { cookies } from 'next/headers';
 
 const base_api = process.env.BASE_API_USER;
 
+
+
 export const editUser = async (id: string, data: {}) => {
+  const token = cookies().get('next-auth.session-token')?.value;
   const res = await axios.put(`${base_api}/${id}`, data, {
-    headers: { 'Content-Type': 'multipart/form-data' },
+    headers: { 'Content-Type': 'multipart/form-data', Authorization:`Bearer ${token}` },
   });
 };
 

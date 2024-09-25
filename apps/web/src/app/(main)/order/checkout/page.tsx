@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useCart } from '@/context/CartContext';
 import { useOrder } from '@/context/OrderContext';
-import { getClosestWarehouse } from '@/api/warehouse';
+import { getClosestWarehouse } from '@/api/closestWarehouse';
 import { useRouter } from 'next/navigation';
 import OrderDetails from '@/components/OrderDetail';
 import WithAuth from '@/components/WithAuth';

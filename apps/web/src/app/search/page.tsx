@@ -25,7 +25,7 @@ export default function SearchResults() {
     const fetchResults = async () => {
       if (query) {
         const products = await searchProduct(query);
-        setResults(products.data.products);
+        setResults(products?.data?.products);
       }
     };
 
@@ -36,8 +36,8 @@ export default function SearchResults() {
     <div className="max-w-[80%] m-auto">
       <h2 className="text-xl font-bold mt-5">Search Results for "{query}"</h2>
       <div className="flex flex-wrap gap-4 mt-4">
-        {results.length > 0 ? (
-          results.map((product, index) => (
+        {results?.length > 0 ? (
+          results?.map((product, index) => (
             <div key={index} className="card card-compact w-60">
               <div className="card-body">
                 <figure className="bg-base-200 rounded-md">

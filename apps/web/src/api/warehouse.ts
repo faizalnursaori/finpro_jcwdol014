@@ -8,10 +8,10 @@ import { cookies } from 'next/headers';
 export const getClosestWarehouse = async () => {
   try {
     const res = await axios.get(
-      `${process.env.NEXT_PUBLIC_BASE_API_URL}/warehouses/`,
+      `${process.env.NEXT_PUBLIC_BASE_API_URL}warehouses/`,
     );
     const data = res.data.warehouses;
-    const userLoc = await getUserCurrentLocation();
+    const userLoc =  getUserCurrentLocation();
 
     let closestDistance = Infinity; // Atur jarak default ke yang sangat besar
     let closestWarehouseId = null; // Default warehouse null sampai ditemukan yang terdekat
