@@ -11,10 +11,11 @@ interface OrderDetailsProps {
   cart: Cart;
   warehouseId: number | null;
   discount:number;
-  GetShippingCost: any
+  GetShippingCost: any;
+  setUserAddress: any;
 }
 
-const OrderDetails: React.FC<OrderDetailsProps> = ({ cart, warehouseId, discount, GetShippingCost }) => {
+const OrderDetails: React.FC<OrderDetailsProps> = ({ cart, warehouseId, discount, GetShippingCost, setUserAddress }) => {
   const { data } = useSession();
   
   const [selectedShippingMethod, setSelectedShippingMethod] = useState<any>();
@@ -62,6 +63,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ cart, warehouseId, discount
 
   const handleChangeAddress = (address: any) => {
     setSelectedAddress(address);
+    setUserAddress(address.id)
     setShippingData({ ...shippingData, destination: String(address.cityId), });
   };
   const handleChangeMethod = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -72,24 +74,24 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ cart, warehouseId, discount
     const cost = e.target.value.split(',');
     setSelectedService(cost[1]);
     setSelectedServiceCost(cost[0]);
+    GetShippingCost(cost[0])
   };
 
   useEffect(() => {
     setSelectedServiceCost(0);
     setSelectedShippingMethod('Delivery Method');
     setSelectedService('Delivery Service');
-    GetShippingCost(selectedServiceCost)
+    
   }, [selectedAddress]);
 
   useEffect(() => {
     setSelectedService('Delivery Service');
-    GetShippingCost(selectedServiceCost)
+
   }, [selectedShippingMethod]);
 
   useEffect(() => {
     getUserAddress();
     shippingCostData();
-    GetShippingCost(selectedServiceCost)
   }, [data?.user, selectedAddress, selectedShippingMethod]);
 
   const shippingCost = 15000; // You might want to calculate this dynamically

@@ -18,7 +18,7 @@ export const editUserByToken = async (idToken: any, data: {}) => {
 };
 
 export const editUserPassword = async (id: string, data: {}) => {
-  const token = localStorage.getItem('token');
+  const token = cookies().get('next-auth.session-token')?.value;
   const res = await axios.put(`${base_api}/password/${id}`, data, {
     headers: { Authorization: `Bearer ${token}` },
   });

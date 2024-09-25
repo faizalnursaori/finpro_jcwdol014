@@ -5,7 +5,7 @@ import { getUserCurrentLocation } from '@/utils/getUserCurrentLocation';
 export const getClosestWarehouse = async () => {
     try {
       const res = await axios.get(
-        `${process.env.NEXT_PUBLIC_BASE_API_URL}warehouses/`,
+        `${process.env.NEXT_PUBLIC_BASE_API_URL}/warehouses/`,
       );
       const data = res.data.warehouses;
       const userLoc =  getUserCurrentLocation();

@@ -11,8 +11,11 @@ import Image from 'next/image';
 import { paymentMethods } from '@/utils/paymentList';
 import { Toaster, toast } from 'react-hot-toast';
 import { applyVoucher } from '@/api/vouchers';
+import { useSession } from 'next-auth/react';
+
 
 const OrderProcessingPage = () => {
+  const {data} = useSession()
   const { cart } = useCart();
   const { checkout, checkStock } = useOrder();
   const [closestWarehouseId, setClosestWarehouseId] = useState<number | null>(
@@ -29,11 +32,15 @@ const OrderProcessingPage = () => {
   const [discount, setDiscount] = useState<number>(0); // State for discount amount
   const [finalTotal, setFinalTotal] = useState<number>(0); // State for final total
   const [shippingCost, setShippingCost] = useState<any>(0)
+  const [userAddress, setUserAddress] = useState<any>()
 
   const router = useRouter();
 
   const getShippingCost = async (data:any) => {
     setShippingCost(data)
+  }
+  const getUserAddressId = async (data: any) => {
+    setUserAddress(data)
   }
 
   useEffect(() => {
@@ -109,7 +116,7 @@ const OrderProcessingPage = () => {
         cart.items.reduce(
           (sum, item) => sum + item.product.price * item.quantity,
           0,
-        ) + shippingCost;
+        ) + Number(shippingCost);
 
       const expirePayment = new Date();
       expirePayment.setHours(expirePayment.getHours() + 1);
@@ -117,13 +124,13 @@ const OrderProcessingPage = () => {
       const orderData = {
         name: `Order-${Date.now()}`,
         paymentStatus: 'PENDING',
-        shippingCost,
-        total,
+        shippingCost: Number(shippingCost),
+        total: Number(total),
         paymentMethod:
           paymentMethod === 'BANK_TRANSFER' ? selectedBank : 'PAYMENT_GATEWAY',
         warehouseId: closestWarehouseId,
         cartId: cart.id,
-        addressId: 1,
+        addressId: Number(userAddress),
         orderItems: cart.items.map((item) => ({
           productId: item.product.id,
           quantity: item.quantity,
@@ -155,7 +162,7 @@ const OrderProcessingPage = () => {
     <div className="container mx-auto p-4">
       <Toaster position="top-center" reverseOrder={false} />
       <h1 className="text-2xl font-bold mb-4">Order Processing</h1>
-      {cart && <OrderDetails cart={cart} warehouseId={closestWarehouseId} discount={discount} GetShippingCost={getShippingCost}/>}
+      {cart && <OrderDetails cart={cart} warehouseId={closestWarehouseId} discount={discount} GetShippingCost={getShippingCost} setUserAddress= {getUserAddressId}/>}
       {/* Voucher Code Input */}
       <div className="mb-4">
         <label className="label">
