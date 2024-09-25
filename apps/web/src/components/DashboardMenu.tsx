@@ -13,6 +13,7 @@ import {
   Layers,
   ClipboardList,
   ChartColumnBig,
+  Store,
 } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 import { useSession } from 'next-auth/react';
@@ -33,28 +34,36 @@ export default function DashboardMenu() {
             </Link>
           </li>
           {data?.user?.role === 'SUPER_ADMIN' ? (
-            <li>
-              <details className="group">
-                <summary className="font-normal group-open:font-bold cursor-pointer list-none">
-                  <UsersRound />
-                  User Management
-                </summary>
-                <ul>
-                  <li>
-                    <Link href="/dashboard/admin-management">
-                      <ShieldCheck />
-                      Admin Management
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/dashboard/user-management">
-                      <User />
-                      End-User Management
-                    </Link>
-                  </li>
-                </ul>
-              </details>
-            </li>
+            <>
+              <li>
+                <details className="group">
+                  <summary className="font-normal group-open:font-bold cursor-pointer list-none">
+                    <UsersRound />
+                    User Management
+                  </summary>
+                  <ul>
+                    <li>
+                      <Link href="/dashboard/admin-management">
+                        <ShieldCheck />
+                        Admin Management
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/dashboard/user-management">
+                        <User />
+                        End-User Management
+                      </Link>
+                    </li>
+                  </ul>
+                </details>
+              </li>
+              <li>
+                <Link href={'/dashboard/store-management'}>
+                <Store />
+                Store management
+                </Link>
+              </li>
+            </>
           ) : (
             ''
           )}

@@ -16,6 +16,8 @@ import orderRouter from './routers/order.router';
 import warehouseRouter from './routers/warehouse.router';
 import { startOrderCronJobs } from './cron/order.cron';
 import userRouter from './routers/user.router';
+import locationRouter from './routers/location.router'
+import addressRouter from './routers/address.router'
 import { categoryRouter } from './routers/category.router';
 import { stockRouter } from './routers/productStock.router';
 import { stockTransferRouter } from './routers/stockTransfer.router';
@@ -75,6 +77,8 @@ export default class App {
     this.app.use('/api/warehouses', warehouseRouter);
     this.app.use('/api/users', userRouter);
     this.app.use('/api/admins', adminRouter);
+    this.app.use('/api/locations', locationRouter);
+    this.app.use('/api/addresses', addressRouter);
     this.app.use('/api/categories', categoryRouter);
     this.app.use('/api/stocks', stockRouter);
     this.app.use('/api/stock-transfers', stockTransferRouter);

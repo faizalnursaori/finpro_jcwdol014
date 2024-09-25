@@ -57,7 +57,7 @@ export default function ProfileCard() {
   };
 
   return (
-    <div className="card card-compact bg-base-100 shadow-xl w-[40vw] p-5 h-fit">
+    <div className="card card-compact bg-base-100 shadow-xl sm:w-[40vw] w-[100vw] p-5 h-fit">
       <div className="flex justify-between">
         <div className="flex items-center gap-4">
           <div className="avatar">

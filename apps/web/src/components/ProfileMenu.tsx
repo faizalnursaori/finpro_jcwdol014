@@ -6,7 +6,7 @@ import { signOut } from "next-auth/react";
 export default function ProfileMenu() {
   
   return (
-    <div className="card card-compact bg-base-100 w-fit h-fit shadow-xl ml-7">
+    <div className="card hidden sm:block card-compact bg-base-100 w-fit h-fit shadow-xl ml-7">
       <div className="card-body">
         <p className="card-title ml-4">Menu</p>
         <div className="divider m-0"></div>
@@ -18,13 +18,13 @@ export default function ProfileMenu() {
             </Link>
           </li>
           <li>
-            <Link href="/profile">
+            <Link href="/profile/addresses">
               <MapPinHouse />
               Addresses
             </Link>
           </li>
           <li>
-            <Link href="/profile">
+            <Link href="/order/list">
               <ShoppingBag />
               Orders
             </Link>

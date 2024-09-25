@@ -17,11 +17,14 @@ export default function Register() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setIsLoading(true)
     try {
       await registerUser(email);
+      setIsLoading(false)
       router.push('/register/confirm-info');
     } catch (err) {
       setError('Registration failed. Please try again.');
+      setIsLoading(false)
     }
   };
 

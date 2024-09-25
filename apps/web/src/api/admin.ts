@@ -188,3 +188,5 @@ export const createAdmin = async (adminData: User) => {
     throw new Error(error.response?.data?.message || 'Failed to create user');
   }
 };
+
+
