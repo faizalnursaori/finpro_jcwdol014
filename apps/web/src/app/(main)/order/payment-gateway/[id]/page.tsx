@@ -2,11 +2,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Order, PaymentStatus } from '@/types/order';
+import { Order } from '@/types/order';
 import { useOrder } from '@/context/OrderContext';
 import { formatRupiah } from '@/utils/currencyUtils';
 import Cookies from 'js-cookie';
 import { Toaster, toast } from 'react-hot-toast';
+import StatusBadge from '@/components/StatusBadge';
 
 const OrderDetail = () => {
   const [order, setOrder] = useState<Order | null>(null);
@@ -64,7 +65,7 @@ const OrderDetail = () => {
       await cancelOrder(order.id, 'USER');
       toast.success('Order cancelled successfully');
       // Refresh the order details after cancellation
-      setOrder({ ...order, paymentStatus: 'CANCELLED' as PaymentStatus });
+      setOrder({ ...order, paymentStatus: 'CANCELED' });
     } catch (error) {
       console.error('Order cancellation failed', error);
       toast.error('Failed to cancel order.');
@@ -74,22 +75,6 @@ const OrderDetail = () => {
   if (loading) return <div className="loading loading-lg"></div>;
   if (error) return <div className="alert alert-error">{error}</div>;
   if (!order) return <div className="alert alert-info">Order not found</div>;
-
-  const getStatusBadge = (status: PaymentStatus) => {
-    if (status === 'PENDING') {
-      return <span className="badge badge-warning">{status}</span>;
-    } else if (
-      status === 'PAID' ||
-      status === 'SHIPPED' ||
-      status === 'DELIVERED'
-    ) {
-      return <span className="badge badge-success">{status}</span>;
-    } else if (status === 'FAILED' || status === 'CANCELED') {
-      return <span className="badge badge-error">{status}</span>;
-    } else {
-      return <span className="badge">{status}</span>;
-    }
-  };
 
   const isPending = order.paymentStatus === 'PENDING';
 
@@ -123,7 +108,9 @@ const OrderDetail = () => {
                 Payment Information
               </h3>
               <p>
-                <strong>Status:</strong> {getStatusBadge(order.paymentStatus)}
+                <strong>Status:</strong>{' '}
+                <StatusBadge status={order.paymentStatus} />{' '}
+                {/* Using StatusBadge */}
               </p>
               <p>
                 <strong>Method:</strong> {order.paymentMethod}

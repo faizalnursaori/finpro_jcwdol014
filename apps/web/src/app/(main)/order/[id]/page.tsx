@@ -7,6 +7,7 @@ import { useOrder } from '@/context/OrderContext';
 import { formatRupiah } from '@/utils/currencyUtils';
 import Cookies from 'js-cookie';
 import { toast } from 'react-hot-toast';
+import StatusBadge from '@/components/StatusBadge';
 
 const OrderDetail = () => {
   const [order, setOrder] = useState<Order | null>(null);
@@ -74,22 +75,6 @@ const OrderDetail = () => {
   if (error) return <div className="alert alert-error">{error}</div>;
   if (!order) return <div className="alert alert-info">Order not found</div>;
 
-  const getStatusBadge = (status: PaymentStatus) => {
-    if (status === 'PENDING') {
-      return <span className="badge badge-warning">{status}</span>;
-    } else if (
-      status === 'PAID' ||
-      status === 'SHIPPED' ||
-      status === 'DELIVERED'
-    ) {
-      return <span className="badge badge-success">{status}</span>;
-    } else if (status === 'FAILED' || status === 'CANCELED') {
-      return <span className="badge badge-error">{status}</span>;
-    } else {
-      return <span className="badge">{status}</span>;
-    }
-  };
-
   const isPending = order.paymentStatus === 'PENDING';
   const isDelivered = order.paymentStatus === 'DELIVERED';
   const isShipped = order.paymentStatus === 'SHIPPED';
@@ -125,7 +110,8 @@ const OrderDetail = () => {
                 Payment Information
               </h3>
               <p>
-                <strong>Status:</strong> {getStatusBadge(order.paymentStatus)}
+                <strong>Status:</strong>{' '}
+                <StatusBadge status={order.paymentStatus} />
               </p>
               <p>
                 <strong>Method:</strong> {order.paymentMethod}

@@ -1,15 +1,14 @@
-'use client';
-
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
 import { useOrder } from '@/context/OrderContext';
-import { Order, PaymentStatus } from '@/types/order';
+import { Order } from '@/types/order';
 import WithAuth from '@/components/WithAuth';
 import { formatRupiah } from '@/utils/currencyUtils';
 import { formatDate } from '@/utils/dateUtils';
 import Cookies from 'js-cookie';
 import { toast } from 'react-hot-toast';
+import StatusBadge from '@/components/StatusBadge'; // Import the new StatusBadge component
 
 const OrderListPage = () => {
   const { cancelOrder } = useOrder();
@@ -87,22 +86,6 @@ const OrderListPage = () => {
     }
   };
 
-  const getStatusBadge = (status: PaymentStatus) => {
-    if (status === 'PENDING') {
-      return <span className="badge badge-warning">{status}</span>;
-    } else if (
-      status === 'PAID' ||
-      status === 'SHIPPED' ||
-      status === 'DELIVERED'
-    ) {
-      return <span className="badge badge-success">{status}</span>;
-    } else if (status === 'FAILED' || status === 'CANCELED') {
-      return <span className="badge badge-error">{status}</span>;
-    } else {
-      return <span className="badge">{status}</span>;
-    }
-  };
-
   if (isLoading) {
     return <div className="loading loading-lg"></div>;
   }
@@ -143,7 +126,7 @@ const OrderListPage = () => {
                   Order No{' '}
                   {sortBy === 'id' && (sortOrder === 'asc' ? '▲' : '▼')}
                 </th>
-                <th>Products</th> {/* Moved Products column before Date */}
+                <th>Products</th>
                 <th onClick={() => handleSort('createdAt')}>
                   Date{' '}
                   {sortBy === 'createdAt' && (sortOrder === 'asc' ? '▲' : '▼')}
@@ -171,9 +154,11 @@ const OrderListPage = () => {
                       ))}
                     </ul>
                   </td>
-                  <td>{formatDate(order.createdAt)}</td>{' '}
-                  {/* Date is now after Products */}
-                  <td>{getStatusBadge(order.paymentStatus)}</td>
+                  <td>{formatDate(order.createdAt)}</td>
+                  <td>
+                    <StatusBadge status={order.paymentStatus} />
+                  </td>{' '}
+                  {/* Use StatusBadge component */}
                   <td>{formatRupiah(order.total)}</td>
                   <td>
                     <Link
