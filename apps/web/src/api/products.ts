@@ -85,13 +85,14 @@ export const updateProduct = async (
 export const deleteProduct = async (id: number) => {
   const token = cookies().get('next-auth.session-token')?.value;
   try {
-    const res = await axios.delete(`${API_URL}products/${id}`, {
+    const res = await axios.delete(`${API_URL}/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
     return { ok: true, data: res.data };
   } catch (error) {
+    console.error(error);
     return { ok: false, message: 'Failed to delete product' };
   }
 };

@@ -1,10 +1,9 @@
 'use server'
 import axios from 'axios';
-import { cookies } from 'next/headers'; 
+import Cookies from 'js-cookie'; // Import js-cookie
 
 const BASE_API = process.env.NEXT_PUBLIC_BASE_API_URL;
 
-const BASE_API = process.env.NEXT_PUBLIC_BASE_API_URL;
 
 const axiosInstance = axios.create({
   baseURL: BASE_API,
@@ -14,7 +13,7 @@ const axiosInstance = axios.create({
 });
 
 axiosInstance.interceptors.request.use((config) => {
-  const token = cookies().get('next-auth.session-token')?.value;
+  const token = Cookies.get('token');
 
   if (token) {
     config.headers['Authorization'] = `Bearer ${token}`;

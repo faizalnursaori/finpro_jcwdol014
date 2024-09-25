@@ -9,11 +9,11 @@ export default function Sidebar() {
   const { data } = useSession();
 
   const categories = [
-    'Rice & Flour',
-    'Fruits & Vegetables',
-    'Instan Food',
+    'Rice and Flour',
+    'Fruits and Vegetables',
+    'Instant Food',
     'Beverages',
-    'Snacks & Biscuits',
+    'Snacks and Biscuits',
     'Frozen',
   ];
   return (
@@ -70,6 +70,15 @@ export default function Sidebar() {
           ) : (
             <div></div>
           )}
+          <h2 className="text-xl font-medium mb-2">Categories</h2>
+          {categories.map((category, index) => {
+            return (
+              <li key={index}>
+                <Link href={`/search?query=${category}`}>{category}</Link>
+              </li>
+            );
+          })}
+          <div className="divider"></div>
           <li>
             <Link href="/about">About us</Link>
           </li>

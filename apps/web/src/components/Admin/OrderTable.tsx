@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { getAllOrders, updateStatusOrder } from '@/api/admin';
+import { formatRupiah } from '@/utils/currencyUtils';
 import { Search } from '../Search';
 import { Pagination } from '../Pagination';
 import { ErrorAlert } from '../ErrorAlert';
@@ -49,32 +50,28 @@ export const OrderTable = () => {
   const [error, setError] = useState<string>('');
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
-  const [limit] = useState<number>(100);
+  const [limit] = useState<number>(10);
   const [userRole, setUserRole] = useState<UserRole>('USER');
 
   const fetchOrders = async (page: number) => {
     setLoading(true);
+    setError('');
     try {
       const res = await getAllOrders(
         page,
         limit,
         selectedWarehouse || undefined,
       );
-      if (!res.ok) {
-        throw new Error(res.message || 'Failed to fetch orders');
-      }
+      if (!res.ok) throw new Error(res.message || 'Failed to fetch orders');
+
       const data = res.data;
       setOrders(data.orders);
-      setFilteredOrders(data.orders); // Mengatur filteredOrders
+      setFilteredOrders(data.orders); // Set filteredOrders initially
       setTotalPages(data.pagination.totalPages);
-      if (data.warehouses) {
-        setWarehouses(data.warehouses);
-      }
-      if (data.userRole) {
-        setUserRole(data.userRole);
-      }
-    } catch (error) {
-      setError((error as Error).message);
+      if (data.warehouses) setWarehouses(data.warehouses);
+      if (data.userRole) setUserRole(data.userRole);
+    } catch (err) {
+      setError((err as Error).message);
     } finally {
       setLoading(false);
     }
@@ -84,47 +81,78 @@ export const OrderTable = () => {
     fetchOrders(currentPage);
   }, [currentPage, selectedWarehouse]);
 
+  // Handle payment status change
   const handleStatusChange = async (orderId: number, newStatus: string) => {
     try {
       const res = await updateStatusOrder(orderId, newStatus);
-      if (!res.ok) {
+      if (!res.ok)
         throw new Error(res.message || 'Failed to update payment status');
+
+      if (newStatus === 'CANCELED') {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Payment Rejected',
+          text: 'Payment proof has been rejected. Order status reverted to PENDING.',
+        });
+      } else {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: `Payment Status has been successfully updated to ${newStatus}`,
+        });
       }
-      Swal.fire({
-        icon: 'success',
-        title: 'Success',
-        text: `Payment Status has been successfully updated to ${newStatus}`,
-      });
+
+      // Update the filteredOrders state
       const updatedOrders = filteredOrders.map((order) =>
         order.id === orderId ? { ...order, paymentStatus: newStatus } : order,
       );
       setFilteredOrders(updatedOrders);
-    } catch (error) {
-      setError((error as Error).message);
+    } catch (err) {
+      setError((err as Error).message);
     }
   };
 
+  // Search functionality optimized with memoization
   const handleSearch = (query: string) => {
+    const lowerQuery = query.toLowerCase();
     if (query === '') {
       setFilteredOrders(orders);
     } else {
       const filtered = orders.filter(
         (order) =>
-          order.name.toLowerCase().includes(query.toLowerCase()) ||
-          order.address.name?.toLowerCase().includes(query.toLowerCase()) ||
-          order.warehouse.name?.toLowerCase().includes(query.toLowerCase()),
+          (order.name?.toLowerCase() || '').includes(lowerQuery) ||
+          (order.address?.name?.toLowerCase() || '').includes(lowerQuery) ||
+          (order.warehouse?.name?.toLowerCase() || '').includes(lowerQuery),
       );
       setFilteredOrders(filtered);
     }
   };
 
-  const handleClearSearch = () => {
-    setFilteredOrders(orders);
-  };
+  const handleClearSearch = () => setFilteredOrders(orders);
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
+  // Memoized available statuses based on current status
+  const getAvailableStatuses = useMemo(
+    () => (currentStatus: string) => {
+      switch (currentStatus) {
+        case 'PAID':
+          return ['SHIPPED'];
+        case 'SHIPPED':
+          return ['DELIVERED'];
+        case 'DELIVERED':
+          return [];
+        case 'CANCELED':
+          return ['PENDING'];
+        case 'PENDING':
+          return ['PAID', 'CANCELED'];
+        default:
+          return [];
+      }
+    },
+    [],
+  );
+
+  // Pagination control
+  const handlePageChange = (page: number) => setCurrentPage(page);
 
   const handleWarehouseChange = (warehouseId: string) => {
     setSelectedWarehouse(
@@ -133,34 +161,8 @@ export const OrderTable = () => {
     setCurrentPage(1);
   };
 
-  const getAvailableStatuses = (currentStatus: string) => {
-    switch (currentStatus) {
-      case 'PAID':
-        return ['SHIPPED'];
-      case 'SHIPPED':
-        return ['DELIVERED'];
-      case 'DELIVERED':
-        return [];
-      case 'CANCELED':
-        return ['PENDING'];
-      case 'PENDING':
-        return ['PAID', 'CANCELED'];
-      default:
-        return [];
-    }
-  };
-
   if (loading) return <span className="loading loading-bars loading-lg"></span>;
   if (error) return <ErrorAlert message={error} />;
-
-  const rupiah = (number: any) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-    })
-      .format(number)
-      .replace(',00', '');
-  };
 
   return (
     <>
@@ -206,8 +208,8 @@ export const OrderTable = () => {
                 <td>{order.address.name ?? '-'}</td>
                 <td>{order.address.address ?? '-'}</td>
                 <td>{order.warehouse.name ?? '-'}</td>
-                <td>{rupiah(order.total)}</td>
-                <td>{rupiah(order.shippingCost)}</td>
+                <td>{formatRupiah(order.total)}</td>
+                <td>{formatRupiah(order.shippingCost)}</td>
                 <td>{order.paymentMethod}</td>
                 <td>
                   {order.paymentProof ? (

@@ -120,14 +120,9 @@ export const login = async (req: Request, res: Response) => {
       iat: Date.now(),
     };
 
-    // Add warehouseId to payload if user is an admin and has a warehouse
     if (user.role === 'ADMIN' && user.warehouse) {
       payload.warehouseId = user.warehouse.id;
     }
-    console.log('User login payload:');
-    console.log(`Role: ${payload.role}`);
-    console.log(`WarehouseId: ${payload.warehouseId || 'Not assigned'}`);
-    console.log('Full payload:', JSON.stringify(payload, null, 2));
 
     const token = jwt.sign(payload, process.env.JWT_SECRET!, {
       expiresIn: '24h',

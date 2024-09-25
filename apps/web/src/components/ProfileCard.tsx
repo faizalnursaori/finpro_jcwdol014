@@ -10,18 +10,17 @@ import { editUser } from '@/api/user';
 
 export default function ProfileCard() {
   const { data, update } = useSession();
-  const [Userdata, setData] = useState<any>({username: data?.user?.username,
+  const [Userdata, setData] = useState<any>({
+    username: data?.user?.username,
     email: data?.user?.email,
     image: data?.user?.image,
     name: data?.user?.name,
     mobileNumber: data?.user?.mobileNumber,
     gender: data?.user?.gender,
-    dob: data?.user?.dob
+    dob: data?.user?.dob,
   });
-  
-  console.log(data); 
-  const router = useRouter();
 
+  const router = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setData({ ...Userdata, [e.target.name]: e.target.value });
@@ -43,7 +42,7 @@ export default function ProfileCard() {
         name: Userdata.name,
         mobileNumber: Userdata.mobileNumber,
         gender: Userdata.gender,
-        dob: Userdata.dob
+        dob: Userdata.dob,
       });
       redirect('/profile');
     } catch (error) {
@@ -127,7 +126,10 @@ export default function ProfileCard() {
                       ✕
                     </button>
                   </form>
-                  <h3 className="font-bold text-lg text-center my-2 p-2">Please note that you can only change your date of birth once!</h3>
+                  <h3 className="font-bold text-lg text-center my-2 p-2">
+                    Please note that you can only change your date of birth
+                    once!
+                  </h3>
                   <form method="dialog form-control " onSubmit={handleSubmit}>
                     <div className="flex flex-col justify-center items-center gap-2">
                       <div className="form-control relative focus-within:border-white">

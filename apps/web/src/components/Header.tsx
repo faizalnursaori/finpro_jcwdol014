@@ -14,9 +14,7 @@ export default function Header() {
   const router = useRouter();
   const { cartItemCount, clearCart } = useCart();
 
-  useEffect(() => {
-    console.log('Header Cart item count:', cartItemCount);
-  }, [cartItemCount]);
+  useEffect(() => {}, [cartItemCount]);
 
   // Efek untuk mendeteksi logout
   useEffect(() => {
@@ -32,8 +30,13 @@ export default function Header() {
     }
   };
 
-  const categories: [] = [
-    
+  const categories = [
+    'Rice and Flour',
+    'Fruits and Vegetables',
+    'Instant Food',
+    'Beverages',
+    'Snacks and Biscuits',
+    'Frozen',
   ];
 
   return (
@@ -120,7 +123,7 @@ export default function Header() {
           {categories.map((category, index) => (
             <Link
               className="btn btn-ghost hover:btn-link"
-              href={`/category/${category}`}
+              href={`/search?query=${category}`}
               key={index}
             >
               {category}
