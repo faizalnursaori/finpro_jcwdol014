@@ -28,7 +28,7 @@ export default function Home() {
 
   const getProducts = async (id: number | undefined) => {
     const res = await axios.get(
-      `${process.env.NEXT_PUBLIC_BASE_API_URL}products/`,
+      `${process.env.NEXT_PUBLIC_BASE_API_URL}/products/`,
     );
 
     const filteredProducts = res.data.products.filter((item: ProductType) =>
@@ -82,7 +82,7 @@ export default function Home() {
       <section>
         <LandingProducts catHeader={'New Products'} products={products} />
         <LandingProducts catHeader={'Instant Food'} products={products} />
-        <LandingProducts catHeader={'Beverages'} products={products} />
+        <LandingProducts catHeader={'Beras'} products={products} />
       </section>
     </main>
   );
