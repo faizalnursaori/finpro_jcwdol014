@@ -3,6 +3,17 @@ import prisma from '@/prisma';
 import bcrypt, { genSalt } from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { transporter } from '@/utils/auth.utils';
+import { configDotenv } from 'dotenv';
+import { Role } from '@prisma/client';
+
+interface LoginPayload {
+  userId: number;
+  email: string;
+  username: string;
+  role: Role;
+  iat: number;
+  warehouseId?: number;
+}
 
 export const updateUser = async (req: Request, res: Response) => {
   try {
@@ -107,8 +118,32 @@ export const getUserByEmail = async (req: Request, res: Response) => {
     const user = await prisma.user.findUnique({
         where:{
             email: email
-        }
+        },
+        include: { warehouse: true },
     })
+
+    const payload: LoginPayload = {
+      userId: user?.id as number,
+      email: user?.email as string,
+      username: user?.username as string,
+      role: user?.role as Role,
+      iat: Date.now(),
+    };
+
+    if (user?.role === 'ADMIN' && user.warehouse) {
+      payload.warehouseId = user.warehouse.id;
+    }
+
+    const token = jwt.sign(payload, process.env.JWT_SECRET!, {
+      expiresIn: '24h',
+    });
+
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 3600000,
+    });
 
     res.status(200).json({ message: 'Getting user datas successfully!', data: user });
 

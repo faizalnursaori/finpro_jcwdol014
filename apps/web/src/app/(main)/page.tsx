@@ -82,7 +82,7 @@ export default function Home() {
       <section>
         <LandingProducts catHeader={'New Products'} products={products} />
         <LandingProducts catHeader={'Instant Food'} products={products} />
-        <LandingProducts catHeader={'Beverages'} products={products} />
+        <LandingProducts catHeader={'Beras'} products={products} />
       </section>
     </main>
   );
