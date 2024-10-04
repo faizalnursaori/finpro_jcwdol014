@@ -121,7 +121,7 @@ const CreateInventoryPage = () => {
           </label>
           <p>
             {warehouses.find(
-              (warehouse) => warehouse.id === sessionData?.user?.id,
+              (warehouse) => warehouse.userId === sessionData?.user?.id,
             )?.name || 'Loading...'}
           </p>
         </div>

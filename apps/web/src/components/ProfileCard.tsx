@@ -108,7 +108,9 @@ export default function ProfileCard() {
         <div className="flex justify-between items-center">
           <p className="text-xl">Date of Birth:</p>
           {data?.user?.dob ? (
-            <p className="font-medium text-xl">{new Date(data?.user?.dob).toLocaleDateString()}</p>
+            <p className="font-medium text-xl">
+              {new Date(data?.user?.dob).toLocaleDateString()}
+            </p>
           ) : (
             <>
               <button

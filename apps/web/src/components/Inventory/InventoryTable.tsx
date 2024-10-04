@@ -14,6 +14,7 @@ interface Product {
 interface Warehouse {
   id: number;
   name: string;
+  userId: number;
 }
 
 interface ProductStock {
@@ -87,7 +88,7 @@ export default function InventoryTable() {
       if (!isSuperAdmin && data?.user?.id) {
         try {
           const selected = warehouses.find(
-            (warehouse) => warehouse.id === data?.user?.id,
+            (warehouse) => warehouse.userId === Number(data?.user?.id),
           );
           setSelectedWarehouse(selected ? selected.name : '');
         } catch (error) {

@@ -38,20 +38,18 @@ export default function Home() {
   };
 
   const success = (res: any) => {
-    
-    setUserLoc({lon:res.coords.longitude, lat:res.coords.latitude })
+    setUserLoc({ lon: res.coords.longitude, lat: res.coords.latitude });
   };
 
   const fail = (res: any) => {
     console.log(res);
   };
 
-
   // navigator.geolocation.getCurrentPosition(success, fail)
 
   useEffect(() => {
     // setUserLoc(getUserCurrentLocation());
-    navigator.geolocation.getCurrentPosition(success, fail)
+    navigator.geolocation.getCurrentPosition(success, fail);
     getWarehouseId();
     getProducts(closestWarehouseId);
     fetchCart();
