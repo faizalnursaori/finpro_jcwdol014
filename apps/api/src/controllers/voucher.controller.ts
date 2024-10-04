@@ -166,19 +166,19 @@ export const applyVoucher = async (req: Request, res: Response) => {
 
     const finalTotal = cartTotal - discount;
 
-    const userVoucher = await prisma.userVoucher.findFirst({
-      where: { voucherId: voucher.id, userId: cart.userId },
-    });
-
-    if (userVoucher && !userVoucher.isUsed) {
-      await prisma.userVoucher.update({
-        where: { id: userVoucher.id },
-        data: { isUsed: true },
+    if (discount) {
+      await prisma.userVoucher.create({
+        data: {
+          userId: cart.userId,
+          voucherId: voucher.id,
+          isUsed: true,
+        },
       });
     }
 
     return res.status(200).json({
       message: 'Voucher applied successfully',
+      voucherId: voucher.id,
       discount,
       finalTotal,
     });

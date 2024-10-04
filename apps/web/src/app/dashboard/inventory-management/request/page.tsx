@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { getProductStockByWarehouseId } from '@/api/inventory';
-import { getWarehouseId } from '@/api/warehouse';
+import { getWarehouseByUserId } from '@/api/warehouse';
 import { createStockRequest } from '@/api/stockTransfer';
 
 export default function CreateStockRequest() {
@@ -21,21 +21,20 @@ export default function CreateStockRequest() {
 
   useEffect(() => {
     const fetchWarehouseAndProducts = async () => {
-      if (data?.user?.id) {
-        try {
-          const warehouse = await getWarehouseId(data.user.id);
-          setWarehouseId(warehouse.id);
-          setWarehouseName(warehouse.name);
-
-          const res = await getProductStockByWarehouseId(warehouse.id);
-          setProducts(res.productStock);
-        } catch (error) {
-          setError('Your account is not managing a store');
-          console.error(error);
-        }
+      try {
+        const warehouse = await getWarehouseByUserId(Number(data?.user?.id));
+        setWarehouseId(warehouse.id);
+        setWarehouseName(warehouse.name);
+        const res = await getProductStockByWarehouseId(warehouse.id);
+        setProducts(res.productStock);
+      } catch (error) {
+        setError('Your account is not managing a store');
+        console.error(error);
       }
     };
-    fetchWarehouseAndProducts();
+    if (data?.user?.id) {
+      fetchWarehouseAndProducts();
+    }
   }, [data?.user?.id]);
 
   const handleSubmit = async (e: React.FormEvent) => {

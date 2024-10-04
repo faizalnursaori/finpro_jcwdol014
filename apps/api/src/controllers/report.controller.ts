@@ -17,25 +17,30 @@ export const salesReport = async (req: Request, res: Response) => {
     const endDate = new Date(startDate);
     endDate.setMonth(endDate.getMonth() + 1);
 
-    const orders = await prisma.order.findMany({
+    const orderItems = await prisma.orderItem.findMany({
       where: {
-        createdAt: {
-          gte: startDate,
-          lt: endDate,
+        order: {
+          warehouseId: parseInt(warehouseId),
+          createdAt: {
+            gte: startDate,
+            lt: endDate,
+          },
         },
-        warehouseId: parseInt(warehouseId),
       },
-      include: {
-        items: true,
+      select: {
+        price: true,
+        quantity: true,
       },
     });
 
-    const totalSales = orders.reduce((sum, order) => sum + order.total, 0);
-    const totalQuantity = orders.reduce((sum, order) => {
-      return (
-        sum + order.items.reduce((itemSum, item) => itemSum + item.quantity, 0)
-      );
-    }, 0);
+    const totalSales = orderItems.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0,
+    );
+    const totalQuantity = orderItems.reduce(
+      (sum, item) => sum + item.quantity,
+      0,
+    );
 
     res.json({ totalSales, totalQuantity });
   } catch (error) {

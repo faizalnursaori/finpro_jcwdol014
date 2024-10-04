@@ -1,9 +1,8 @@
-'use server'
+'use server';
 import axios from 'axios';
 import { haversineDistance } from '@/utils/getClosestStore';
 import { getUserCurrentLocation } from '@/utils/getUserCurrentLocation';
 import { cookies } from 'next/headers';
-
 
 export const getClosestWarehouse = async () => {
   try {
@@ -11,7 +10,7 @@ export const getClosestWarehouse = async () => {
       `${process.env.NEXT_PUBLIC_BASE_API_URL}warehouses/`,
     );
     const data = res.data.warehouses;
-    const userLoc =  getUserCurrentLocation();
+    const userLoc = getUserCurrentLocation();
 
     let closestDistance = Infinity; // Atur jarak default ke yang sangat besar
     let closestWarehouseId = null; // Default warehouse null sampai ditemukan yang terdekat
@@ -58,7 +57,7 @@ export const getWarehouseByUserId = async (userId: number) => {
   }
 };
 
-export const getWarehouseId = async (userId: string): Promise<number> => {
+export const getWarehouseId = async (userId: number): Promise<number> => {
   try {
     const response = await axios.get(
       `${process.env.NEXT_PUBLIC_BASE_API_URL}/warehouses/user/${userId}`,
@@ -70,15 +69,18 @@ export const getWarehouseId = async (userId: string): Promise<number> => {
   }
 };
 
-
 export const createWarehouse = async (data: any) => {
   const token = cookies().get('next-auth.session-token')?.value;
   try {
-    const response = await axios.post(`${process.env.NEXT_PUBLIC_BASE_API_URL}/warehouses/create`, data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
+    const response = await axios.post(
+      `${process.env.NEXT_PUBLIC_BASE_API_URL}/warehouses/create`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       },
-    });
+    );
     return response.data;
   } catch (error: any) {
     throw new Error(error.response?.data?.message || 'Failed to create store');
@@ -88,55 +90,73 @@ export const createWarehouse = async (data: any) => {
 export const getWarehouse = async (id: string) => {
   const token = cookies().get('next-auth.session-token')?.value;
   try {
-    const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/warehouses/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_BASE_API_URL}/warehouses/${id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       },
-    });
+    );
     return response.data;
   } catch (error: any) {
-    throw new Error(error.response?.data?.message || 'Failed to get store data');
+    throw new Error(
+      error.response?.data?.message || 'Failed to get store data',
+    );
   }
 };
-
 
 export const editWarehouse = async (data: any, id: string) => {
   const token = cookies().get('next-auth.session-token')?.value;
   try {
-    const response = await axios.put(`${process.env.NEXT_PUBLIC_BASE_API_URL}/warehouses/update/${id}`, data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
+    const response = await axios.put(
+      `${process.env.NEXT_PUBLIC_BASE_API_URL}/warehouses/update/${id}`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       },
-    });
+    );
     return response.data;
   } catch (error: any) {
-    throw new Error(error.response?.data?.message || 'Failed to update store data');
+    throw new Error(
+      error.response?.data?.message || 'Failed to update store data',
+    );
   }
 };
 
-export const deleteWarehouse = async ( id: number) => {
+export const deleteWarehouse = async (id: number) => {
   const token = cookies().get('next-auth.session-token')?.value;
   try {
-    const response = await axios.delete(`${process.env.NEXT_PUBLIC_BASE_API_URL}/warehouses/delete/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
+    const response = await axios.delete(
+      `${process.env.NEXT_PUBLIC_BASE_API_URL}/warehouses/delete/${id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       },
-    });
+    );
     return response.data;
   } catch (error: any) {
-    throw new Error(error.response?.data?.message || 'Failed to delete store data');
+    throw new Error(
+      error.response?.data?.message || 'Failed to delete store data',
+    );
   }
 };
 
 export const getWarehouseByPage = async (page: number, limit: number) => {
   const token = cookies().get('next-auth.session-token')?.value;
   try {
-    const res = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/warehouses/page`, {
-      params: { page, limit },
-      headers: {
-        Authorization: `Bearer ${token}`,
+    const res = await axios.get(
+      `${process.env.NEXT_PUBLIC_BASE_API_URL}/warehouses/page`,
+      {
+        params: { page, limit },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       },
-    });
+    );
     return {
       ok: true,
       data: res.data,
@@ -152,9 +172,12 @@ export const getWarehouseByPage = async (page: number, limit: number) => {
 
 export const searchWarehouse = async (query: string) => {
   try {
-    const res = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}?search=${query}`, {
-      params: { query },
-    });
+    const res = await axios.get(
+      `${process.env.NEXT_PUBLIC_BASE_API_URL}?search=${query}`,
+      {
+        params: { query },
+      },
+    );
     return { ok: true, data: res.data };
   } catch (error) {
     return { ok: false, message: 'Failed to search products' };

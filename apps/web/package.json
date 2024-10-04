@@ -13,7 +13,6 @@
     "axios": "^1.7.7",
     "cross-env": "^7.0.3",
     "dotenv": "^16.4.5",
-    "jose": "^5.8.0",
     "js-cookie": "^3.0.5",
     "lucide": "^0.433.0",
     "lucide-react": "^0.438.0",
