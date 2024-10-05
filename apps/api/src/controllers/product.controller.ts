@@ -78,6 +78,26 @@ export class ProductController {
     }
   }
 
+  async getProducts(req: Request, res: Response) {
+    try {
+      const products = await prisma.product.findMany({
+        include: {
+          category: true,
+          productImages: true,
+          productStocks: {
+            include: {
+              warehouse: true,
+            },
+          },
+        },
+      });
+      res.status(200).json(products);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      res.status(500).json({ error: 'Error fetching products' });
+    }
+  }
+
   async getProductById(req: Request, res: Response) {
     const { id } = req.params;
     try {
@@ -259,4 +279,6 @@ export class ProductController {
       res.status(500).json({ message: 'Failed to fetch product' });
     }
   }
+
+
 }

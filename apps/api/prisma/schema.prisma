@@ -242,10 +242,10 @@ model Warehouse {
   userId            Int                @unique
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
-  user              User               @relation(fields: [userId], references: [id])
-  province          Province           @relation(fields: [provinceId], references: [id])
-  city              City               @relation(fields: [cityId], references: [id])
-  productStocks     ProductStock[]
+  user              User               @relation(fields: [userId], references: [id], onDelete: NoAction)
+  province          Province           @relation(fields: [provinceId], references: [id], onDelete: NoAction)
+  city              City               @relation(fields: [cityId], references: [id], onDelete: NoAction)
+  productStocks     ProductStock[]     
   orders            Order[]
   stockTransferLogs StockTransferLog[]
   sourceMutations     StockTransfer[]         @relation("SourceWarehouse")
@@ -260,8 +260,8 @@ model ProductStock {
   createdAt    DateTime           @default(now())
   updatedAt    DateTime           @updatedAt
   deleted      Boolean            @default(false)
-  product      Product            @relation(fields: [productId], references: [id])
-  warehouse    Warehouse          @relation(fields: [warehouseId], references: [id])
+  product      Product            @relation(fields: [productId], references: [id], onDelete: NoAction  )
+  warehouse    Warehouse          @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
   transferLogs StockTransferLog[]
 
   @@unique([productId, warehouseId])
@@ -298,8 +298,8 @@ model StockTransferLog {
   warehouseId     Int
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
-  productStock    ProductStock    @relation(fields: [productStockId], references: [id])
-  warehouse       Warehouse       @relation(fields: [warehouseId], references: [id])
+  productStock    ProductStock    @relation(fields: [productStockId], references: [id], onDelete: Cascade)
+  warehouse       Warehouse       @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
 }
 
 enum TransactionType {

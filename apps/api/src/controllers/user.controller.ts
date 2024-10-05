@@ -19,8 +19,13 @@ export const updateUser = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const data = req.body;
-    const imageUrl = req.file ? `/profile/${req.file.filename}` : data.image;
-    const dob = data.dob ? new Date(data.dob): null
+
+    const prevUserData = await prisma.user.findUnique({
+      where: {id: Number(id)}
+    })
+
+    const imageUrl = req.file ? `/profile/${req.file.filename}` : prevUserData?.image;
+    const dob = data.dob ? new Date(data.dob): prevUserData?.dob
     
     if(data.isVerified == 'true') {
       data.isVerified = true
