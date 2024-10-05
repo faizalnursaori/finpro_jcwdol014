@@ -1,13 +1,16 @@
 'use client';
+import axios from 'axios';
+import { getClosestWarehouse } from '@/api/closestWarehouse';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { useCart } from '../context/CartContext';
+import { useCart } from '@/context/CartContext';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import toast, { Toaster } from 'react-hot-toast';
 import { ProductType } from '@/types/product';
+import { useParams } from 'next/navigation';
 
 interface Warehouse {
   id: number;
@@ -45,11 +48,16 @@ type Props = {
   products: Product[];
 };
 
-export default function LandingProducts({ catHeader, products, slug }: Props) {
+export default function Categories() {
+  const [closestWarehouseId, setClosestWarehouseId] = useState<
+    number | undefined
+  >(1);
+  const [products, setProducts] = useState<any>();
   const [error, setError] = useState<string | null>(null);
   const { addToCart, fetchCart, cart } = useCart();
   const router = useRouter();
   const { data } = useSession();
+  const params = useParams();
 
   const getTotalStock = (product: ProductType) => {
     return product.productStocks.reduce(
@@ -87,23 +95,55 @@ export default function LandingProducts({ catHeader, products, slug }: Props) {
     }
   };
 
-  useEffect(() => {}, [products]);
+  const getWarehouseId = async () => {
+    const data = await getClosestWarehouse();
+    setClosestWarehouseId(data);
+  };
 
-  const filteredProducts =
-    catHeader === 'New Products'
-      ? products
-      : products?.filter((product) => product.category.name == catHeader);
+  const getProducts = async (id: number | undefined) => {
+    const res = await axios.get(
+      `${process.env.NEXT_PUBLIC_BASE_API_URL}/products/all`,
+    );
+    console.log('warehouse id', id);
+    console.log('total product', res.data);
+
+    const filteredProducts = res.data.filter(
+      (item: { productStocks: [{ warehouseId: number }] }) => {
+        let result = false;
+        item.productStocks.forEach((stock: { warehouseId: number }) => {
+          if (stock.warehouseId == id) {
+            result = true;
+          }
+        });
+        return result;
+      },
+    );
+    console.log('belom di flter', filteredProducts);
+
+    const filterCategory = filteredProducts.filter(
+      (product: { category: { slug: string } }) => {
+        return product.category.slug == params.slug;
+      },
+    );
+
+    console.log('abis di filter', filterCategory);
+
+    setProducts(filterCategory);
+    console.log(products);
+  };
+
+  useEffect(() => {
+    getWarehouseId();
+    getProducts(closestWarehouseId);
+    fetchCart();
+  }, [closestWarehouseId]);
 
   return (
-    <>
-      <Toaster />
-      <div className="max-w-[80%] m-auto">
-        <div className="flex justify-between mt-5 items-center">
-          <h2 className="text-xl font-bold ">{catHeader}</h2>
-          {catHeader == 'New Products' ? <button className="btn btn-ghost hover:btn-link"><Link href={`/products`}>View All</Link></button> : <button className="btn btn-ghost hover:btn-link"><Link href={`/category/${slug}`}>View All</Link></button>}
-        </div>
-        <div className="flex gap-3 overflow-x-auto">
-          {filteredProducts?.map((product, index) => (
+    <div>
+      <h1 className="text-4xl font-bold mb-4 ml-5">{params.slug}</h1>
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-3 ">
+        {products?.map((product: any, index: number) => {
+          return (
             <div key={index} className="card card-compact max-w-[200px]">
               <div className="card-body">
                 <figure className="bg-base-200 rounded-md max-w-[150px] max-h-[150px]">
@@ -133,9 +173,9 @@ export default function LandingProducts({ catHeader, products, slug }: Props) {
                 </div>
               </div>
             </div>
-          ))}
-        </div>
+          );
+        })}
       </div>
-    </>
+    </div>
   );
 }

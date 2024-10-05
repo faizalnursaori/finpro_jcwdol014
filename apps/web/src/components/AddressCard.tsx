@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 export default function AddressCard({ address, handleDelete }: any) {
   return (
-    <div className="card bg-base-100 shadow-xl w-80 max-w-80  card-compact max-h-60 h-60">
+    <div className="card bg-base-100 shadow-xl md:w-80 w-[80vw]  card-compact max-h-60 h-60">
       <div className="card-body">
         <h2 className="card-title text-md font-medium">{address.name}</h2>
         <p className="text-sm">{address.address}</p>

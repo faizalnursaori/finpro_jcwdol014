@@ -15,8 +15,8 @@ const CheckoutSummary = () => {
       (total, item) => total + item.product.price * item.quantity,
       0,
     ) || 0;
-  const shippingCosts = 15000; // You might want to calculate this dynamically
-  const total = subtotal + shippingCosts;
+
+  const total = subtotal;
 
   const handleCheckout = async () => {
     try {
@@ -33,10 +33,6 @@ const CheckoutSummary = () => {
       <div className="flex justify-between mb-2">
         <span>Subtotal ({cart?.items.length} Items)</span>
         <span>{formatRupiah(subtotal)}</span>
-      </div>
-      <div className="flex justify-between mb-4">
-        <span>Shipping Costs</span>
-        <span>+{formatRupiah(shippingCosts)}</span>
       </div>
       <div className="border-t pt-4">
         <div className="flex justify-between font-semibold">
