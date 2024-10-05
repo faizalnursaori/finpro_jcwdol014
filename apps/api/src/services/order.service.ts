@@ -174,6 +174,7 @@ export const handleCheckout = async (id: number, body: CheckoutBody) => {
     orderItems,
     latitude,
     longitude,
+    voucherId,
     userId,
   } = body;
 
@@ -203,6 +204,7 @@ export const handleCheckout = async (id: number, body: CheckoutBody) => {
         expirePayment,
         warehouseId,
         addressId,
+        voucherId,
         cartId, // Include cartId here
         items: {
           create: orderItems.map((item) => ({

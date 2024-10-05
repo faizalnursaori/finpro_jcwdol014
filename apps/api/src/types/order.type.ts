@@ -13,6 +13,7 @@ export type CheckoutBody = {
   latitude: number;
   longitude: number;
   userId: number;
+  voucherId: number;
 };
 
 export type OrderItemsBody = {

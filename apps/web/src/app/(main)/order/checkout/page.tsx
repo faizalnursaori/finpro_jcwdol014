@@ -13,9 +13,8 @@ import { Toaster, toast } from 'react-hot-toast';
 import { applyVoucher } from '@/api/vouchers';
 import { useSession } from 'next-auth/react';
 
-
 const OrderProcessingPage = () => {
-  const {data} = useSession()
+  const { data } = useSession();
   const { cart } = useCart();
   const { checkout, checkStock } = useOrder();
   const [closestWarehouseId, setClosestWarehouseId] = useState<number | null>(
@@ -28,20 +27,20 @@ const OrderProcessingPage = () => {
   const [selectedBankData, setSelectedBankData] = useState<
     (typeof paymentMethods)[0] | null
   >(null);
-  const [voucherCode, setVoucherCode] = useState<string>(''); // State for the voucher code
-  const [discount, setDiscount] = useState<number>(0); // State for discount amount
-  const [finalTotal, setFinalTotal] = useState<number>(0); // State for final total
-  const [shippingCost, setShippingCost] = useState<any>(0)
-  const [userAddress, setUserAddress] = useState<any>()
+  const [voucherCode, setVoucherCode] = useState<string>('');
+  const [discount, setDiscount] = useState<number>(0);
+  const [shippingCost, setShippingCost] = useState<any>(0);
+  const [voucherId, setVoucherId] = useState<any>(0);
+  const [userAddress, setUserAddress] = useState<any>();
 
   const router = useRouter();
 
-  const getShippingCost = async (data:any) => {
-    setShippingCost(data)
-  }
+  const getShippingCost = async (data: any) => {
+    setShippingCost(data);
+  };
   const getUserAddressId = async (data: any) => {
-    setUserAddress(data)
-  }
+    setUserAddress(data);
+  };
 
   useEffect(() => {
     const fetchClosestWarehouse = async () => {
@@ -92,7 +91,7 @@ const OrderProcessingPage = () => {
     try {
       const response = await applyVoucher(voucherCode, cart?.id as number);
       setDiscount(response.discount);
-      setFinalTotal(response.finalTotal);
+      setVoucherId(response.voucherId);
       toast.success(response.message);
     } catch (error: any) {
       console.error('Failed to apply voucher', error);
@@ -116,7 +115,9 @@ const OrderProcessingPage = () => {
         cart.items.reduce(
           (sum, item) => sum + item.product.price * item.quantity,
           0,
-        ) + Number(shippingCost);
+        ) +
+        Number(shippingCost) -
+        discount;
 
       const expirePayment = new Date();
       expirePayment.setHours(expirePayment.getHours() + 1);
@@ -138,6 +139,7 @@ const OrderProcessingPage = () => {
           total: item.product.price * item.quantity,
         })),
         expirePayment: expirePayment.toISOString(),
+        voucherId: voucherId,
       };
 
       const response = await checkout(orderData);
@@ -162,7 +164,15 @@ const OrderProcessingPage = () => {
     <div className="container mx-auto p-4">
       <Toaster position="top-center" reverseOrder={false} />
       <h1 className="text-2xl font-bold mb-4">Order Processing</h1>
-      {cart && <OrderDetails cart={cart} warehouseId={closestWarehouseId} discount={discount} GetShippingCost={getShippingCost} setUserAddress= {getUserAddressId}/>}
+      {cart && (
+        <OrderDetails
+          cart={cart}
+          warehouseId={closestWarehouseId}
+          discount={discount}
+          GetShippingCost={getShippingCost}
+          setUserAddress={getUserAddressId}
+        />
+      )}
       {/* Voucher Code Input */}
       <div className="mb-4">
         <label className="label">
