@@ -179,10 +179,10 @@ export default function New() {
                   <option className="text-md" disabled selected>
                     Province
                   </option>
-                  {province.map(
+                  {province?.map(
                     (prov: { province: string; province_id: string }) => {
                       return (
-                        <option key={prov.province_id} id={prov.province_id}>
+                        <option key={prov?.province_id} id={prov?.province_id} selected={Number(prov?.province_id) == Number(prevWarehouse?.provinceId) ? true : false}>
                           {prov.province}
                         </option>
                       );
@@ -205,7 +205,7 @@ export default function New() {
                 >
                   {city?.map((cit: { city_name: string; city_id: string }) => {
                     return (
-                      <option key={cit.city_id} id={cit.city_id}>
+                      <option key={cit.city_id} id={cit.city_id} selected={Number(cit.city_id) == Number(prevWarehouse?.cityId) ? true : false}>
                         {cit.city_name}
                       </option>
                     );
@@ -290,10 +290,12 @@ export default function New() {
                   onChange={handleChangeSelectAdmin}
                 >
                   <option disabled selected>Admin</option>
-                  {admins?.map((admin: {id: number, name: string, warehouse: {} | null}) => {
-                    if(admin.warehouse === null){
+                  {admins?.map((admin: {id: number, name: string, warehouse: {id:number} | null}) => {
+
+
+                    if(admin.warehouse === null || admin.warehouse.id == prevWarehouse.id){
                       return (
-                        <option key={admin.id}>
+                        <option key={admin.id} selected={admin?.warehouse?.id == prevWarehouse.id ? true : false}>
                           {admin.name}
                         </option>
                       );

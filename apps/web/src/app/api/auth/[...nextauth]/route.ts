@@ -1,4 +1,4 @@
-import NextAuth from 'next-auth';
+import NextAuth, { User } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 import GithubProvider from 'next-auth/providers/github';
@@ -62,7 +62,7 @@ const handler = NextAuth({
   callbacks: {
     async jwt({ token, user, trigger, session }) {
       if (user) {
-        token.username = user.username;
+        token.username = user.username ;
         token.isVerified = user.isVerified;
         token.id = user.id;
         token.role = user.role;
@@ -70,6 +70,7 @@ const handler = NextAuth({
         token.name = user.name;
         token.dob = user.dob;
         token.mobileNumber = user.mobileNumber;
+        token.gender = user.gender
 
         // Tambahkan warehouse ke token jika user ada
         // if (user.role === 'ADMIN') {
@@ -94,15 +95,15 @@ const handler = NextAuth({
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.username = token.username;
-        session.user.isVerified = token.isVerified;
-        session.user.id = token.id;
-        session.user.role = token.role;
-        session.user.image = token.image;
-        session.user.gender = token.gender;
-        session.user.name = token.name;
-        session.user.dob = token.dob;
-        session.user.mobileNumber = token.mobileNumber;
+        session.user.username = token.username as string;
+        session.user.isVerified = token.isVerified as boolean;
+        session.user.id = token.id as string;
+        session.user.role = token.role as string;
+        session.user.image = token.image as string;
+        session.user.gender = token.gender as string;
+        session.user.name = token.name as string;
+        session.user.dob = token.dob as string;
+        session.user.mobileNumber = token.mobileNumber as string;
 
         // Tambahkan warehouse ke session user
         // session.user.warehouse = token.warehouse;

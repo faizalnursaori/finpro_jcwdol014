@@ -1,6 +1,6 @@
 'use client';
 import Link from 'next/link';
-import { ShoppingCart, Search } from 'lucide-react';
+import { ShoppingCart, Search, ClipboardList, MonitorCog } from 'lucide-react';
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
 import { signOut } from 'next-auth/react';
@@ -31,12 +31,36 @@ export default function Header() {
   };
 
   const categories = [
-    'Rice and Flour',
-    'Fruits and Vegetables',
-    'Instant Food',
-    'Beverages',
-    'Snacks and Biscuits',
-    'Frozen',
+    {
+      category: "Rice",
+      path: "/Rice.jpg",
+      slug:'beras'
+    },
+    {
+      category: "Fruit & Vegetables",
+      path: "/fruitsandvegetables.jpg",
+      slug:'fruit'
+    },
+    {
+      category: "Instan Foods",
+      path: "/readytoeat.jpg",
+      slug:'instant'
+    },
+    {
+      category: "Beverages",
+      path: "/Beverages.jpg",
+      slug:'beverages'
+    },
+    {
+      category: "Snacks & Biscuits",
+      path: "/Snacksandsweets.jpg",
+      slug:'snacks'
+    },
+    {
+      category: "Frozen",
+      path: "/Frozen.jpg",
+      slug:'frozen'
+    },
   ];
 
   return (
@@ -80,22 +104,25 @@ export default function Header() {
             )}
           </Link>
         </div>
-        <div className="navbar-end gap-2">
+        <div className="navbar-end gap-4">
           {data?.user ? (
-            <details className="dropdown">
-              <summary className="btn btn-ghost hover:btn-link">
-                Hello, {data?.user?.name ? data.user.name : data.user.username}
+            <details className="dropdown dropdown-bottom">
+              <summary className="btn btn-ghost hover:btn-link m-0 p-0">
+                <div className="avatar">
+                  <div className="w-8 rounded-full">
+                    <img src={data.user.image ? `${data.user.image}` : '/profile.png'} />
+                  </div>
+                </div>
+                {data.user.name ? data.user.name : data.user.username}
               </summary>
-              <ul className="menu dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+              <ul className="menu dropdown-content  bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
                 <li>
                   <Link href="/profile">Profile</Link>
                 </li>
-                {(data?.user?.role === 'SUPER_ADMIN' ||
-                  data?.user?.role === 'ADMIN') && (
-                  <li>
-                    <Link href="/dashboard">Dashboard</Link>
-                  </li>
-                )}
+                <li>
+                  <Link href='/order/list'>Orders</Link>
+                </li>
+                {data.user.role == 'ADMIN' || data.user.role == 'SUPER_ADMIN' ? <li><Link href='/dashboard'>Dashboard</Link></li> : ''}
                 <li>
                   <button onClick={() => signOut({ callbackUrl: '/login' })}>
                     Log Out
@@ -120,10 +147,10 @@ export default function Header() {
           {categories.map((category, index) => (
             <Link
               className="btn btn-ghost hover:btn-link"
-              href={`/search?query=${category}`}
+              href={`/category/${category.slug}`}
               key={index}
             >
-              {category}
+              {category.category}
             </Link>
           ))}
         </div>

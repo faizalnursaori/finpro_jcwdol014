@@ -1,5 +1,6 @@
 'use client';
 import axios from 'axios';
+import Link from 'next/link';
 // import { getUserCurrentLocation } from '@/utils/getUserCurrentLocation';
 import { getClosestWarehouse } from '@/api/closestWarehouse';
 import ListCategories from '@/components/ListCategories';
@@ -19,37 +20,34 @@ export default function Home() {
 
   const getWarehouseId = async () => {
     const data = await getClosestWarehouse();
-    if (data !== null) {
-      setClosestWarehouseId(data);
-    } else {
-      setClosestWarehouseId(1);
-    }
+    setClosestWarehouseId(data)
   };
 
   const getProducts = async (id: number | undefined) => {
     const res = await axios.get(
-      `${process.env.NEXT_PUBLIC_BASE_API_URL}/products/`,
+      `${process.env.NEXT_PUBLIC_BASE_API_URL}/products/all`,
     );
-
-    const filteredProducts = res.data.products.filter((item: ProductType) =>
-      item.productStocks.some((stock) => stock.warehouse.id === id),
-    );
+    console.log('warehouse id', id);
+    console.log('total product', res.data);
+    
+    const filteredProducts = res.data.filter((item:{productStocks:[{warehouseId: number}]}) => {
+      let result = false
+      item.productStocks.forEach((stock:{warehouseId: number}) => {
+        if(stock.warehouseId == id){
+          result = true
+        }
+      })
+      return result
+    })
+    console.log(filteredProducts);
+    
     setProducts(filteredProducts);
+    console.log(products);
+    
+    
   };
-
-  const success = (res: any) => {
-    setUserLoc({ lon: res.coords.longitude, lat: res.coords.latitude });
-  };
-
-  const fail = (res: any) => {
-    console.log(res);
-  };
-
-  // navigator.geolocation.getCurrentPosition(success, fail)
 
   useEffect(() => {
-    // setUserLoc(getUserCurrentLocation());
-    navigator.geolocation.getCurrentPosition(success, fail);
     getWarehouseId();
     getProducts(closestWarehouseId);
     fetchCart();
@@ -70,7 +68,7 @@ export default function Home() {
               our wide selection of fresh produce, pantry staples, and household
               essentials. Shop smart, live healthy—only at Hemart.
             </p>
-            <button className="btn btn-primary">Start Shopping!</button>
+            <button className="btn btn-primary"><Link href='/products'>Start Shopping!</Link></button>
           </div>
         </div>
       </div>
@@ -78,9 +76,10 @@ export default function Home() {
         <ListCategories />
       </section>
       <section>
-        <LandingProducts catHeader={'New Products'} products={products} />
-        <LandingProducts catHeader={'Instant Food'} products={products} />
-        <LandingProducts catHeader={'Beras'} products={products} />
+        <LandingProducts catHeader={'New Products'} products={products} slug='new' />
+        <LandingProducts catHeader={'Instant Food'} products={products} slug={'instant'} />
+        <LandingProducts catHeader={'Beras'} products={products} slug={'beras'} />
+        <LandingProducts catHeader={'Daging Ayam'} products={products} slug={'daging-ayam'} />
       </section>
     </main>
   );

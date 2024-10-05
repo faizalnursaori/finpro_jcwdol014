@@ -115,7 +115,6 @@ export const StoreTable = () => {
       <Toaster />
       <div className="overflow-x-auto w-[65vw]">
         <div className="flex flex-row justify-between my-3 mx-3 gap-10">
-          <Search onSearch={handleSearch} onClear={handleClearSearch} />
           {data?.user?.role === 'SUPER_ADMIN' ? <AddStoreButton /> : ''}
         </div>
         <table className="table w-[100%]">

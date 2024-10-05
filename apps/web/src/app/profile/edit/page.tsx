@@ -83,6 +83,7 @@ export default function Edit() {
         name: Userdata.name,
         mobileNumber: Userdata.mobileNumber,
         gender: Userdata.gender,
+        dob:data?.user?.dob
       });
       setIsLoading(false)
       toast.success('Profile Updated!');
@@ -178,11 +179,11 @@ export default function Edit() {
                 id="gender"
                 onChange={handleChangeSelect}
               >
-                <option className="text-md" disabled selected>
+                <option className="text-md" disabled selected={data?.user?.gender ? false : true}>
                   Gender
                 </option>
-                <option className="text-md">Male</option>
-                <option>Female</option>
+                <option value='Male' className="text-md" selected={data?.user?.gender == 'Male' ? true : false}>Male</option>
+                <option value='Female' selected={data?.user?.gender == 'Female' ? true : false} >Female</option>
               </select>
               <label
                 htmlFor="gender"
