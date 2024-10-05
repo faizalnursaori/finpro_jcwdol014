@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
@@ -13,7 +13,6 @@ import StatusBadge from '@/components/StatusBadge';
 import CustomDateRangeModal from '@/components/DateRangeModal';
 
 const OrderListPage = () => {
-  const { cancelOrder } = useOrder();
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -111,17 +110,6 @@ const OrderListPage = () => {
   const handleSearch = () => {
     setCurrentPage(1);
     fetchOrders();
-  };
-
-  const handleCancelOrder = async (orderId: number) => {
-    try {
-      await cancelOrder(orderId, 'USER');
-      toast.success('Order cancelled successfully');
-      fetchOrders();
-    } catch (error) {
-      console.error('Order cancellation failed', error);
-      toast.error('Failed to cancel order.');
-    }
   };
 
   const handleSort = (field: string) => {
@@ -226,14 +214,6 @@ const OrderListPage = () => {
                     >
                       View Details
                     </Link>
-                    {order.paymentStatus === 'PENDING' && (
-                      <button
-                        onClick={() => handleCancelOrder(order.id)}
-                        className="btn btn-error btn-sm"
-                      >
-                        Cancel
-                      </button>
-                    )}
                   </td>
                 </tr>
               ))}
