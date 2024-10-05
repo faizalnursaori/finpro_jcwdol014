@@ -41,10 +41,11 @@ interface Product {
 
 type Props = {
   catHeader: string;
+  slug: string;
   products: Product[];
 };
 
-export default function LandingProducts({ catHeader, products }: Props) {
+export default function LandingProducts({ catHeader, products, slug }: Props) {
   const [error, setError] = useState<string | null>(null);
   const { addToCart, fetchCart, cart } = useCart();
   const router = useRouter();
@@ -91,7 +92,7 @@ export default function LandingProducts({ catHeader, products }: Props) {
   const filteredProducts =
     catHeader === 'New Products'
       ? products
-      : products?.filter((product) => product.category.name === catHeader);
+      : products?.filter((product) => product.category.name == catHeader);
 
   return (
     <>
@@ -99,7 +100,7 @@ export default function LandingProducts({ catHeader, products }: Props) {
       <div className="max-w-[80%] m-auto">
         <div className="flex justify-between mt-5 items-center">
           <h2 className="text-xl font-bold ">{catHeader}</h2>
-          <button className="btn btn-ghost hover:btn-link">View All</button>
+          {catHeader == 'New Products' ? <button className="btn btn-ghost hover:btn-link"><Link href={`/products`}>View All</Link></button> : <button className="btn btn-ghost hover:btn-link"><Link href={`/category/${slug}`}>View All</Link></button>}
         </div>
         <div className="flex gap-3 overflow-x-auto">
           {filteredProducts?.map((product, index) => (
@@ -107,7 +108,7 @@ export default function LandingProducts({ catHeader, products }: Props) {
               <div className="card-body">
                 <figure className="bg-base-200 rounded-md max-w-[150px] max-h-[150px]">
                   <Image
-                    src={`${product.productImages[0].url}`}
+                    src={`${product.productImages[0]?.url ? product.productImages[0]?.url : ''}`}
                     alt={product.name}
                     width={150}
                     height={150}

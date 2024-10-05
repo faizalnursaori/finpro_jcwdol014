@@ -172,12 +172,9 @@ export const getWarehouseByPage = async (page: number, limit: number) => {
 
 export const searchWarehouse = async (query: string) => {
   try {
-    const res = await axios.get(
-      `${process.env.NEXT_PUBLIC_BASE_API_URL}?search=${query}`,
-      {
-        params: { query },
-      },
-    );
+    const res = await axios.get(`${process.env.NEXT_PUBLIC_BASE_API_URL}/warehouses/page?search=${query}`, {
+      params: { query },
+    });
     return { ok: true, data: res.data };
   } catch (error) {
     return { ok: false, message: 'Failed to search products' };

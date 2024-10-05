@@ -165,8 +165,7 @@ export const deleteWarehouse = async (req: Request, res: Response) => {
         id: Number(id),
       },
     });
-    console.log(warehouse);
-    
+      
 
     res.status(200).json({ message: 'Success deleting the warehouse.' });
   } catch (error) {

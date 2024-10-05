@@ -11,6 +11,7 @@ const router = express.Router();
 const productController = new ProductController();
 
 router.get('/', productController.getAllProducts);
+router.get('/all', productController.getProducts);
 router.get('/:id', productController.getProductById);
 router.get('/slug/:slug', productController.getProductBySlug);
 router.post(

@@ -8,6 +8,7 @@ import HeaderMobile from '@/components/HeaderMobile';
 import Footer from '@/components/Footer';
 import FooterMobile from '@/components/FooterMobile';
 import { ReactNode } from 'react';
+import SmallFooter from '@/components/SmallFooter';
 
 type LayoutProps = {
   children: ReactNode;
@@ -29,6 +30,7 @@ export default function RootLayout({ children, dashboard }: LayoutProps) {
                 </main>
                 <FooterMobile />
                 <Footer />
+                <SmallFooter/>
               </div>
             </OrderProvider>
           </CartProvider>

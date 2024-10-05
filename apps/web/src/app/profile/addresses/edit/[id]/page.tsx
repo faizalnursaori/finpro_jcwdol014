@@ -17,6 +17,7 @@ export default function New() {
     cityId: number;
     provinceId: number;
     postalCode: string;
+    isPrimary: boolean
   }>();
   const [address, setAddress] = useState<any>({
     name: prevAddress?.name,
@@ -24,6 +25,7 @@ export default function New() {
     cityId: prevAddress?.cityId,
     provinceId: prevAddress?.provinceId,
     postalCode: prevAddress?.postalCode,
+    isPrimary: prevAddress?.isPrimary
   });
   const router = useRouter();
   const { id } = useParams();
@@ -31,7 +33,6 @@ export default function New() {
   const getProv = async () => {
     try {
       const {data}  = await getProvince();
-      console.log(data);
       
       setProvince(data.rajaongkir.results);
     } catch (error) {
@@ -51,7 +52,9 @@ export default function New() {
 
   const getAddress = async () => {
     const data = await getUserAddressesById(id as string);
-    setPrevAddress(data.address);
+    setPrevAddress(data.address);;
+    setProvinceId(data.address.provinceId)
+    
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -117,15 +120,15 @@ export default function New() {
       cityId: prevAddress?.cityId,
       provinceId: prevAddress?.provinceId,
       postalCode: prevAddress?.postalCode,
+      isPrimary: prevAddress?.isPrimary
     });
   }, [prevAddress]);
 
-
-
+  
   return (
     <>
       <Toaster />
-      <div className="card card-compact bg-base-100 shadow-xl h-fit w-[40vw] p-5">
+      <div className="card card-compact bg-base-100 shadow-xl h-fit md:w-[40vw] w-[100vw] p-5">
         <div>
           <form className="form-control gap-4" onSubmit={handleSubmit}>
             <div className="form-control relative focus-within:border-white">
@@ -167,13 +170,13 @@ export default function New() {
                 id="province"
                 onChange={handleChangeSelectProvince}
               >
-                <option className="text-md" disabled selected>
+                <option className="text-md" disabled >
                   Province
                 </option>
                 {province.map(
                   (prov: { province: string; province_id: string }) => {
                     return (
-                      <option key={prov.province_id} id={prov.province_id}>
+                      <option key={prov.province_id} id={prov.province_id} selected={Number(prov.province_id) == prevAddress?.provinceId ? true : false}>
                         {prov.province}
                       </option>
                     );
@@ -194,10 +197,10 @@ export default function New() {
                 id="city"
                 onChange={handleChangeSelectCity}
               >
-                
+                <option disabled>City</option>
                 {city?.map((cit: { city_name: string; city_id: string }) => {
                   return (
-                    <option key={cit.city_id} id={cit.city_id}>
+                    <option key={cit.city_id} id={cit.city_id} selected={Number(cit.city_id) == prevAddress?.cityId ? true : false}>
                       {cit.city_name}
                     </option>
                   );
@@ -233,6 +236,7 @@ export default function New() {
                 name="isPrimary"
                 id="isPrimary"
                 className=" checkbox "
+                defaultChecked={address?.isPrimary}
               />
               <label htmlFor="isPrimary" className="label">
                 <span className="bg-base-100 px-1">Default Address</span>

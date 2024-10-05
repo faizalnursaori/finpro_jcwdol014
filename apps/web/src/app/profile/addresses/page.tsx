@@ -38,7 +38,7 @@ export default function  Addresses() {
 
 
     return(
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-7 m-auto sm:m-0">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-7 m-auto md:m-0">
             <AddNewAddressCard/>
             {addresses?.map((address:any, index:number) => {
                 return <AddressCard key={index} address={address} handleDelete={handleDelete}/>

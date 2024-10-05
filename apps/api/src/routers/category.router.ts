@@ -15,7 +15,7 @@ import {
 const router = express.Router();
 
 router.post('/', authenticateToken2, SuperAdminGuard, createCategory);
-router.get('/', authenticateToken2, AdminGuard, getCategories);
+router.get('/', getCategories);
 router.get('/:id', authenticateToken2, AdminGuard, getCategoryById);
 router.put('/:id', authenticateToken2, SuperAdminGuard, updateCategory);
 router.delete('/:id', authenticateToken2, SuperAdminGuard, deleteCategory);
