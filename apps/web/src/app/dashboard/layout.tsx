@@ -1,5 +1,13 @@
 import React, { ReactNode } from 'react';
 import DashboardMenu from '@/components/DashboardMenu';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: {
+    default: 'Dashboard',
+    template: '%s | Hemart',
+  },
+};
 
 interface DashboardLayoutProps {
   children: ReactNode;
