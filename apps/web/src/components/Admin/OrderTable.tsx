@@ -62,11 +62,18 @@ export const OrderTable = () => {
         limit,
         selectedWarehouse || undefined,
       );
-      if (!res.ok) throw new Error(res.message || 'Failed to fetch orders');
+      if (!res.ok) {
+        if (res.message === 'Admin is not assigned to a warehouse') {
+          throw new Error(
+            'You are not assigned to any warehouse. Please contact the Super Admin.',
+          );
+        }
+        throw new Error(res.message || 'Failed to fetch orders');
+      }
 
       const data = res.data;
       setOrders(data.orders);
-      setFilteredOrders(data.orders); // Set filteredOrders initially
+      setFilteredOrders(data.orders);
       setTotalPages(data.pagination.totalPages);
       if (data.warehouses) setWarehouses(data.warehouses);
       if (data.userRole) setUserRole(data.userRole);

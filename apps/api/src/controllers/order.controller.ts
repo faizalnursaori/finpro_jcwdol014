@@ -105,7 +105,21 @@ export const getOrderList = async (
     });
   } catch (error) {
     console.error('Error fetching orders:', error);
-    res.status(500).json({ success: false, message: 'Error fetching orders' });
+    if (
+      error instanceof Error &&
+      error.message === 'Admin is not assigned to a warehouse'
+    ) {
+      res
+        .status(400)
+        .json({
+          success: false,
+          message: 'Admin is not assigned to a warehouse',
+        });
+    } else {
+      res
+        .status(500)
+        .json({ success: false, message: 'Error fetching orders' });
+    }
   }
 };
 
