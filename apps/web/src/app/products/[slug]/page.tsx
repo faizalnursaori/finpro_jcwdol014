@@ -138,6 +138,9 @@ const ProductDetail = () => {
             <h1 className="text-3xl font-bold">{product.name}</h1>
             <p className="text-gray-700 text-lg mt-4">{product.description}</p>
             <p className="text-2xl font-semibold mt-4">{`Rp ${product.price.toLocaleString('id-ID')}`}</p>
+            <p className="mt-2">
+              Total Stocks: {product.productStocks[0].stock}
+            </p>
 
             <div className="mt-6">
               <label className="block mb-2 text-sm font-medium">Quantity</label>
@@ -155,7 +158,7 @@ const ProductDetail = () => {
               <button
                 className="btn btn-primary w-full"
                 onClick={handleAddToCart}
-                disabled={!stockAvailable} // Disable if no stock
+                disabled={!stockAvailable}
               >
                 {stockAvailable ? 'Add to Cart' : 'Out of Stock'}
               </button>

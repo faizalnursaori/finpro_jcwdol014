@@ -14,13 +14,13 @@ export default function Home() {
   const [userLoc, setUserLoc] = useState<{ lon: number; lat: number }>();
   const [closestWarehouseId, setClosestWarehouseId] = useState<
     number | undefined
-  >(1);
+  >();
   const [products, setProducts] = useState<ProductType[]>([]);
   const { addToCart, fetchCart, cart } = useCart();
 
   const getWarehouseId = async () => {
     const data = await getClosestWarehouse();
-    setClosestWarehouseId(data)
+    setClosestWarehouseId(data);
   };
 
   const getProducts = async (id: number | undefined) => {
@@ -29,22 +29,22 @@ export default function Home() {
     );
     console.log('warehouse id', id);
     console.log('total product', res.data);
-    
-    const filteredProducts = res.data.filter((item:{productStocks:[{warehouseId: number}]}) => {
-      let result = false
-      item.productStocks.forEach((stock:{warehouseId: number}) => {
-        if(stock.warehouseId == id){
-          result = true
-        }
-      })
-      return result
-    })
+
+    const filteredProducts = res.data.filter(
+      (item: { productStocks: [{ warehouseId: number }] }) => {
+        let result = false;
+        item.productStocks.forEach((stock: { warehouseId: number }) => {
+          if (stock.warehouseId == id) {
+            result = true;
+          }
+        });
+        return result;
+      },
+    );
     console.log(filteredProducts);
-    
+
     setProducts(filteredProducts);
     console.log(products);
-    
-    
   };
 
   useEffect(() => {
@@ -68,7 +68,9 @@ export default function Home() {
               our wide selection of fresh produce, pantry staples, and household
               essentials. Shop smart, live healthy—only at Hemart.
             </p>
-            <button className="btn btn-primary"><Link href='/products'>Start Shopping!</Link></button>
+            <button className="btn btn-primary">
+              <Link href="/products">Start Shopping!</Link>
+            </button>
           </div>
         </div>
       </div>
@@ -76,10 +78,26 @@ export default function Home() {
         <ListCategories />
       </section>
       <section>
-        <LandingProducts catHeader={'New Products'} products={products} slug='new' />
-        <LandingProducts catHeader={'Instant Food'} products={products} slug={'instant'} />
-        <LandingProducts catHeader={'Beras'} products={products} slug={'beras'} />
-        <LandingProducts catHeader={'Daging Ayam'} products={products} slug={'daging-ayam'} />
+        <LandingProducts
+          catHeader={'New Products'}
+          products={products}
+          slug="new"
+        />
+        <LandingProducts
+          catHeader={'Instant Food'}
+          products={products}
+          slug={'instant'}
+        />
+        <LandingProducts
+          catHeader={'Beras'}
+          products={products}
+          slug={'beras'}
+        />
+        <LandingProducts
+          catHeader={'Daging Ayam'}
+          products={products}
+          slug={'daging-ayam'}
+        />
       </section>
     </main>
   );

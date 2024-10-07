@@ -139,7 +139,7 @@ const OrderProcessingPage = () => {
           total: item.product.price * item.quantity,
         })),
         expirePayment: expirePayment.toISOString(),
-        voucherId: voucherId,
+        ...(voucherId ? { voucherId: voucherId } : {}),
       };
 
       const response = await checkout(orderData);

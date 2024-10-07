@@ -2,30 +2,30 @@ import axios from 'axios';
 import { haversineDistance } from '@/utils/getClosestStore';
 
 export const getClosestWarehouse = async () => {
-  let lon = 0
-  let lat = 0
+  let lon = 0;
+  let lat = 0;
 
   const success = async (res: any) => {
-    lon = (Number(res.coords.longitude)) ;
-    lat =(Number(res.coords.latitude));
+    lon = Number(res.coords.longitude);
+    lat = Number(res.coords.latitude);
   };
 
   const fail = (res: any) => {
     console.log(res);
   };
 
-
- navigator.geolocation.getCurrentPosition(success, fail)
+  navigator.geolocation.getCurrentPosition(success, fail);
+  console.log(lon, lat);
 
   try {
     const res = await axios.get(
       `${process.env.NEXT_PUBLIC_BASE_API_URL}/warehouses/`,
     );
     const data = res.data.warehouses;
-    
-    if(lon == 0 && lat == 0){
-      return 1
-    };
+
+    if (lon == 0 && lat == 0) {
+      return 1;
+    }
 
     let distance = 0;
     let wareId = 1; //default store
@@ -34,7 +34,7 @@ export const getClosestWarehouse = async () => {
         [lon, lat],
         [warehouse.longitude, warehouse.latitude],
       );
-      
+
       if (distance === 0) {
         distance = result;
         wareId = warehouse.id;
@@ -43,7 +43,8 @@ export const getClosestWarehouse = async () => {
         wareId = warehouse.id;
       }
     });
-    
+    console.log('warehouse terdekat', wareId);
+
     return wareId;
   } catch (error) {
     console.error('Error getting closest warehouse:', error);
