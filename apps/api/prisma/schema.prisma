@@ -9,7 +9,7 @@ datasource db {
 
 model User {
   id                 Int                  @id @default(autoincrement())
-  username           String              
+  username           String
   email              String               @unique
   password           String
   isVerified         Boolean              @default(false)
@@ -230,26 +230,26 @@ model OrderItem {
 }
 
 model Warehouse {
-  id                Int                @id @default(autoincrement())
-  name              String
-  address           String             @db.Text
-  provinceId        Int
-  cityId            Int
-  postalCode        String
-  latitude          Float?
-  longitude         Float?
-  storeRadius       Float
-  userId            Int                @unique
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
-  user              User               @relation(fields: [userId], references: [id], onDelete: NoAction)
-  province          Province           @relation(fields: [provinceId], references: [id], onDelete: NoAction)
-  city              City               @relation(fields: [cityId], references: [id], onDelete: NoAction)
-  productStocks     ProductStock[]     
-  orders            Order[]
-  stockTransferLogs StockTransferLog[]
-  sourceMutations     StockTransfer[]         @relation("SourceWarehouse")
-  destinationutations StockTransfer[]         @relation("DestinationWarehouse")
+  id                  Int                @id @default(autoincrement())
+  name                String
+  address             String             @db.Text
+  provinceId          Int
+  cityId              Int
+  postalCode          String
+  latitude            Float?
+  longitude           Float?
+  storeRadius         Float
+  userId              Int                @unique
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  user                User               @relation(fields: [userId], references: [id], onDelete: NoAction)
+  province            Province           @relation(fields: [provinceId], references: [id], onDelete: NoAction)
+  city                City               @relation(fields: [cityId], references: [id], onDelete: NoAction)
+  productStocks       ProductStock[]
+  orders              Order[]
+  stockTransferLogs   StockTransferLog[]
+  sourceMutations     StockTransfer[]    @relation("SourceWarehouse")
+  destinationutations StockTransfer[]    @relation("DestinationWarehouse")
 }
 
 model ProductStock {
@@ -260,7 +260,7 @@ model ProductStock {
   createdAt    DateTime           @default(now())
   updatedAt    DateTime           @updatedAt
   deleted      Boolean            @default(false)
-  product      Product            @relation(fields: [productId], references: [id], onDelete: NoAction  )
+  product      Product            @relation(fields: [productId], references: [id], onDelete: NoAction)
   warehouse    Warehouse          @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
   transferLogs StockTransferLog[]
 
@@ -268,19 +268,19 @@ model ProductStock {
 }
 
 model StockTransfer {
-  id           Int            @id @default(autoincrement())
-  stockRequest Int
-  stockProcess Int
-  note         String         @db.Text
-  productId    Int
+  id                     Int            @id @default(autoincrement())
+  stockRequest           Int
+  stockProcess           Int
+  note                   String         @db.Text
+  productId              Int
   sourceWarehouseId      Int?
   destinationWarehouseId Int?
-  status       TransferStatus
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  product      Product        @relation(fields: [productId], references: [id])
-  sourceWarehouse      Warehouse?         @relation("SourceWarehouse", fields: [sourceWarehouseId], references: [id])
-  destinationWarehouse Warehouse?         @relation("DestinationWarehouse", fields: [destinationWarehouseId], references: [id])
+  status                 TransferStatus
+  createdAt              DateTime       @default(now())
+  updatedAt              DateTime       @updatedAt
+  product                Product        @relation(fields: [productId], references: [id])
+  sourceWarehouse        Warehouse?     @relation("SourceWarehouse", fields: [sourceWarehouseId], references: [id])
+  destinationWarehouse   Warehouse?     @relation("DestinationWarehouse", fields: [destinationWarehouseId], references: [id])
 }
 
 enum TransferStatus {

@@ -5,34 +5,34 @@ import Image from 'next/image';
 export default function Footer() {
   const categories = [
     {
-      category: "Rice",
-      path: "/Rice.jpg",
-      slug:'beras'
+      category: 'Rice',
+      path: '/Rice.jpg',
+      slug: 'beras',
     },
     {
-      category: "Fruit & Vegetables",
-      path: "/fruitsandvegetables.jpg",
-      slug:'fruit'
+      category: 'Fruit & Vegetables',
+      path: '/fruitsandvegetables.jpg',
+      slug: 'fruit',
     },
     {
-      category: "Instan Foods",
-      path: "/readytoeat.jpg",
-      slug:'instant'
+      category: 'Instan Foods',
+      path: '/readytoeat.jpg',
+      slug: 'instant',
     },
     {
-      category: "Beverages",
-      path: "/Beverages.jpg",
-      slug:'beverages'
+      category: 'Beverages',
+      path: '/Beverages.jpg',
+      slug: 'beverages',
     },
     {
-      category: "Snacks & Biscuits",
-      path: "/Snacksandsweets.jpg",
-      slug:'snacks'
+      category: 'Snacks & Biscuits',
+      path: '/Snacksandsweets.jpg',
+      slug: 'snacks',
     },
     {
-      category: "Frozen",
-      path: "/Frozen.jpg",
-      slug:'frozen'
+      category: 'Frozen',
+      path: '/Frozen.jpg',
+      slug: 'frozen',
     },
   ];
 

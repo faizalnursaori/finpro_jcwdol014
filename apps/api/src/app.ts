@@ -16,8 +16,8 @@ import orderRouter from './routers/order.router';
 import warehouseRouter from './routers/warehouse.router';
 import { startOrderCronJobs } from './cron/order.cron';
 import userRouter from './routers/user.router';
-import locationRouter from './routers/location.router'
-import addressRouter from './routers/address.router'
+import locationRouter from './routers/location.router';
+import addressRouter from './routers/address.router';
 import { categoryRouter } from './routers/category.router';
 import { stockRouter } from './routers/productStock.router';
 import { stockTransferRouter } from './routers/stockTransfer.router';
@@ -93,8 +93,5 @@ export default class App {
 
   public start(): void {
     this.startCronJobs();
-    this.app.listen(PORT, () => {
-      console.log(`  ➜  [API] Local:   http://localhost:${PORT}/`);
-    });
   }
 }

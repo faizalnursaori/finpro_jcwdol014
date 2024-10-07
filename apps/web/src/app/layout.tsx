@@ -30,7 +30,7 @@ export default function RootLayout({ children, dashboard }: LayoutProps) {
                 </main>
                 <FooterMobile />
                 <Footer />
-                <SmallFooter/>
+                <SmallFooter />
               </div>
             </OrderProvider>
           </CartProvider>
