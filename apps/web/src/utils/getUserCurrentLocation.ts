@@ -1,8 +1,9 @@
-export const getUserCurrentLocation =  () =>{
+export const getUserCurrentLocation = async () =>{
     const userLoc: any = [] 
-    const success = async (res: any) => {
-        await userLoc.push(Number(res.coords.longitude)) ;
-        await userLoc.push(Number(res.coords.latitude));
+    const success =  (res: any) => {
+         userLoc.push(Number(res.coords.longitude)) ;
+         userLoc.push(Number(res.coords.latitude));
+         return [res.coords.longitude, res.coords.latitude]
       };
     
       const fail = (res: any) => {
@@ -10,8 +11,6 @@ export const getUserCurrentLocation =  () =>{
       };
 
 
-     navigator.geolocation.getCurrentPosition(success, fail)
-    
-    
-    return userLoc;
+    navigator.geolocation.getCurrentPosition(success, fail)
+  
 }

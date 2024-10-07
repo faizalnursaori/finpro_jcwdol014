@@ -87,9 +87,9 @@ model Address {
   longitude  Float?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
-  user       User     @relation(fields: [userId], references: [id])
-  province   Province @relation(fields: [provinceId], references: [id])
-  city       City     @relation(fields: [cityId], references: [id])
+  user       User     @relation(fields: [userId], references: [id], onDelete: NoAction)
+  province   Province @relation(fields: [provinceId], references: [id], onDelete: NoAction)
+  city       City     @relation(fields: [cityId], references: [id], onDelete: NoAction)
   orders     Order[]
 }
 
@@ -150,10 +150,10 @@ model Order {
   cancellationSource CancellationSource?
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
-  warehouse          Warehouse            @relation(fields: [warehouseId], references: [id])
-  cart               Cart                 @relation(fields: [cartId], references: [id])
-  address            Address              @relation(fields: [addressId], references: [id])
-  voucher            Voucher?             @relation(fields: [voucherId], references: [id])
+  warehouse          Warehouse            @relation(fields: [warehouseId], references: [id], onDelete: NoAction)
+  cart               Cart                 @relation(fields: [cartId], references: [id], onDelete: NoAction)
+  address            Address              @relation(fields: [addressId], references: [id], onDelete: Cascade)
+  voucher            Voucher?             @relation(fields: [voucherId], references: [id], onDelete: NoAction)
   items              OrderItem[]
   transactionHistory TransactionHistory[]
 }
@@ -198,8 +198,8 @@ model TransactionHistory {
   amount    Float
   type      TransactionType
   createdAt DateTime        @default(now())
-  user      User            @relation(fields: [userId], references: [id])
-  order     Order           @relation(fields: [orderId], references: [id])
+  user      User            @relation(fields: [userId], references: [id], onDelete: NoAction)
+  order     Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
 }
 
 enum PaymentStatus {
@@ -225,8 +225,8 @@ model OrderItem {
   productId Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  order     Order    @relation(fields: [orderId], references: [id])
-  product   Product  @relation(fields: [productId], references: [id])
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: NoAction)
 }
 
 model Warehouse {

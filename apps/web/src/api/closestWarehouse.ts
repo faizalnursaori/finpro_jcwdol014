@@ -16,6 +16,7 @@ export const getClosestWarehouse = async () => {
 
 
  navigator.geolocation.getCurrentPosition(success, fail)
+console.log(lon, lat);
 
   try {
     const res = await axios.get(
