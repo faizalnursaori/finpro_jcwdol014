@@ -10,34 +10,34 @@ export default function Sidebar() {
 
   const categories = [
     {
-      category: "Rice",
-      path: "/Rice.jpg",
-      slug:'beras'
+      category: 'Rice',
+      path: '/Rice.jpg',
+      slug: 'beras',
     },
     {
-      category: "Fruit & Vegetables",
-      path: "/fruitsandvegetables.jpg",
-      slug:'fruit'
+      category: 'Fruit & Vegetables',
+      path: '/fruitsandvegetables.jpg',
+      slug: 'fruit',
     },
     {
-      category: "Instan Foods",
-      path: "/readytoeat.jpg",
-      slug:'instant'
+      category: 'Instant Foods',
+      path: '/readytoeat.jpg',
+      slug: 'instant',
     },
     {
-      category: "Beverages",
-      path: "/Beverages.jpg",
-      slug:'beverages'
+      category: 'Beverages',
+      path: '/Beverages.jpg',
+      slug: 'beverages',
     },
     {
-      category: "Snacks & Biscuits",
-      path: "/Snacksandsweets.jpg",
-      slug:'snacks'
+      category: 'Snacks & Biscuits',
+      path: '/Snacksandsweets.jpg',
+      slug: 'snacks',
     },
     {
-      category: "Frozen",
-      path: "/Frozen.jpg",
-      slug:'frozen'
+      category: 'Frozen',
+      path: '/Frozen.jpg',
+      slug: 'frozen',
     },
   ];
   return (
@@ -95,7 +95,9 @@ export default function Sidebar() {
           {categories.map((category, index) => {
             return (
               <li key={index}>
-                <Link href={`/category/${category.slug}`}>{category.category}</Link>
+                <Link href={`/category/${category.slug}`}>
+                  {category.category}
+                </Link>
               </li>
             );
           })}

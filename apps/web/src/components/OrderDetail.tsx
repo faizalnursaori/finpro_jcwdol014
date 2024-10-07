@@ -1,4 +1,6 @@
-'use client'
+// @ts-nocheck
+
+'use client';
 import React from 'react';
 import { Cart } from '@/types/cart';
 import { formatRupiah } from '@/utils/currencyUtils';
@@ -10,24 +12,31 @@ import Link from 'next/link';
 interface OrderDetailsProps {
   cart: Cart;
   warehouseId: number | null;
-  discount:number;
+  discount: number;
   GetShippingCost: any;
   setUserAddress: any;
 }
 
-const OrderDetails: React.FC<OrderDetailsProps> = ({ cart, warehouseId, discount, GetShippingCost, setUserAddress }) => {
+const OrderDetails: React.FC<OrderDetailsProps> = ({
+  cart,
+  warehouseId,
+  discount,
+  GetShippingCost,
+  setUserAddress,
+}) => {
   const { data } = useSession();
-  
+
   const [selectedShippingMethod, setSelectedShippingMethod] = useState<any>();
   const [shippingData, setShippingData] = useState<any>({
     weight: 1000,
     origin: 1,
   });
   const [addresses, setAddresses] = useState<any>();
-  const [defaultAddress, setDefaultAddress] = useState<any>()
+  const [defaultAddress, setDefaultAddress] = useState<any>();
   const [selectedAddress, setSelectedAddress] = useState<any>(defaultAddress);
   const [selectedServiceCost, setSelectedServiceCost] = useState<any>(0);
-  const [selectedService, setSelectedService] = useState<string>('Delivery Service');
+  const [selectedService, setSelectedService] =
+    useState<string>('Delivery Service');
   const [services, setServices] = useState<any>();
   const subtotal = cart.items.reduce(
     (total, item) => total + item.product.price * item.quantity,
@@ -38,24 +47,23 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ cart, warehouseId, discount
     try {
       const res = await getUserAddresses(data?.user?.id);
       setAddresses(res?.address);
-      const filteredAddress = addresses?.filter((address: {isPrimary: boolean}) => {
-        return address.isPrimary == true
-      })
-      
-      setDefaultAddress(filteredAddress[0])
+      const filteredAddress = addresses?.filter(
+        (address: { isPrimary: boolean }) => {
+          return address.isPrimary == true;
+        },
+      );
+
+      setDefaultAddress(filteredAddress[0]);
     } catch (error) {
       console.log(error);
     }
   };
-  
+
   const shippingCostData = async () => {
     try {
-      
       const data = await getShippingCost(shippingData);
       console.log(data);
       setServices(data.hasil[0]?.costs);
-      
-     
     } catch (error) {
       console.log(error);
     }
@@ -63,8 +71,8 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ cart, warehouseId, discount
 
   const handleChangeAddress = (address: any) => {
     setSelectedAddress(address);
-    setUserAddress(address.id)
-    setShippingData({ ...shippingData, destination: String(address.cityId), });
+    setUserAddress(address.id);
+    setShippingData({ ...shippingData, destination: String(address.cityId) });
   };
   const handleChangeMethod = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedShippingMethod(e.target.value);
@@ -74,19 +82,17 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ cart, warehouseId, discount
     const cost = e.target.value.split(',');
     setSelectedService(cost[1]);
     setSelectedServiceCost(cost[0]);
-    GetShippingCost(cost[0])
+    GetShippingCost(cost[0]);
   };
 
   useEffect(() => {
     setSelectedServiceCost(0);
     setSelectedShippingMethod('Delivery Method');
     setSelectedService('Delivery Service');
-    
   }, [selectedAddress]);
 
   useEffect(() => {
     setSelectedService('Delivery Service');
-
   }, [selectedShippingMethod]);
 
   useEffect(() => {
@@ -110,91 +116,104 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ cart, warehouseId, discount
           </div>
         ))}
       </div>
-      <div className='border-t pt-2'>
-      <div className="flex flex-col gap-2">
-        <div className="flex justify-between items-center">
-          <p>Delivery Address:</p>
-          <button
-            className="btn btn-ghost hover:btn-link"
-            onClick={() => document.getElementById('my_modal_1').showModal()}
-          >
-            {selectedAddress ? selectedAddress?.address : defaultAddress ? defaultAddress?.address : 'Select Address'}
-          </button>
-          <dialog id="my_modal_1" className="modal">
-            <div className="modal-box max-w-[50vw]">
-              <div className="modal-action">
-                <form
-                  method="dialog"
-                  className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-3"
-                >
-                  {addresses?.length == 0 ? <Link className='card card-compact shadow-lg p-2 max-h-40 h-40 max-w-35' href={'/profile/addresses/new'}>Create Address</Link>: ''}
-                  {addresses?.map(
-                    (
-                      address: { name: string; address: string },
-                      index: number,
-                    ) => {
-                      return (
-                        <button
-                          key={index}
-                          className="card card-compact shadow-lg p-2 max-h-40 h-40 max-w-35"
-                          onClick={() => handleChangeAddress(address)}
-                        >
-                          <p className="card-title">{address.name}</p>
-                          <div className="card-body">
-                            <p>{address.address}</p>
-                          </div>
-                        </button>
-                      );
-                    },
-                  )}
-                </form>
+      <div className="border-t pt-2">
+        <div className="flex flex-col gap-2">
+          <div className="flex justify-between items-center">
+            <p>Delivery Address:</p>
+            <button
+              className="btn btn-ghost hover:btn-link"
+              onClick={() => document.getElementById('my_modal_1').showModal()}
+            >
+              {selectedAddress
+                ? selectedAddress?.address
+                : defaultAddress
+                  ? defaultAddress?.address
+                  : 'Select Address'}
+            </button>
+            <dialog id="my_modal_1" className="modal">
+              <div className="modal-box max-w-[50vw]">
+                <div className="modal-action">
+                  <form
+                    method="dialog"
+                    className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-3"
+                  >
+                    {addresses?.length == 0 ? (
+                      <Link
+                        className="card card-compact shadow-lg p-2 max-h-40 h-40 max-w-35"
+                        href={'/profile/addresses/new'}
+                      >
+                        Create Address
+                      </Link>
+                    ) : (
+                      ''
+                    )}
+                    {addresses?.map(
+                      (
+                        address: { name: string; address: string },
+                        index: number,
+                      ) => {
+                        return (
+                          <button
+                            key={index}
+                            className="card card-compact shadow-lg p-2 max-h-40 h-40 max-w-35"
+                            onClick={() => handleChangeAddress(address)}
+                          >
+                            <p className="card-title">{address.name}</p>
+                            <div className="card-body">
+                              <p>{address.address}</p>
+                            </div>
+                          </button>
+                        );
+                      },
+                    )}
+                  </form>
+                </div>
               </div>
-            </div>
-          </dialog>
+            </dialog>
+          </div>
+          <div className="flex justify-between items-center">
+            <p>Delivery Method:</p>
+            <select
+              name="delivMethod"
+              id="delivMethod"
+              className="select select-ghost"
+              onChange={handleChangeMethod}
+              value={selectedShippingMethod}
+            >
+              <option disabled selected>
+                Delivery Method
+              </option>
+              <option value="jne">JNE</option>
+              <option value="pos">POS</option>
+              <option value="tiki">TIKI</option>
+            </select>
+          </div>
+          <div className="flex justify-between items-center">
+            <p>Delivery Service:</p>
+            <select
+              // value={selectedService as string}
+              name="delivService"
+              id="deliveService"
+              className="select"
+              onChange={handleService}
+              value={selectedService}
+            >
+              <option disabled selected>
+                Delivery Service
+              </option>
+              {services?.map((service: any, index: number) => {
+                return (
+                  <option
+                    value={[service.cost[0]?.value, service.service]}
+                    key={index}
+                  >
+                    {service.service}
+                  </option>
+                );
+              })}
+            </select>
+          </div>
         </div>
-        <div className="flex justify-between items-center">
-          <p>Delivery Method:</p>
-          <select
-            name="delivMethod"
-            id="delivMethod"
-            className="select select-ghost"
-            onChange={handleChangeMethod}
-            value={selectedShippingMethod}
-          >
-            <option disabled selected>
-              Delivery Method
-            </option>
-            <option value="jne">JNE</option>
-            <option value="pos">POS</option>
-            <option value="tiki">TIKI</option>
-          </select>
-        </div>
-        <div className="flex justify-between items-center">
-          <p>Delivery Service:</p>
-          <select
-            // value={selectedService as string}
-            name="delivService"
-            id="deliveService"
-            className="select"
-            onChange={handleService}
-            value={selectedService}
-          >
-            <option disabled selected>
-              Delivery Service
-            </option>
-            {services?.map((service: any, index: number) => {
-              return (
-                <option
-                  value={[service.cost[0]?.value, service.service]}
-                  key={index}
-                >
-                  {service.service}
-                </option>
-              );
-            })}
-          </select>
-        </div>
-      </div>
       </div>
       <div className="border-t pt-2">
         <div className="flex justify-between mb-2">

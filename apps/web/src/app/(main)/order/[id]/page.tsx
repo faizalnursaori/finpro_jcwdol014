@@ -153,7 +153,7 @@ const OrderDetail = () => {
                 <strong>Discount:</strong>
                 {order.voucher.discountType === 'PERCENTAGE'
                   ? `${order.voucher.discountValue}%`
-                  : `$${order.voucher.discountValue.toFixed(2)}`}
+                  : `Rp${order.voucher.discountValue.toFixed(2)}`}
               </p>
             </div>
           )}

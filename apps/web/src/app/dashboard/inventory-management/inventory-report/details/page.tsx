@@ -11,19 +11,25 @@ interface Warehouse {
   name: string;
 }
 
+export interface Product {
+  name: string;
+}
+
 interface StockLog {
   id: number;
   createdAt: string;
   warehouse: { name: string };
   quantity: number;
   transactionType: string;
+  product: Product;
+  description: string;
 }
 
 interface StockDetailProps {
   productId: number;
 }
 
-export default function StockDetail({ productId }: StockDetailProps) {
+export default function StockDetail() {
   const [details, setDetails] = useState<StockLog[]>([]);
   const [year, setYear] = useState<string>('2024');
   const [month, setMonth] = useState<string>('09');

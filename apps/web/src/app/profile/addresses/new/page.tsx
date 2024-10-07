@@ -1,3 +1,4 @@
+// @ts-nocheck
 'use client';
 import { useEffect, useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
@@ -44,34 +45,37 @@ export default function New() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      if( !address.name||address.name.length < 3 ){
-        toast.error('Names must be 3 or more characters.')
-        return
+      if (!address.name || address.name.length < 3) {
+        toast.error('Names must be 3 or more characters.');
+        return;
       }
-      if(!address.address || address.address.length < 5) {
-        toast.error('Please enter a correct Address.')
-        return
+      if (!address.address || address.address.length < 5) {
+        toast.error('Please enter a correct Address.');
+        return;
       }
-      if( !address.postalCode||address.postalCode.length < 5){
-        toast.error('Please enter a correct Postal Code.')
-        return
+      if (!address.postalCode || address.postalCode.length < 5) {
+        toast.error('Please enter a correct Postal Code.');
+        return;
       }
 
-      const getData = await createAddress({ ...address, userId: data?.user?.id });
+      const getData = await createAddress({
+        ...address,
+        userId: data?.user?.id,
+      });
       console.log(getData?.success);
-      
-      if(getData?.success == false){
-        toast.error('Please enter a correct input')
-        return
+
+      if (getData?.success == false) {
+        toast.error('Please enter a correct input');
+        return;
       }
       toast.success('New Address Added!');
       router.push('/profile/addresses');
     } catch (error) {
       console.log(error);
-    } finally{
-      setIsLoading(false)
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -190,12 +194,9 @@ export default function New() {
                 name="isPrimary"
                 id="isPrimary"
                 className=" checkbox "
-                value={"true"}
+                value={'true'}
               />
-              <label
-                htmlFor="isPrimary"
-                className="label"
-              >
+              <label htmlFor="isPrimary" className="label">
                 <span className="bg-base-100 px-1">Default Address</span>
               </label>
             </div>

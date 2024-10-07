@@ -39,7 +39,7 @@ export const applyVoucher = async (voucherCode: string, cartId: number) => {
       cartId,
     });
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error applying voucher:', error);
     throw new Error(error.response?.data?.message || 'Failed to apply voucher');
   }

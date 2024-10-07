@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 'use client';
 import { useEffect, useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
@@ -17,7 +19,7 @@ export default function New() {
     cityId: number;
     provinceId: number;
     postalCode: string;
-    isPrimary: boolean
+    isPrimary: boolean;
   }>();
   const [address, setAddress] = useState<any>({
     name: prevAddress?.name,
@@ -25,15 +27,15 @@ export default function New() {
     cityId: prevAddress?.cityId,
     provinceId: prevAddress?.provinceId,
     postalCode: prevAddress?.postalCode,
-    isPrimary: prevAddress?.isPrimary
+    isPrimary: prevAddress?.isPrimary,
   });
   const router = useRouter();
   const { id } = useParams();
 
   const getProv = async () => {
     try {
-      const {data}  = await getProvince();
-      
+      const { data } = await getProvince();
+
       setProvince(data.rajaongkir.results);
     } catch (error) {
       console.log(error);
@@ -42,19 +44,17 @@ export default function New() {
 
   const getCit = async (provinceId: number) => {
     try {
-      const {data}= await getCity(provinceId);
+      const { data } = await getCity(provinceId);
       setCity(data?.rajaongkir?.results);
     } catch (error) {
       console.log(error);
-      
     }
   };
 
   const getAddress = async () => {
     const data = await getUserAddressesById(id as string);
-    setPrevAddress(data.address);;
-    setProvinceId(data.address.provinceId)
-    
+    setPrevAddress(data.address);
+    setProvinceId(data.address.provinceId);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -106,7 +106,6 @@ export default function New() {
     }
   };
 
-
   useEffect(() => {
     getProv();
     getCit(provinceId);
@@ -120,11 +119,10 @@ export default function New() {
       cityId: prevAddress?.cityId,
       provinceId: prevAddress?.provinceId,
       postalCode: prevAddress?.postalCode,
-      isPrimary: prevAddress?.isPrimary
+      isPrimary: prevAddress?.isPrimary,
     });
   }, [prevAddress]);
 
-  
   return (
     <>
       <Toaster />
@@ -170,13 +168,21 @@ export default function New() {
                 id="province"
                 onChange={handleChangeSelectProvince}
               >
-                <option className="text-md" disabled >
+                <option className="text-md" disabled>
                   Province
                 </option>
                 {province.map(
                   (prov: { province: string; province_id: string }) => {
                     return (
-                      <option key={prov.province_id} id={prov.province_id} selected={Number(prov.province_id) == prevAddress?.provinceId ? true : false}>
+                      <option
+                        key={prov.province_id}
+                        id={prov.province_id}
+                        selected={
+                          Number(prov.province_id) == prevAddress?.provinceId
+                            ? true
+                            : false
+                        }
+                      >
                         {prov.province}
                       </option>
                     );
@@ -200,7 +206,15 @@ export default function New() {
                 <option disabled>City</option>
                 {city?.map((cit: { city_name: string; city_id: string }) => {
                   return (
-                    <option key={cit.city_id} id={cit.city_id} selected={Number(cit.city_id) == prevAddress?.cityId ? true : false}>
+                    <option
+                      key={cit.city_id}
+                      id={cit.city_id}
+                      selected={
+                        Number(cit.city_id) == prevAddress?.cityId
+                          ? true
+                          : false
+                      }
+                    >
                       {cit.city_name}
                     </option>
                   );

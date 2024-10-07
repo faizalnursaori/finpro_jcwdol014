@@ -27,8 +27,6 @@ export default function Home() {
     const res = await axios.get(
       `${process.env.NEXT_PUBLIC_BASE_API_URL}/products/all`,
     );
-    console.log('warehouse id', id);
-    console.log('total product', res.data);
 
     const filteredProducts = res.data.filter(
       (item: { productStocks: [{ warehouseId: number }] }) => {
@@ -41,10 +39,8 @@ export default function Home() {
         return result;
       },
     );
-    console.log(filteredProducts);
 
     setProducts(filteredProducts);
-    console.log(products);
   };
 
   useEffect(() => {
@@ -88,16 +84,7 @@ export default function Home() {
           products={products}
           slug={'instant'}
         />
-        <LandingProducts
-          catHeader={'Beras'}
-          products={products}
-          slug={'beras'}
-        />
-        <LandingProducts
-          catHeader={'Daging Ayam'}
-          products={products}
-          slug={'daging-ayam'}
-        />
+        <LandingProducts catHeader={'Rice'} products={products} slug={'rice'} />
       </section>
     </main>
   );

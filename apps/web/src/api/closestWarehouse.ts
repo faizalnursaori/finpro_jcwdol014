@@ -15,7 +15,6 @@ export const getClosestWarehouse = async () => {
   };
 
   navigator.geolocation.getCurrentPosition(success, fail);
-  console.log(lon, lat);
 
   try {
     const res = await axios.get(
@@ -43,7 +42,6 @@ export const getClosestWarehouse = async () => {
         wareId = warehouse.id;
       }
     });
-    console.log('warehouse terdekat', wareId);
 
     return wareId;
   } catch (error) {

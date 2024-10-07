@@ -32,34 +32,34 @@ export default function Header() {
 
   const categories = [
     {
-      category: "Rice",
-      path: "/Rice.jpg",
-      slug:'beras'
+      category: 'Rice',
+      path: '/Rice.jpg',
+      slug: 'beras',
     },
     {
-      category: "Fruit & Vegetables",
-      path: "/fruitsandvegetables.jpg",
-      slug:'fruit'
+      category: 'Fruit & Vegetables',
+      path: '/fruitsandvegetables.jpg',
+      slug: 'fruit',
     },
     {
-      category: "Instan Foods",
-      path: "/readytoeat.jpg",
-      slug:'instant'
+      category: 'Instant Foods',
+      path: '/readytoeat.jpg',
+      slug: 'instant',
     },
     {
-      category: "Beverages",
-      path: "/Beverages.jpg",
-      slug:'beverages'
+      category: 'Beverages',
+      path: '/Beverages.jpg',
+      slug: 'beverages',
     },
     {
-      category: "Snacks & Biscuits",
-      path: "/Snacksandsweets.jpg",
-      slug:'snacks'
+      category: 'Snacks & Biscuits',
+      path: '/Snacksandsweets.jpg',
+      slug: 'snacks',
     },
     {
-      category: "Frozen",
-      path: "/Frozen.jpg",
-      slug:'frozen'
+      category: 'Frozen',
+      path: '/Frozen.jpg',
+      slug: 'frozen',
     },
   ];
 
@@ -110,7 +110,11 @@ export default function Header() {
               <summary className="btn btn-ghost hover:btn-link m-0 p-0">
                 <div className="avatar">
                   <div className="w-8 rounded-full">
-                    <img src={data.user.image ? `${data.user.image}` : '/profile.png'} />
+                    <img
+                      src={
+                        data.user.image ? `${data.user.image}` : '/profile.png'
+                      }
+                    />
                   </div>
                 </div>
                 {data.user.name ? data.user.name : data.user.username}
@@ -120,9 +124,16 @@ export default function Header() {
                   <Link href="/profile">Profile</Link>
                 </li>
                 <li>
-                  <Link href='/order/list'>Orders</Link>
+                  <Link href="/order/list">Orders</Link>
                 </li>
-                {data.user.role == 'ADMIN' || data.user.role == 'SUPER_ADMIN' ? <li><Link href='/dashboard'>Dashboard</Link></li> : ''}
+                {data.user.role == 'ADMIN' ||
+                data.user.role == 'SUPER_ADMIN' ? (
+                  <li>
+                    <Link href="/dashboard">Dashboard</Link>
+                  </li>
+                ) : (
+                  ''
+                )}
                 <li>
                   <button onClick={() => signOut({ callbackUrl: '/login' })}>
                     Log Out

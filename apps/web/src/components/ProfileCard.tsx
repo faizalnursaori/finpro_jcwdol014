@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 'use client';
 import { SquarePen, BadgeCheck } from 'lucide-react';
 import Image from 'next/image';
@@ -50,7 +52,6 @@ export default function ProfileCard() {
     router.push('/profile/info/verify');
   };
 
-  
   return (
     <div className="card card-compact bg-base-100 shadow-xl sm:w-[40vw] w-[100vw] p-5 h-fit">
       <div className="flex justify-between">

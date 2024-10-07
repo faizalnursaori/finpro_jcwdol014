@@ -20,12 +20,18 @@ export async function getStockSummaryByMonth(
   return response.data;
 }
 
+export interface Product {
+  name: string;
+}
+
 interface StockLog {
   id: number;
   createdAt: string;
   warehouse: { name: string };
   quantity: number;
   transactionType: string;
+  description: string;
+  product: Product;
 }
 
 export const fetchStockDetails = async (

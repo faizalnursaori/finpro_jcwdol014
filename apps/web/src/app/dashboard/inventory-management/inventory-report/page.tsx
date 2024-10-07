@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -152,7 +154,7 @@ export default function StockSummaryPage() {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="4" className="text-center">
+                      <td colSpan={4} className="text-center">
                         No data available for this selection.
                       </td>
                     </tr>

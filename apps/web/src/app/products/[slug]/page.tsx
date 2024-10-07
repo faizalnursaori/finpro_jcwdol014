@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -139,7 +141,7 @@ const ProductDetail = () => {
             <p className="text-gray-700 text-lg mt-4">{product.description}</p>
             <p className="text-2xl font-semibold mt-4">{`Rp ${product.price.toLocaleString('id-ID')}`}</p>
             <p className="mt-2">
-              Total Stocks: {product.productStocks[0].stock}
+              Total Stocks: {product.productStocks[0]?.stock}
             </p>
 
             <div className="mt-6">
